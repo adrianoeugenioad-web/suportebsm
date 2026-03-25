@@ -1,83 +1,152 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BSM SUPORTE - Sistema de Tickets</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <h1>BSM SUPORTE - Sistema de Tickets</h1>
 
-<h1>BSM SUPORTE - Sistema de Tickets</h1>
+  <div id="loginBox">
+    <h3>Login</h3>
+    <input type="email" id="email" placeholder="Email" /><br><br>
+    <input type="password" id="senha" placeholder="Senha" /><br><br>
+    <button onclick="criarConta()">Criar Conta</button>
+    <button onclick="entrar()">Entrar</button>
+    <p id="msg"></p>
+  </div>
 
-<div id="login">
-  <h3>Login</h3>
-  <input type="email" id="email" placeholder="Email"><br><br>
-  <input type="password" id="senha" placeholder="Senha"><br><br>
-  <button onclick="criarConta()">Criar Conta</button>
-  <button onclick="login()">Entrar</button>
-</div>
+  <div id="sistema" style="display:none;">
+    <h3>Novo Ticket</h3>
+    <input type="text" id="titulo" placeholder="Título" /><br><br>
+    <input type="text" id="descricao" placeholder="Descrição" /><br><br>
+    <input type="text" id="setor" placeholder="Setor" /><br><br>
 
-<div id="sistema" style="display:none;">
-  <h3>Novo Ticket</h3>
-  <input type="text" id="titulo" placeholder="Título"><br><br>
-  <input type="text" id="descricao" placeholder="Descrição"><br><br>
-  <input type="text" id="setor" placeholder="Setor"><br><br>
-  <select id="prioridade">
-    <option>Baixa</option>
-    <option>Média</option>
-    <option>Alta</option>
-  </select><br><br>
-  <button onclick="criarTicket()">Salvar Ticket</button>
+    <select id="prioridade">
+      <option value="Baixa">Baixa</option>
+      <option value="Média">Média</option>
+      <option value="Alta">Alta</option>
+    </select><br><br>
 
-  <h3>Tickets</h3>
-  <div id="lista"></div>
-</div>
+    <button onclick="criarTicket()">Salvar Ticket</button>
 
-<script>
-const SUPABASE_URL = "https://xxxx.supabase.co";
-const SUPABASE_KEY = "sb_publishable_xxxxx";
+    <h3>Lista de Tickets</h3>
+    <div id="lista"></div>
+  </div>
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <script>
+    const SUPABASE_URL = "COLE_AQUI_SUA_PROJECT_URL";
+    const SUPABASE_KEY = "COLE_AQUI_SUA_CHAVE_PUBLICAVEL";
 
-async function criarConta() {
-  const email = document.getElementById("email").value;
-  const senha = document.getElementById("senha").value;
-  await supabase.auth.signUp({ email: email, password: senha });
-  alert("Conta criada!");
-}
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function login() {
-  const email = document.getElementById("email").value;
-  const senha = document.getElementById("senha").value;
-  await supabase.auth.signInWithPassword({ email: email, password: senha });
-  document.getElementById("login").style.display = "none";
-  document.getElementById("sistema").style.display = "block";
-  carregarTickets();
-}
+    function mostrarMsg(texto, cor = "black") {
+      const msg = document.getElementById("msg");
+      msg.innerText = texto;
+      msg.style.color = cor;
+    }
 
-async function criarTicket() {
-  const titulo = document.getElementById("titulo").value;
-  const descricao = document.getElementById("descricao").value;
-  const setor = document.getElementById("setor").value;
-  const prioridade = document.getElementById("prioridade").value;
+    async function criarConta() {
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value.trim();
 
-  await supabase.from("tickets").insert([
-    { titulo, descricao, setor, prioridade }
-  ]);
+      if (!email || !senha) {
+        mostrarMsg("Preencha email e senha.", "red");
+        return;
+      }
 
-  alert("Ticket criado!");
-  carregarTickets();
-}
+      const { data, error } = await client.auth.signUp({
+        email: email,
+        password: senha
+      });
 
-async function carregarTickets() {
-  const { data } = await supabase.from("tickets").select("*");
-  let html = "";
-  data.forEach(ticket => {
-    html += "<p><b>" + ticket.titulo + "</b> - " + ticket.status + "</p>";
-  });
-  document.getElementById("lista").innerHTML = html;
-}
-</script>
+      if (error) {
+        mostrarMsg("Erro ao criar conta: " + error.message, "red");
+        console.error(error);
+        return;
+      }
 
+      mostrarMsg("Conta criada com sucesso. Agora clique em Entrar.", "green");
+      console.log("Conta criada:", data);
+    }
+
+    async function entrar() {
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+
+      const { data, error } = await client.auth.signInWithPassword({
+        email: email,
+        password: senha
+      });
+
+      if (error) {
+        mostrarMsg("Erro no login: " + error.message, "red");
+        console.error(error);
+        return;
+      }
+
+      mostrarMsg("Login realizado com sucesso.", "green");
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("sistema").style.display = "block";
+      carregarTickets();
+      console.log("Login:", data);
+    }
+
+    async function criarTicket() {
+      const titulo = document.getElementById("titulo").value.trim();
+      const descricao = document.getElementById("descricao").value.trim();
+      const setor = document.getElementById("setor").value.trim();
+      const prioridade = document.getElementById("prioridade").value;
+
+      const { error } = await client.from("tickets").insert([
+        {
+          titulo,
+          descricao,
+          setor,
+          prioridade,
+          status: "Aberto"
+        }
+      ]);
+
+      if (error) {
+        alert("Erro ao salvar ticket: " + error.message);
+        console.error(error);
+        return;
+      }
+
+      alert("Ticket criado com sucesso.");
+      carregarTickets();
+    }
+
+    async function carregarTickets() {
+      const { data, error } = await client
+        .from("tickets")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        document.getElementById("lista").innerHTML = "Erro ao carregar tickets.";
+        console.error(error);
+        return;
+      }
+
+      let html = "";
+      data.forEach(ticket => {
+        html += `
+          <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+            <strong>${ticket.titulo || ""}</strong><br>
+            ${ticket.descricao || ""}<br>
+            Setor: ${ticket.setor || ""}<br>
+            Prioridade: ${ticket.prioridade || ""}<br>
+            Status: ${ticket.status || ""}
+          </div>
+        `;
+      });
+
+      document.getElementById("lista").innerHTML = html || "Nenhum ticket encontrado.";
+    }
+  </script>
 </body>
 </html>
