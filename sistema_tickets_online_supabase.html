@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SUPORTE BSM - VERSÃO 3</title>
+  <title>SUPORTE BSM - VERSÃO 4</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
@@ -20,16 +20,37 @@
     }
     .topo h1 {
       margin: 0;
-      font-size: 32px;
+      font-size: 30px;
     }
     .topo p {
       margin: 6px 0 0;
       color: #d1d5db;
     }
     .container {
-      max-width: 1350px;
+      max-width: 1380px;
       margin: 0 auto;
       padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .linha2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .linha3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
     }
     .dashboard {
       display: grid;
@@ -48,20 +69,6 @@
       font-size: 28px;
       margin-top: 4px;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    }
-    h2, h3 {
-      margin-top: 0;
-    }
     input, textarea, select {
       width: 100%;
       padding: 12px;
@@ -71,10 +78,7 @@
       margin-bottom: 14px;
       font-size: 14px;
     }
-    textarea {
-      min-height: 95px;
-      resize: vertical;
-    }
+    textarea { min-height: 95px; resize: vertical; }
     button {
       background: #111827;
       color: white;
@@ -86,13 +90,12 @@
       margin-right: 8px;
       margin-bottom: 8px;
     }
-    button:hover {
-      opacity: .95;
-    }
+    button:hover { opacity: .95; }
     .btn-green { background: #15803d; }
     .btn-yellow { background: #b45309; }
     .btn-red { background: #b91c1c; }
     .btn-gray { background: #374151; }
+    .btn-blue { background: #1d4ed8; }
     .ticket {
       border: 1px solid #e5e7eb;
       border-radius: 14px;
@@ -112,11 +115,9 @@
     .aberto { background: #dbeafe; color: #1d4ed8; }
     .andamento { background: #fef3c7; color: #b45309; }
     .finalizado { background: #dcfce7; color: #15803d; }
-
     .baixa { background: #e5e7eb; color: #374151; }
     .media { background: #cffafe; color: #0f766e; }
     .alta { background: #fee2e2; color: #b91c1c; }
-
     .acoes {
       display: flex;
       gap: 8px;
@@ -127,198 +128,194 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    .hidden {
-      display: none;
-    }
-    .linha2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .linha3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-    }
+    .hidden { display: none !important; }
     .resumo {
       font-size: 14px;
       color: #4b5563;
       line-height: 1.6;
     }
-    .chart-bar-wrap {
-      margin-top: 8px;
+    .userbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
-    .chart-row {
-      margin-bottom: 10px;
+    .thumb {
+      margin-top: 10px;
+      max-width: 220px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
     }
-    .chart-label {
-      font-size: 13px;
-      margin-bottom: 4px;
+    .mini {
+      font-size: 12px;
+      color: #6b7280;
     }
-    .chart-bar-bg {
-      width: 100%;
-      height: 18px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .chart-bar-fill {
-      height: 18px;
-      background: #111827;
-      border-radius: 999px;
-    }
+    h2, h3 { margin-top: 0; }
     @media (max-width: 950px) {
-      .grid, .linha2, .linha3 {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media print {
-      body { background: white; }
-      .topo, .nao-imprimir, button { display: none !important; }
-      .card, .box, .ticket {
-        box-shadow: none;
-        border: 1px solid #ccc;
-      }
-      .container { max-width: 100%; padding: 0; }
+      .grid, .linha2, .linha3 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="topo">
     <h1>SUPORTE BSM</h1>
-    <p>Sistema interno de tickets - Versão 3</p>
+    <p>Sistema de chamados com login individual - Versão 4</p>
   </div>
 
   <div class="container">
-    <div class="dashboard">
-      <div class="box"><span>Total</span><strong id="dashTotal">0</strong></div>
-      <div class="box"><span>Abertos</span><strong id="dashAbertos">0</strong></div>
-      <div class="box"><span>Em andamento</span><strong id="dashAndamento">0</strong></div>
-      <div class="box"><span>Finalizados</span><strong id="dashFinalizados">0</strong></div>
-      <div class="box"><span>Prioridade alta</span><strong id="dashAlta">0</strong></div>
-      <div class="box"><span>Hoje</span><strong id="dashHoje">0</strong></div>
+    <div id="authBox" class="card">
+      <h2>Entrar no sistema</h2>
+      <div class="linha2">
+        <div>
+          <label>Nome completo (somente cadastro)</label>
+          <input type="text" id="cadNome" placeholder="Seu nome completo" />
+        </div>
+        <div>
+          <label>E-mail</label>
+          <input type="email" id="authEmail" placeholder="seuemail@empresa.com" />
+        </div>
+      </div>
+      <label>Senha</label>
+      <input type="password" id="authSenha" placeholder="Sua senha" />
+
+      <button class="btn-blue" onclick="registrar()">Criar conta</button>
+      <button onclick="entrar()">Entrar</button>
+
+      <div id="authMsg" class="msg"></div>
     </div>
 
-    <div class="grid nao-imprimir">
-      <div class="card">
-        <h2 id="tituloFormulario">Abrir novo ticket</h2>
+    <div id="appBox" class="hidden">
+      <div class="userbar card">
+        <div>
+          <strong id="userNome">Usuário</strong><br>
+          <span class="mini" id="userInfo"></span>
+        </div>
+        <div>
+          <button class="btn-gray" onclick="sair()">Sair</button>
+        </div>
+      </div>
 
-        <label>Solicitante</label>
-        <input type="text" id="solicitante" placeholder="Nome de quem está abrindo o chamado" />
+      <div class="dashboard">
+        <div class="box"><span>Total</span><strong id="dashTotal">0</strong></div>
+        <div class="box"><span>Abertos</span><strong id="dashAbertos">0</strong></div>
+        <div class="box"><span>Em andamento</span><strong id="dashAndamento">0</strong></div>
+        <div class="box"><span>Finalizados</span><strong id="dashFinalizados">0</strong></div>
+        <div class="box"><span>Prioridade alta</span><strong id="dashAlta">0</strong></div>
+        <div class="box"><span>Hoje</span><strong id="dashHoje">0</strong></div>
+      </div>
 
-        <label>Título</label>
-        <input type="text" id="titulo" placeholder="Ex.: Impressora não está funcionando" />
+      <div class="grid">
+        <div class="card">
+          <h2 id="tituloFormulario">Abrir novo chamado</h2>
 
-        <label>Descrição</label>
-        <textarea id="descricao" placeholder="Descreva o problema"></textarea>
+          <label>Solicitante</label>
+          <input type="text" id="solicitante" placeholder="Nome de quem está abrindo o chamado" />
 
-        <div class="linha3">
-          <div>
-            <label>Setor</label>
-            <select id="setor">
-              <option value="TI">TI</option>
-              <option value="Manutenção">Manutenção</option>
-              <option value="Frota">Frota</option>
-              <option value="Compras">Compras</option>
-              <option value="RH">RH</option>
-              <option value="Produção">Produção</option>
-              <option value="Estoque">Estoque</option>
-            </select>
+          <label>Título</label>
+          <input type="text" id="titulo" placeholder="Ex.: Impressora não está funcionando" />
+
+          <label>Descrição</label>
+          <textarea id="descricao" placeholder="Descreva o problema"></textarea>
+
+          <div class="linha3">
+            <div>
+              <label>Setor</label>
+              <select id="setor">
+                <option value="TI">TI</option>
+                <option value="Manutenção">Manutenção</option>
+                <option value="Frota">Frota</option>
+                <option value="Compras">Compras</option>
+                <option value="RH">RH</option>
+                <option value="Produção">Produção</option>
+                <option value="Estoque">Estoque</option>
+              </select>
+            </div>
+            <div>
+              <label>Prioridade</label>
+              <select id="prioridade">
+                <option value="Baixa">Baixa</option>
+                <option value="Média">Média</option>
+                <option value="Alta">Alta</option>
+              </select>
+            </div>
+            <div>
+              <label>Responsável</label>
+              <input type="text" id="responsavel" placeholder="Responsável" />
+            </div>
           </div>
-          <div>
-            <label>Prioridade</label>
-            <select id="prioridade">
-              <option value="Baixa">Baixa</option>
-              <option value="Média">Média</option>
-              <option value="Alta">Alta</option>
-            </select>
-          </div>
-          <div>
-            <label>Responsável</label>
-            <input type="text" id="responsavel" placeholder="Responsável" />
-          </div>
+
+          <label>Foto do chamado</label>
+          <input type="file" id="foto" accept="image/*" />
+          <img id="previewFoto" class="thumb hidden" alt="Prévia da foto" />
+
+          <button id="btnSalvar" onclick="salvarOuAtualizar()">Salvar chamado</button>
+          <button id="btnCancelar" class="btn-gray hidden" onclick="cancelarEdicao()">Cancelar edição</button>
+
+          <div id="mensagem" class="msg"></div>
         </div>
 
-        <button id="btnSalvar" onclick="salvarOuAtualizar()">Salvar ticket</button>
-        <button id="btnCancelar" class="btn-gray hidden" onclick="cancelarEdicao()">Cancelar edição</button>
+        <div class="card">
+          <h2>Filtros</h2>
 
-        <div id="mensagem" class="msg"></div>
-      </div>
+          <label>Buscar</label>
+          <input type="text" id="busca" placeholder="Buscar por número, título, setor..." onkeyup="listarTickets()" />
 
-      <div class="card">
-        <h2>Filtros / Relatórios</h2>
-
-        <label>Buscar</label>
-        <input type="text" id="busca" placeholder="Buscar por título, setor, solicitante..." onkeyup="listarTickets()" />
-
-        <div class="linha3">
-          <div>
-            <label>Status</label>
-            <select id="filtroStatus" onchange="listarTickets()">
-              <option value="">Todos</option>
-              <option value="Aberto">Aberto</option>
-              <option value="Em andamento">Em andamento</option>
-              <option value="Finalizado">Finalizado</option>
-            </select>
+          <div class="linha3">
+            <div>
+              <label>Status</label>
+              <select id="filtroStatus" onchange="listarTickets()">
+                <option value="">Todos</option>
+                <option value="Aberto">Aberto</option>
+                <option value="Em andamento">Em andamento</option>
+                <option value="Finalizado">Finalizado</option>
+              </select>
+            </div>
+            <div>
+              <label>Setor</label>
+              <select id="filtroSetor" onchange="listarTickets()">
+                <option value="">Todos</option>
+                <option value="TI">TI</option>
+                <option value="Manutenção">Manutenção</option>
+                <option value="Frota">Frota</option>
+                <option value="Compras">Compras</option>
+                <option value="RH">RH</option>
+                <option value="Produção">Produção</option>
+                <option value="Estoque">Estoque</option>
+              </select>
+            </div>
+            <div>
+              <label>Período</label>
+              <select id="filtroPeriodo" onchange="aplicarPeriodoRapido()">
+                <option value="">Todos</option>
+                <option value="hoje">Hoje</option>
+                <option value="ontem">Ontem</option>
+                <option value="semana">Esta semana</option>
+                <option value="mes">Este mês</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label>Setor</label>
-            <select id="filtroSetor" onchange="listarTickets()">
-              <option value="">Todos</option>
-              <option value="TI">TI</option>
-              <option value="Manutenção">Manutenção</option>
-              <option value="Frota">Frota</option>
-              <option value="Compras">Compras</option>
-              <option value="RH">RH</option>
-              <option value="Produção">Produção</option>
-              <option value="Estoque">Estoque</option>
-            </select>
+
+          <div class="linha2">
+            <div>
+              <label>Data inicial</label>
+              <input type="date" id="dataInicial" onchange="listarTickets()" />
+            </div>
+            <div>
+              <label>Data final</label>
+              <input type="date" id="dataFinal" onchange="listarTickets()" />
+            </div>
           </div>
-          <div>
-            <label>Período</label>
-            <select id="filtroPeriodo" onchange="aplicarPeriodoRapido()">
-              <option value="">Todos</option>
-              <option value="hoje">Hoje</option>
-              <option value="ontem">Ontem</option>
-              <option value="semana">Esta semana</option>
-              <option value="mes">Este mês</option>
-              <option value="intervalo">Intervalo de datas</option>
-            </select>
-          </div>
+
+          <button class="btn-gray" onclick="listarTickets()">Atualizar lista</button>
         </div>
-
-        <div class="linha2">
-          <div>
-            <label>Data inicial</label>
-            <input type="date" id="dataInicial" onchange="listarTickets()" />
-          </div>
-          <div>
-            <label>Data final</label>
-            <input type="date" id="dataFinal" onchange="listarTickets()" />
-          </div>
-        </div>
-
-        <button class="btn-gray" onclick="listarTickets()">Atualizar lista</button>
-        <button class="btn-yellow" onclick="liberarLista()">Ver tickets cadastrados</button>
-        <button class="btn-green" onclick="window.print()">Imprimir / PDF</button>
       </div>
-    </div>
 
-    <div class="grid" style="margin-top:20px;">
-      <div class="card">
-        <h2>Dashboard por setor</h2>
-        <div id="graficoSetor" class="chart-bar-wrap"></div>
+      <div class="card" style="margin-top:20px;">
+        <h2 id="tituloLista">Meus chamados</h2>
+        <div id="listaTickets">Carregando...</div>
       </div>
-      <div class="card">
-        <h2>Dashboard por responsável</h2>
-        <div id="graficoResponsavel" class="chart-bar-wrap"></div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:20px;">
-      <h2>Tickets cadastrados</h2>
-      <div id="bloqueioLista">Área protegida. Clique em <strong>Ver tickets cadastrados</strong> e informe a senha.</div>
-      <div id="listaTickets" class="hidden">Carregando...</div>
     </div>
   </div>
 
@@ -326,34 +323,31 @@
     const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
     const SENHA_PROTECAO = "2101";
-    const EMAIL_ALERTA_1 = "adrianoeugenio.ad@gmail.com";
-    const EMAIL_ALERTA_2 = "leonardo@bsmatacadista.com.br";
-    const URL_EMAIL = "https://script.google.com/macros/s/AKfycbz2yB6wV5ursm-OreIB158P3P6Uvz0pJrwM0ycKj3aT1T6_VVL3ReB4YT8QJoHVtqPWHg/exec";
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let listaLiberada = false;
+    let currentUser = null;
+    let currentProfile = null;
     let ticketEditandoId = null;
     let todosTickets = [];
 
-    async function enviarEmailSeguro(payload) {
-      try {
-        if (
-          URL_EMAIL &&
-          URL_EMAIL.startsWith("https://script.google.com/macros/s/")
-        ) {
-          await fetch(URL_EMAIL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-          });
-        } else {
-          console.warn("URL_EMAIL não configurada corretamente.");
-        }
-      } catch (e) {
-        console.error("Erro ao enviar e-mail:", e);
+    document.getElementById("foto").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      const img = document.getElementById("previewFoto");
+      if (!file) {
+        img.classList.add("hidden");
+        img.src = "";
+        return;
       }
-    }
+      img.src = URL.createObjectURL(file);
+      img.classList.remove("hidden");
+    });
 
+    function mostrarAuthMsg(texto, cor = "green") {
+      const el = document.getElementById("authMsg");
+      el.innerText = texto;
+      el.style.color = cor;
+    }
 
     function mostrarMensagem(texto, cor = "green") {
       const el = document.getElementById("mensagem");
@@ -381,21 +375,131 @@
     }
 
     function limparFormulario() {
-      document.getElementById("solicitante").value = "";
+      document.getElementById("solicitante").value = currentProfile?.full_name || "";
       document.getElementById("titulo").value = "";
       document.getElementById("descricao").value = "";
       document.getElementById("setor").value = "TI";
       document.getElementById("prioridade").value = "Baixa";
       document.getElementById("responsavel").value = "";
+      document.getElementById("foto").value = "";
+      document.getElementById("previewFoto").classList.add("hidden");
+      document.getElementById("previewFoto").src = "";
     }
 
     function cancelarEdicao() {
       ticketEditandoId = null;
-      document.getElementById("tituloFormulario").innerText = "Abrir novo ticket";
-      document.getElementById("btnSalvar").innerText = "Salvar ticket";
+      document.getElementById("tituloFormulario").innerText = "Abrir novo chamado";
+      document.getElementById("btnSalvar").innerText = "Salvar chamado";
       document.getElementById("btnCancelar").classList.add("hidden");
       limparFormulario();
       mostrarMensagem("");
+    }
+
+    async function registrar() {
+      const nome = document.getElementById("cadNome").value.trim();
+      const email = document.getElementById("authEmail").value.trim();
+      const senha = document.getElementById("authSenha").value.trim();
+
+      if (!nome || !email || !senha) {
+        mostrarAuthMsg("Preencha nome, e-mail e senha.", "red");
+        return;
+      }
+
+      const { data, error } = await client.auth.signUp({
+        email,
+        password: senha
+      });
+
+      if (error) {
+        mostrarAuthMsg("Erro ao criar conta: " + error.message, "red");
+        return;
+      }
+
+      if (data.user) {
+        const { error: profileError } = await client
+          .from("profiles")
+          .upsert({
+            id: data.user.id,
+            email: email,
+            full_name: nome,
+            role: "usuario"
+          });
+
+        if (profileError) {
+          mostrarAuthMsg("Conta criada, mas erro ao salvar perfil: " + profileError.message, "red");
+          return;
+        }
+      }
+
+      mostrarAuthMsg("Conta criada com sucesso. Agora clique em Entrar.", "green");
+    }
+
+    async function entrar() {
+      const email = document.getElementById("authEmail").value.trim();
+      const senha = document.getElementById("authSenha").value.trim();
+
+      if (!email || !senha) {
+        mostrarAuthMsg("Informe e-mail e senha.", "red");
+        return;
+      }
+
+      const { error } = await client.auth.signInWithPassword({
+        email,
+        password: senha
+      });
+
+      if (error) {
+        mostrarAuthMsg("Erro no login: " + error.message, "red");
+        return;
+      }
+
+      await carregarSessao();
+    }
+
+    async function sair() {
+      await client.auth.signOut();
+      currentUser = null;
+      currentProfile = null;
+      document.getElementById("appBox").classList.add("hidden");
+      document.getElementById("authBox").classList.remove("hidden");
+    }
+
+    async function carregarSessao() {
+      const { data } = await client.auth.getSession();
+      if (!data.session) {
+        document.getElementById("appBox").classList.add("hidden");
+        document.getElementById("authBox").classList.remove("hidden");
+        return;
+      }
+
+      currentUser = data.session.user;
+
+      const { data: profileData, error: profileError } = await client
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .single();
+
+      if (profileError) {
+        mostrarAuthMsg("Erro ao carregar perfil: " + profileError.message, "red");
+        return;
+      }
+
+      currentProfile = profileData;
+
+      document.getElementById("authBox").classList.add("hidden");
+      document.getElementById("appBox").classList.remove("hidden");
+
+      document.getElementById("userNome").innerText = currentProfile.full_name || currentProfile.email || "Usuário";
+      document.getElementById("userInfo").innerText =
+        (currentProfile.email || "") + " | Perfil: " + (currentProfile.role || "usuario");
+
+      document.getElementById("tituloLista").innerText =
+        currentProfile.role === "admin" ? "Todos os chamados" : "Meus chamados";
+
+      document.getElementById("solicitante").value = currentProfile.full_name || "";
+
+      await listarTickets();
     }
 
     async function salvarOuAtualizar() {
@@ -404,6 +508,29 @@
       } else {
         await criarTicket();
       }
+    }
+
+    async function uploadFotoSeExistir() {
+      const file = document.getElementById("foto").files[0];
+      if (!file) return { foto_path: null, foto_url: null };
+
+      const ext = file.name.split(".").pop() || "jpg";
+      const nome = `${currentUser.id}/${Date.now()}.${ext}`;
+
+      const { error } = await client.storage
+        .from("tickets-fotos")
+        .upload(nome, file, { upsert: true });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const { data } = client.storage.from("tickets-fotos").getPublicUrl(nome);
+
+      return {
+        foto_path: nome,
+        foto_url: data.publicUrl
+      };
     }
 
     async function criarTicket() {
@@ -419,50 +546,38 @@
         return;
       }
 
+      let foto = { foto_path: null, foto_url: null };
+      try {
+        foto = await uploadFotoSeExistir();
+      } catch (e) {
+        mostrarMensagem("Erro ao enviar foto: " + e.message, "red");
+        return;
+      }
+
       const { error } = await client.from("tickets").insert([
         {
+          user_id: currentUser.id,
+          user_email: currentUser.email,
           solicitante,
           titulo,
           descricao,
           setor,
           prioridade,
           responsavel,
-          status: "Aberto"
+          status: "Aberto",
+          foto_path: foto.foto_path,
+          foto_url: foto.foto_url
         }
       ]);
 
       if (error) {
-        mostrarMensagem("Erro ao salvar ticket: " + error.message, "red");
-        console.error(error);
+        mostrarMensagem("Erro ao salvar chamado: " + error.message, "red");
         return;
       }
 
-      await enviarEmailSeguro({
-        assunto: "Novo Ticket Aberto - SUPORTE BSM",
-        mensagem: `
-          <h2>Novo Ticket Aberto</h2>
-          <b>Solicitante:</b> ${solicitante}<br>
-          <b>Título:</b> ${titulo}<br>
-          <b>Descrição:</b> ${descricao}<br>
-          <b>Setor:</b> ${setor}<br>
-          <b>Prioridade:</b> ${prioridade}<br>
-          <b>Responsável:</b> ${responsavel}<br>
-          <br>
-          <b>Acesse o sistema:</b><br>
-          https://adrianoeugenioad-web.github.io/suportebsm/sistema_tickets_online_supabase.html
-        `
-      });
-
       limparFormulario();
-      mostrarMensagem(
-        "Ticket criado com sucesso. Alerta previsto para: " +
-        EMAIL_ALERTA_1 + " e " + EMAIL_ALERTA_2,
-        "green"
-      );
-
-      if (listaLiberada) {
-        listarTickets();
-      }
+      mostrarMensagem("Chamado criado com sucesso.", "green");
+      await listarTickets();
     }
 
     async function atualizarTicket() {
@@ -478,29 +593,40 @@
       const prioridade = document.getElementById("prioridade").value;
       const responsavel = document.getElementById("responsavel").value.trim();
 
+      const payload = {
+        solicitante,
+        titulo,
+        descricao,
+        setor,
+        prioridade,
+        responsavel
+      };
+
+      const file = document.getElementById("foto").files[0];
+      if (file) {
+        try {
+          const foto = await uploadFotoSeExistir();
+          payload.foto_path = foto.foto_path;
+          payload.foto_url = foto.foto_url;
+        } catch (e) {
+          mostrarMensagem("Erro ao enviar foto: " + e.message, "red");
+          return;
+        }
+      }
+
       const { error } = await client
         .from("tickets")
-        .update({
-          solicitante,
-          titulo,
-          descricao,
-          setor,
-          prioridade,
-          responsavel
-        })
+        .update(payload)
         .eq("id", ticketEditandoId);
 
       if (error) {
-        mostrarMensagem("Erro ao atualizar ticket: " + error.message, "red");
-        console.error(error);
+        mostrarMensagem("Erro ao atualizar chamado: " + error.message, "red");
         return;
       }
 
-      mostrarMensagem("Ticket atualizado com sucesso.", "green");
+      mostrarMensagem("Chamado atualizado com sucesso.", "green");
       cancelarEdicao();
-      if (listaLiberada) {
-        listarTickets();
-      }
+      await listarTickets();
     }
 
     function editarTicket(id) {
@@ -513,7 +639,7 @@
       if (!t) return;
 
       ticketEditandoId = id;
-      document.getElementById("tituloFormulario").innerText = "Editar ticket";
+      document.getElementById("tituloFormulario").innerText = "Editar chamado";
       document.getElementById("btnSalvar").innerText = "Salvar alteração";
       document.getElementById("btnCancelar").classList.remove("hidden");
 
@@ -524,6 +650,15 @@
       document.getElementById("prioridade").value = t.prioridade || "Baixa";
       document.getElementById("responsavel").value = t.responsavel || "";
 
+      const preview = document.getElementById("previewFoto");
+      if (t.foto_url) {
+        preview.src = t.foto_url;
+        preview.classList.remove("hidden");
+      } else {
+        preview.src = "";
+        preview.classList.add("hidden");
+      }
+
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -533,17 +668,16 @@
         return;
       }
 
-      if (!confirm("Deseja excluir este ticket?")) return;
+      if (!confirm("Deseja excluir este chamado?")) return;
 
       const { error } = await client.from("tickets").delete().eq("id", id);
 
       if (error) {
-        alert("Erro ao excluir ticket: " + error.message);
-        console.error(error);
+        alert("Erro ao excluir chamado: " + error.message);
         return;
       }
 
-      listarTickets();
+      await listarTickets();
     }
 
     async function colocarEmAndamento(id) {
@@ -557,7 +691,7 @@
         return;
       }
 
-      listarTickets();
+      await listarTickets();
     }
 
     async function reabrirTicket(id) {
@@ -574,11 +708,11 @@
         .eq("id", id);
 
       if (error) {
-        alert("Erro ao reabrir ticket: " + error.message);
+        alert("Erro ao reabrir chamado: " + error.message);
         return;
       }
 
-      listarTickets();
+      await listarTickets();
     }
 
     async function finalizarTicket(id) {
@@ -586,9 +720,6 @@
         alert("Senha incorreta.");
         return;
       }
-
-      const ticket = todosTickets.find(t => String(t.id) === String(id));
-      if (!ticket) return;
 
       const quemAtendeu = prompt("Quem atendeu?");
       if (quemAtendeu === null) return;
@@ -615,45 +746,11 @@
         .eq("id", id);
 
       if (error) {
-        alert("Erro ao finalizar ticket: " + error.message);
-        console.error(error);
+        alert("Erro ao finalizar chamado: " + error.message);
         return;
       }
 
-      await enviarEmailSeguro({
-        assunto: "Ticket Finalizado - SUPORTE BSM",
-        mensagem: `
-          <h2>Ticket Finalizado</h2>
-          <b>Título:</b> ${ticket.titulo}<br>
-          <b>Solicitante:</b> ${ticket.solicitante}<br>
-          <b>Quem atendeu:</b> ${quemAtendeu}<br>
-          <b>O que foi feito:</b> ${observacao}<br>
-          <b>Peça trocada:</b> ${peca}<br>
-          <b>Motivo:</b> ${motivo}<br>
-          <br>
-          <b>Sistema:</b><br>
-          https://adrianoeugenioad-web.github.io/suportebsm/sistema_tickets_online_supabase.html
-        `
-      });
-
-      alert(
-        "Ticket finalizado.\nResumo previsto para envio a:\n" +
-        EMAIL_ALERTA_1 + "\n" + EMAIL_ALERTA_2
-      );
-
-      listarTickets();
-    }
-
-    function liberarLista() {
-      if (!pedirSenha()) {
-        alert("Senha incorreta.");
-        return;
-      }
-
-      listaLiberada = true;
-      document.getElementById("bloqueioLista").classList.add("hidden");
-      document.getElementById("listaTickets").classList.remove("hidden");
-      listarTickets();
+      await listarTickets();
     }
 
     function aplicarPeriodoRapido() {
@@ -687,9 +784,6 @@
         const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
         inicio = formatarData(inicioMes);
         fim = formatarData(hoje);
-      } else if (valor === "intervalo") {
-        listarTickets();
-        return;
       } else {
         document.getElementById("dataInicial").value = "";
         document.getElementById("dataFinal").value = "";
@@ -725,67 +819,25 @@
       return `${horas}h ${minutos}min`;
     }
 
-    function renderGrafico(elementId, objetoContagem) {
-      const el = document.getElementById(elementId);
-      const entries = Object.entries(objetoContagem);
-      if (!entries.length) {
-        el.innerHTML = '<div class="resumo">Sem dados.</div>';
-        return;
-      }
-
-      const max = Math.max(...entries.map(x => x[1]), 1);
-      let html = "";
-
-      entries.forEach(([nome, valor]) => {
-        const perc = (valor / max) * 100;
-        html += `
-          <div class="chart-row">
-            <div class="chart-label">${nome} (${valor})</div>
-            <div class="chart-bar-bg">
-              <div class="chart-bar-fill" style="width:${perc}%"></div>
-            </div>
-          </div>
-        `;
-      });
-
-      el.innerHTML = html;
-    }
-
-    function atualizarDashboard(listaFiltrada) {
-      document.getElementById("dashTotal").innerText = listaFiltrada.length;
-      document.getElementById("dashAbertos").innerText = listaFiltrada.filter(t => t.status === "Aberto").length;
-      document.getElementById("dashAndamento").innerText = listaFiltrada.filter(t => t.status === "Em andamento").length;
-      document.getElementById("dashFinalizados").innerText = listaFiltrada.filter(t => t.status === "Finalizado").length;
-      document.getElementById("dashAlta").innerText = listaFiltrada.filter(t => t.prioridade === "Alta").length;
+    function atualizarDashboard(lista) {
+      document.getElementById("dashTotal").innerText = lista.length;
+      document.getElementById("dashAbertos").innerText = lista.filter(t => t.status === "Aberto").length;
+      document.getElementById("dashAndamento").innerText = lista.filter(t => t.status === "Em andamento").length;
+      document.getElementById("dashFinalizados").innerText = lista.filter(t => t.status === "Finalizado").length;
+      document.getElementById("dashAlta").innerText = lista.filter(t => t.prioridade === "Alta").length;
 
       const hoje = new Date().toISOString().slice(0, 10);
-      document.getElementById("dashHoje").innerText = listaFiltrada.filter(t => (t.created_at || "").slice(0,10) === hoje).length;
-
-      const porSetor = {};
-      const porResponsavel = {};
-
-      listaFiltrada.forEach(t => {
-        const setor = t.setor || "Sem setor";
-        const resp = t.responsavel || "Sem responsável";
-        porSetor[setor] = (porSetor[setor] || 0) + 1;
-        porResponsavel[resp] = (porResponsavel[resp] || 0) + 1;
-      });
-
-      renderGrafico("graficoSetor", porSetor);
-      renderGrafico("graficoResponsavel", porResponsavel);
+      document.getElementById("dashHoje").innerText = lista.filter(t => (t.created_at || "").slice(0, 10) === hoje).length;
     }
 
     async function listarTickets() {
-      if (!listaLiberada) return;
-
       const { data, error } = await client
         .from("tickets")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) {
-        document.getElementById("listaTickets").innerHTML = "Erro ao carregar tickets: " + error.message;
-        console.error(error);
+        document.getElementById("listaTickets").innerHTML = "Erro ao carregar chamados: " + error.message;
         return;
       }
 
@@ -795,14 +847,14 @@
       const filtroStatus = document.getElementById("filtroStatus").value;
       const filtroSetor = document.getElementById("filtroSetor").value;
 
-      let listaFiltrada = todosTickets.filter(t => {
+      const lista = todosTickets.filter(t => {
         const texto = (
+          (t.numero_chamado || "") + " " +
           (t.titulo || "") + " " +
           (t.descricao || "") + " " +
           (t.setor || "") + " " +
           (t.solicitante || "") + " " +
-          (t.responsavel || "") + " " +
-          (t.quem_atendeu || "")
+          (t.responsavel || "")
         ).toLowerCase();
 
         const okBusca = !busca || texto.includes(busca);
@@ -813,17 +865,18 @@
         return okBusca && okStatus && okSetor && okPeriodo;
       });
 
-      atualizarDashboard(listaFiltrada);
+      atualizarDashboard(lista);
 
-      if (!listaFiltrada.length) {
-        document.getElementById("listaTickets").innerHTML = "Nenhum ticket encontrado.";
+      if (!lista.length) {
+        document.getElementById("listaTickets").innerHTML = "Nenhum chamado encontrado.";
         return;
       }
 
       let html = "";
 
-      listaFiltrada.forEach(ticket => {
+      lista.forEach(ticket => {
         const tempo = calcularTempo(ticket);
+        const admin = currentProfile?.role === "admin";
 
         html += `
           <div class="ticket">
@@ -832,11 +885,12 @@
               <span class="prioridade ${classePrioridade(ticket.prioridade)}">${ticket.prioridade || ""}</span>
             </div>
 
-            <h3>${ticket.titulo || ""}</h3>
+            <h3>${ticket.numero_chamado || ""} - ${ticket.titulo || ""}</h3>
             <p>${ticket.descricao || ""}</p>
 
             <div class="resumo">
               <strong>Solicitante:</strong> ${ticket.solicitante || ""}<br>
+              <strong>E-mail:</strong> ${ticket.user_email || ""}<br>
               <strong>Setor:</strong> ${ticket.setor || ""}<br>
               <strong>Responsável:</strong> ${ticket.responsavel || ""}<br>
               <strong>Data de abertura:</strong> ${ticket.created_at ? new Date(ticket.created_at).toLocaleString("pt-BR") : ""}<br>
@@ -848,12 +902,14 @@
               <strong>Observação de atendimento:</strong> ${ticket.observacao_atendimento || "-"}
             </div>
 
-            <div class="acoes nao-imprimir">
-              <button class="btn-yellow" onclick="colocarEmAndamento('${ticket.id}')">Em andamento</button>
-              <button class="btn-green" onclick="finalizarTicket('${ticket.id}')">Finalizar</button>
-              <button class="btn-gray" onclick="reabrirTicket('${ticket.id}')">Reabrir</button>
-              <button class="btn-gray" onclick="editarTicket('${ticket.id}')">Editar</button>
-              <button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>
+            ${ticket.foto_url ? `<div style="margin-top:10px;"><img src="${ticket.foto_url}" class="thumb" alt="Foto do chamado"></div>` : ""}
+
+            <div class="acoes">
+              ${admin ? `<button class="btn-yellow" onclick="colocarEmAndamento('${ticket.id}')">Em andamento</button>` : ""}
+              ${admin ? `<button class="btn-green" onclick="finalizarTicket('${ticket.id}')">Finalizar</button>` : ""}
+              ${admin ? `<button class="btn-gray" onclick="reabrirTicket('${ticket.id}')">Reabrir</button>` : ""}
+              ${admin ? `<button class="btn-gray" onclick="editarTicket('${ticket.id}')">Editar</button>` : ""}
+              ${admin ? `<button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>` : ""}
             </div>
           </div>
         `;
@@ -861,6 +917,8 @@
 
       document.getElementById("listaTickets").innerHTML = html;
     }
+
+    carregarSessao();
   </script>
 </body>
 </html>
