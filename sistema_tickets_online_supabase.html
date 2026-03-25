@@ -2,12 +2,13 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SUPORTE BSM</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: #f4f6f8;
   margin: 0;
 }
@@ -28,7 +29,7 @@ body {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  max-width: 500px;
+  max-width: 700px;
   margin: auto;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
@@ -46,13 +47,18 @@ button {
   background: #0b1f3a;
   color: white;
   border: none;
-  padding: 10px;
+  padding: 10px 14px;
   border-radius: 6px;
   cursor: pointer;
+  margin-right: 5px;
 }
 
 button:hover {
   background: #163a6b;
+}
+
+.menu {
+  margin-bottom: 20px;
 }
 
 table {
@@ -67,8 +73,41 @@ table th, table td {
   text-align: left;
 }
 
-.menu {
-  margin-bottom: 15px;
+table th {
+  background: #f0f2f5;
+}
+
+#conteudo {
+  margin-top: 20px;
+}
+
+.ticket-card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.aberto { background: #dbeafe; color: #1d4ed8; }
+.andamento { background: #fef3c7; color: #b45309; }
+.finalizado { background: #dcfce7; color: #15803d; }
+
+.baixa { background: #e5e7eb; color: #374151; }
+.media { background: #cffafe; color: #0f766e; }
+.alta { background: #fee2e2; color: #b91c1c; }
+
+.hidden {
+  display: none;
 }
 </style>
 </head>
@@ -79,35 +118,35 @@ table th, table td {
 
 <div class="container">
 
-<div id="loginBox" class="card">
-  <h3>Login</h3>
+  <div id="loginBox" class="card">
+    <h3>Login</h3>
 
-  <label>Usuário</label>
-  <input type="text" id="usuario">
+    <label>Usuário</label>
+    <input type="text" id="usuario" placeholder="Ex.: adriano">
 
-  <label>Senha</label>
-  <input type="password" id="senha">
+    <label>Senha</label>
+    <input type="password" id="senha" placeholder="Sua senha">
 
-  <button onclick="login()">Entrar</button>
+    <button onclick="login()">Entrar</button>
 
-  <div id="msgLogin" style="color:red; margin-top:10px;"></div>
-</div>
-
-<div id="sistema" style="display:none;">
-  <div class="menu">
-    <button onclick="novoChamado()">Novo Chamado</button>
-    <button onclick="listarChamados()">Meus Chamados</button>
-    <button onclick="listarTodos()" id="btnTodos" style="display:none;">Todos Chamados</button>
-    <button onclick="logout()">Sair</button>
+    <div id="msgLogin" style="color:red; margin-top:10px;"></div>
   </div>
 
-  <div id="conteudo"></div>
-</div>
+  <div id="sistema" class="hidden">
+    <div class="menu">
+      <button onclick="novoChamado()">Novo Chamado</button>
+      <button onclick="listarChamados()">Meus Chamados</button>
+      <button onclick="listarTodos()" id="btnTodos" class="hidden">Todos Chamados</button>
+      <button onclick="logout()">Sair</button>
+    </div>
+
+    <div id="conteudo"></div>
+  </div>
 
 </div>
 
 <script>
-const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
+    const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -117,26 +156,26 @@ let role = null;
 
 // LOGIN
 async function login() {
-  const usuario = document.getElementById("usuario").value.toLowerCase();
+  const usuarioDigitado = document.getElementById("usuario").value.trim();
   const senha = document.getElementById("senha").value;
 
-  const { data } = await client
+  const { data, error } = await client
     .from("profiles")
     .select("*")
-    .eq("username", usuario)
+    .ilike("username", usuarioDigitado)
     .single();
 
-  if (!data) {
+  if (error || !data) {
     document.getElementById("msgLogin").innerText = "Usuário não encontrado";
     return;
   }
 
-  const { error } = await client.auth.signInWithPassword({
+  const { error: erroLogin } = await client.auth.signInWithPassword({
     email: data.email,
     password: senha
   });
 
-  if (error) {
+  if (erroLogin) {
     document.getElementById("msgLogin").innerText = "Senha inválida";
     return;
   }
@@ -145,10 +184,10 @@ async function login() {
   role = data.role;
 
   document.getElementById("loginBox").style.display = "none";
-  document.getElementById("sistema").style.display = "block";
+  document.getElementById("sistema").classList.remove("hidden");
 
-  if (role == "admin") {
-    document.getElementById("btnTodos").style.display = "inline-block";
+  if (role === "admin" || role === "administrador") {
+    document.getElementById("btnTodos").classList.remove("hidden");
   }
 
   listarChamados();
@@ -160,38 +199,47 @@ async function logout() {
   location.reload();
 }
 
-// NOVO CHAMADO
+// FORM NOVO CHAMADO
 function novoChamado() {
   document.getElementById("conteudo").innerHTML = `
-    <h3>Novo Chamado</h3>
+    <div class="card">
+      <h3>Novo Chamado</h3>
 
-    <label>Título</label>
-    <input type="text" id="titulo">
+      <label>Título</label>
+      <input type="text" id="titulo">
 
-    <label>Descrição</label>
-    <textarea id="descricao"></textarea>
+      <label>Descrição</label>
+      <textarea id="descricao"></textarea>
 
-    <label>Prioridade</label>
-    <select id="prioridade">
-      <option>Baixa</option>
-      <option>Média</option>
-      <option>Alta</option>
-    </select>
+      <label>Prioridade</label>
+      <select id="prioridade">
+        <option value="Baixa">Baixa</option>
+        <option value="Média">Média</option>
+        <option value="Alta">Alta</option>
+      </select>
 
-    <label>Anexo (foto)</label>
-    <input type="file" id="anexo">
-
-    <button onclick="salvarChamado()">Salvar</button>
+      <button onclick="salvarChamado()">Salvar</button>
+    </div>
   `;
+}
+
+// GERAR NÚMERO
+function gerarNumeroChamado() {
+  const numero = Math.floor(Math.random() * 90000) + 10000;
+  return "BSM-" + numero;
 }
 
 // SALVAR CHAMADO
 async function salvarChamado() {
-  const titulo = document.getElementById("titulo").value;
-  const descricao = document.getElementById("descricao").value;
+  const titulo = document.getElementById("titulo").value.trim();
+  const descricao = document.getElementById("descricao").value.trim();
   const prioridade = document.getElementById("prioridade").value;
+  const numero = gerarNumeroChamado();
 
-  let numero = "BSM-" + Math.floor(Math.random() * 10000);
+  if (!titulo || !descricao) {
+    alert("Preencha título e descrição.");
+    return;
+  }
 
   const { error } = await client.from("tickets").insert([
     {
@@ -204,61 +252,121 @@ async function salvarChamado() {
     }
   ]);
 
-  if (!error) {
-    alert("Chamado criado: " + numero);
-    listarChamados();
-  } else {
-    alert("Erro ao salvar");
+  if (error) {
+    alert("Erro ao salvar chamado: " + error.message);
+    return;
   }
+
+  alert("Chamado criado com sucesso: " + numero);
+  listarChamados();
 }
 
-// LISTAR MEUS
+// LISTAR MEUS CHAMADOS
 async function listarChamados() {
-  const { data } = await client
+  const { data, error } = await client
     .from("tickets")
     .select("*")
     .eq("usuario", usuarioLogado)
     .order("id", { ascending: false });
 
-  montarTabela(data);
+  if (error) {
+    document.getElementById("conteudo").innerHTML = "Erro ao carregar chamados.";
+    return;
+  }
+
+  montarCards(data, false);
 }
 
-// LISTAR TODOS (ADMIN)
+// LISTAR TODOS
 async function listarTodos() {
-  const { data } = await client
+  const { data, error } = await client
     .from("tickets")
     .select("*")
     .order("id", { ascending: false });
 
-  montarTabela(data);
+  if (error) {
+    document.getElementById("conteudo").innerHTML = "Erro ao carregar todos os chamados.";
+    return;
+  }
+
+  montarCards(data, true);
 }
 
-// TABELA
-function montarTabela(data) {
-  let html = `
-    <table>
-      <tr>
-        <th>Nº</th>
-        <th>Título</th>
-        <th>Prioridade</th>
-        <th>Status</th>
-        <th>Usuário</th>
-      </tr>
-  `;
+// FINALIZAR
+async function finalizarChamado(id) {
+  const { error } = await client
+    .from("tickets")
+    .update({ status: "Finalizado" })
+    .eq("id", id);
+
+  if (error) {
+    alert("Erro ao finalizar chamado.");
+    return;
+  }
+
+  listarTodos();
+}
+
+// EM ANDAMENTO
+async function atendimentoChamado(id) {
+  const { error } = await client
+    .from("tickets")
+    .update({ status: "Em andamento" })
+    .eq("id", id);
+
+  if (error) {
+    alert("Erro ao atualizar chamado.");
+    return;
+  }
+
+  listarTodos();
+}
+
+// MONTAR TELA
+function montarCards(data, admin = false) {
+  if (!data || data.length === 0) {
+    document.getElementById("conteudo").innerHTML = "<div class='card'>Nenhum chamado encontrado.</div>";
+    return;
+  }
+
+  let html = "";
 
   data.forEach(t => {
+    let statusClass = "";
+    let prioridadeClass = "";
+
+    if (t.status === "Aberto") statusClass = "aberto";
+    if (t.status === "Em andamento") statusClass = "andamento";
+    if (t.status === "Finalizado") statusClass = "finalizado";
+
+    if (t.prioridade === "Baixa") prioridadeClass = "baixa";
+    if (t.prioridade === "Média") prioridadeClass = "media";
+    if (t.prioridade === "Alta") prioridadeClass = "alta";
+
     html += `
-      <tr>
-        <td>${t.numero}</td>
-        <td>${t.titulo}</td>
-        <td>${t.prioridade}</td>
-        <td>${t.status}</td>
-        <td>${t.usuario}</td>
-      </tr>
+      <div class="ticket-card">
+        <div>
+          <span class="tag ${statusClass}">${t.status || ""}</span>
+          <span class="tag ${prioridadeClass}">${t.prioridade || ""}</span>
+        </div>
+
+        <h3>${t.numero || ""}</h3>
+        <strong>${t.titulo || ""}</strong>
+        <p>${t.descricao || ""}</p>
+        <p><b>Usuário:</b> ${t.usuario || ""}</p>
+        <p><b>Data:</b> ${t.data_abertura || ""}</p>
     `;
+
+    if (admin) {
+      html += `
+        <button onclick="atendimentoChamado(${t.id})">Em andamento</button>
+        <button onclick="finalizarChamado(${t.id})">Finalizar</button>
+      `;
+    }
+
+    html += `</div>`;
   });
 
-  html += "</table>";
   document.getElementById("conteudo").innerHTML = html;
 }
 </script>
