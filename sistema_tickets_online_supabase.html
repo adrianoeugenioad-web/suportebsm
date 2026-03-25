@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BSM SUPORTE - Sistema de Tickets</title>
+  <title>SUPORTE BSM</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
@@ -27,9 +27,26 @@
       color: #d1d5db;
     }
     .container {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
+    }
+    .contador {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .box {
+      background: white;
+      padding: 14px 18px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      min-width: 150px;
+    }
+    .box strong {
+      display: block;
+      font-size: 26px;
     }
     .grid {
       display: grid;
@@ -66,9 +83,19 @@
       border-radius: 10px;
       cursor: pointer;
       font-weight: bold;
+      margin-right: 8px;
+      margin-bottom: 8px;
     }
     button:hover {
       opacity: 0.94;
+    }
+    .btn-sec { background: #374151; }
+    .btn-green { background: #15803d; }
+    .btn-yellow { background: #b45309; }
+    .btn-red { background: #b91c1c; }
+    .msg {
+      margin-top: 10px;
+      font-weight: bold;
     }
     .ticket {
       border: 1px solid #e5e7eb;
@@ -98,41 +125,14 @@
     .baixa { background: #e5e7eb; color: #374151; }
     .media { background: #cffafe; color: #0f766e; }
     .alta { background: #fee2e2; color: #b91c1c; }
-    .msg {
-      margin-top: 10px;
-      font-weight: bold;
-    }
     .acoes {
       margin-top: 12px;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
-    .btn-sec {
-      background: #374151;
-    }
-    .btn-green {
-      background: #15803d;
-    }
-    .btn-yellow {
-      background: #b45309;
-    }
-    .contador {
-      margin-bottom: 16px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .box {
-      background: white;
-      padding: 14px 18px;
-      border-radius: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-      min-width: 140px;
-    }
-    .box strong {
-      display: block;
-      font-size: 26px;
+    .hidden {
+      display: none;
     }
     @media (max-width: 900px) {
       .grid {
@@ -143,33 +143,21 @@
 </head>
 <body>
   <div class="topo">
-    <h1>BSM SUPORTE - Sistema de Tickets</h1>
-    <p>Acesso direto, sem login, para uso interno da empresa.</p>
+    <h1>SUPORTE BSM</h1>
+    <p>Sistema interno de tickets</p>
   </div>
 
   <div class="container">
     <div class="contador">
-      <div class="box">
-        <span>Total</span>
-        <strong id="totalTickets">0</strong>
-      </div>
-      <div class="box">
-        <span>Abertos</span>
-        <strong id="totalAbertos">0</strong>
-      </div>
-      <div class="box">
-        <span>Em andamento</span>
-        <strong id="totalAndamento">0</strong>
-      </div>
-      <div class="box">
-        <span>Finalizados</span>
-        <strong id="totalFinalizados">0</strong>
-      </div>
+      <div class="box"><span>Total</span><strong id="totalTickets">0</strong></div>
+      <div class="box"><span>Abertos</span><strong id="totalAbertos">0</strong></div>
+      <div class="box"><span>Em andamento</span><strong id="totalAndamento">0</strong></div>
+      <div class="box"><span>Finalizados</span><strong id="totalFinalizados">0</strong></div>
     </div>
 
     <div class="grid">
       <div class="card">
-        <h2>Abrir novo ticket</h2>
+        <h2 id="formTitulo">Abrir novo ticket</h2>
 
         <label>Solicitante</label>
         <input type="text" id="solicitante" placeholder="Nome de quem está abrindo o chamado" />
@@ -199,9 +187,11 @@
         </select>
 
         <label>Responsável</label>
-        <input type="text" id="responsavel" placeholder="Nome do responsável (opcional)" />
+        <input type="text" id="responsavel" placeholder="Nome do responsável" />
 
-        <button onclick="criarTicket()">Salvar ticket</button>
+        <button id="btnSalvar" onclick="salvarOuAtualizarTicket()">Salvar ticket</button>
+        <button id="btnCancelarEdicao" class="btn-sec hidden" onclick="cancelarEdicao()">Cancelar edição</button>
+
         <div id="mensagem" class="msg"></div>
       </div>
 
@@ -232,20 +222,27 @@
         </select>
 
         <button class="btn-sec" onclick="listarTickets()">Atualizar lista</button>
+        <button class="btn-yellow" onclick="liberarVisualizacao()">Ver tickets cadastrados</button>
       </div>
     </div>
 
     <div class="card" style="margin-top:20px;">
       <h2>Tickets cadastrados</h2>
-      <div id="listaTickets">Carregando...</div>
+      <div id="bloqueioLista">Área protegida. Clique em <strong>Ver tickets cadastrados</strong> e informe a senha.</div>
+      <div id="listaTickets" class="hidden">Carregando...</div>
     </div>
   </div>
 
   <script>
- const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
+    const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
+    const SENHA_PROTECAO = "2101";
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let ticketsCarregados = [];
+    let ticketEditandoId = null;
+    let listaLiberada = false;
 
     function mostrarMensagem(texto, cor = "green") {
       const el = document.getElementById("mensagem");
@@ -267,6 +264,37 @@ const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
       return "";
     }
 
+    function pedirSenha() {
+      const senha = prompt("Digite a senha:");
+      return senha === SENHA_PROTECAO;
+    }
+
+    function limparFormulario() {
+      document.getElementById("solicitante").value = "";
+      document.getElementById("titulo").value = "";
+      document.getElementById("descricao").value = "";
+      document.getElementById("setor").value = "TI";
+      document.getElementById("prioridade").value = "Baixa";
+      document.getElementById("responsavel").value = "";
+    }
+
+    function cancelarEdicao() {
+      ticketEditandoId = null;
+      document.getElementById("formTitulo").innerText = "Abrir novo ticket";
+      document.getElementById("btnSalvar").innerText = "Salvar ticket";
+      document.getElementById("btnCancelarEdicao").classList.add("hidden");
+      limparFormulario();
+      mostrarMensagem("");
+    }
+
+    async function salvarOuAtualizarTicket() {
+      if (ticketEditandoId) {
+        await atualizarTicket();
+      } else {
+        await criarTicket();
+      }
+    }
+
     async function criarTicket() {
       const solicitante = document.getElementById("solicitante").value.trim();
       const titulo = document.getElementById("titulo").value.trim();
@@ -282,13 +310,13 @@ const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
 
       const { error } = await client.from("tickets").insert([
         {
-          titulo: titulo,
-          descricao: descricao,
-          setor: setor,
-          prioridade: prioridade,
-          responsavel: responsavel,
+          titulo,
+          descricao,
+          setor,
+          prioridade,
+          responsavel,
           status: "Aberto",
-          solicitante: solicitante
+          solicitante
         }
       ]);
 
@@ -298,16 +326,134 @@ const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
         return;
       }
 
-      document.getElementById("solicitante").value = "";
-      document.getElementById("titulo").value = "";
-      document.getElementById("descricao").value = "";
-      document.getElementById("responsavel").value = "";
-
+      limparFormulario();
       mostrarMensagem("Ticket criado com sucesso.", "green");
+      if (listaLiberada) {
+        listarTickets();
+      }
+    }
+
+    async function atualizarTicket() {
+      if (!pedirSenha()) {
+        alert("Senha incorreta.");
+        return;
+      }
+
+      const solicitante = document.getElementById("solicitante").value.trim();
+      const titulo = document.getElementById("titulo").value.trim();
+      const descricao = document.getElementById("descricao").value.trim();
+      const setor = document.getElementById("setor").value;
+      const prioridade = document.getElementById("prioridade").value;
+      const responsavel = document.getElementById("responsavel").value.trim();
+
+      const { error } = await client
+        .from("tickets")
+        .update({
+          solicitante,
+          titulo,
+          descricao,
+          setor,
+          prioridade,
+          responsavel
+        })
+        .eq("id", ticketEditandoId);
+
+      if (error) {
+        mostrarMensagem("Erro ao atualizar ticket: " + error.message, "red");
+        console.error(error);
+        return;
+      }
+
+      mostrarMensagem("Ticket atualizado com sucesso.", "green");
+      cancelarEdicao();
+      if (listaLiberada) {
+        listarTickets();
+      }
+    }
+
+    function editarTicket(id) {
+      if (!pedirSenha()) {
+        alert("Senha incorreta.");
+        return;
+      }
+
+      const ticket = ticketsCarregados.find(t => String(t.id) === String(id));
+      if (!ticket) return;
+
+      ticketEditandoId = id;
+      document.getElementById("formTitulo").innerText = "Editar ticket";
+      document.getElementById("btnSalvar").innerText = "Salvar alteração";
+      document.getElementById("btnCancelarEdicao").classList.remove("hidden");
+
+      document.getElementById("solicitante").value = ticket.solicitante || "";
+      document.getElementById("titulo").value = ticket.titulo || "";
+      document.getElementById("descricao").value = ticket.descricao || "";
+      document.getElementById("setor").value = ticket.setor || "TI";
+      document.getElementById("prioridade").value = ticket.prioridade || "Baixa";
+      document.getElementById("responsavel").value = ticket.responsavel || "";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function excluirTicket(id) {
+      if (!pedirSenha()) {
+        alert("Senha incorreta.");
+        return;
+      }
+
+      if (!confirm("Deseja excluir este ticket?")) return;
+
+      const { error } = await client
+        .from("tickets")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao excluir ticket: " + error.message);
+        console.error(error);
+        return;
+      }
+
+      listarTickets();
+    }
+
+    async function alterarStatus(id, novoStatus) {
+      if (novoStatus === "Finalizado") {
+        if (!pedirSenha()) {
+          alert("Senha incorreta.");
+          return;
+        }
+      }
+
+      const { error } = await client
+        .from("tickets")
+        .update({ status: novoStatus })
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao atualizar status: " + error.message);
+        console.error(error);
+        return;
+      }
+
+      listarTickets();
+    }
+
+    function liberarVisualizacao() {
+      if (!pedirSenha()) {
+        alert("Senha incorreta.");
+        return;
+      }
+
+      listaLiberada = true;
+      document.getElementById("bloqueioLista").classList.add("hidden");
+      document.getElementById("listaTickets").classList.remove("hidden");
       listarTickets();
     }
 
     async function listarTickets() {
+      if (!listaLiberada) return;
+
       const busca = document.getElementById("busca").value.trim().toLowerCase();
       const filtroStatus = document.getElementById("filtroStatus").value;
       const filtroSetor = document.getElementById("filtroSetor").value;
@@ -323,14 +469,17 @@ const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
         return;
       }
 
-      let tickets = data || [];
+      ticketsCarregados = data || [];
+
+      let tickets = [...ticketsCarregados];
 
       tickets = tickets.filter(ticket => {
         const texto = (
           (ticket.titulo || "") + " " +
           (ticket.descricao || "") + " " +
           (ticket.setor || "") + " " +
-          (ticket.solicitante || "")
+          (ticket.solicitante || "") + " " +
+          (ticket.responsavel || "")
         ).toLowerCase();
 
         const okBusca = !busca || texto.includes(busca);
@@ -368,8 +517,10 @@ const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
 
             <div class="acoes">
               <button class="btn-yellow" onclick="alterarStatus('${ticket.id}', 'Em andamento')">Em andamento</button>
-              <button class="btn-green" onclick="alterarStatus('${ticket.id}', 'Finalizado')">Finalizado</button>
+              <button class="btn-green" onclick="alterarStatus('${ticket.id}', 'Finalizado')">Finalizar</button>
               <button class="btn-sec" onclick="alterarStatus('${ticket.id}', 'Aberto')">Reabrir</button>
+              <button class="btn-sec" onclick="editarTicket('${ticket.id}')">Editar</button>
+              <button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>
             </div>
           </div>
         `;
@@ -377,23 +528,6 @@ const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
 
       document.getElementById("listaTickets").innerHTML = html;
     }
-
-    async function alterarStatus(id, novoStatus) {
-      const { error } = await client
-        .from("tickets")
-        .update({ status: novoStatus })
-        .eq("id", id);
-
-      if (error) {
-        alert("Erro ao atualizar status: " + error.message);
-        console.error(error);
-        return;
-      }
-
-      listarTickets();
-    }
-
-    listarTickets();
   </script>
 </body>
 </html>
