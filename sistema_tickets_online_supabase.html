@@ -3,173 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SUPORTE BSM - LOGIN POR USUÁRIO</title>
+  <title>SUPORTE BSM - VERSÃO 5</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f3f4f6;
-      color: #111827;
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background:#f3f4f6; color:#111827; }
+    .topo { background:#081427; color:#fff; padding:18px 20px; }
+    .topo h1 { margin:0; font-size:28px; }
+    .topo p { margin:6px 0 0; color:#d1d5db; }
+    .container { max-width:1450px; margin:0 auto; padding:20px; }
+    .card { background:#fff; border-radius:16px; padding:20px; box-shadow:0 4px 14px rgba(0,0,0,.08); }
+    .hidden { display:none !important; }
+    .layout { display:grid; grid-template-columns:260px 1fr; gap:20px; }
+    .menu button {
+      width:100%; text-align:left; margin:0 0 10px 0; border:none; border-radius:12px;
+      padding:12px 14px; background:#1f2937; color:#fff; font-weight:bold; cursor:pointer;
     }
-    .topo {
-      background: #081427;
-      color: #fff;
-      padding: 20px;
-    }
-    .topo h1 {
-      margin: 0;
-      font-size: 30px;
-    }
-    .topo p {
-      margin: 6px 0 0;
-      color: #d1d5db;
-    }
-    .container {
-      max-width: 1380px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-      margin-bottom: 20px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .linha2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .linha3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-    }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .box {
-      background: white;
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-    }
-    .box strong {
-      display: block;
-      font-size: 28px;
-      margin-top: 4px;
-    }
+    .menu button.active { background:#1d4ed8; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:20px; }
+    .box { background:#fff; border-radius:14px; padding:16px; box-shadow:0 4px 14px rgba(0,0,0,.06); }
+    .box strong { display:block; font-size:28px; margin-top:4px; }
     input, textarea, select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      margin-top: 6px;
-      margin-bottom: 14px;
-      font-size: 14px;
+      width:100%; padding:12px; border:1px solid #d1d5db; border-radius:10px;
+      margin-top:6px; margin-bottom:14px; font-size:14px;
     }
-    textarea { min-height: 95px; resize: vertical; }
+    textarea { min-height:95px; resize:vertical; }
     button {
-      background: #081427;
-      color: white;
-      border: none;
-      padding: 11px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-right: 8px;
-      margin-bottom: 8px;
+      background:#081427; color:white; border:none; padding:11px 16px; border-radius:10px;
+      cursor:pointer; font-weight:bold; margin-right:8px; margin-bottom:8px;
     }
-    button:hover { opacity: .95; }
-    .btn-green { background: #15803d; }
-    .btn-yellow { background: #b45309; }
-    .btn-red { background: #b91c1c; }
-    .btn-gray { background: #374151; }
-    .btn-blue { background: #1d4ed8; }
-    .ticket {
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 14px;
-      background: #fafafa;
-    }
+    button:hover { opacity:.95; }
+    .btn-green{ background:#15803d; } .btn-yellow{ background:#b45309; } .btn-red{ background:#b91c1c; }
+    .btn-gray{ background:#374151; } .btn-blue{ background:#1d4ed8; }
+    .ticket { border:1px solid #e5e7eb; border-radius:14px; padding:16px; margin-bottom:14px; background:#fafafa; }
     .status, .prioridade {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: bold;
-      padding: 5px 10px;
-      border-radius: 999px;
-      margin-right: 8px;
-      margin-bottom: 8px;
+      display:inline-block; font-size:12px; font-weight:bold; padding:5px 10px; border-radius:999px;
+      margin-right:8px; margin-bottom:8px;
     }
-    .aberto { background: #dbeafe; color: #1d4ed8; }
-    .andamento { background: #fef3c7; color: #b45309; }
-    .finalizado { background: #dcfce7; color: #15803d; }
-    .baixa { background: #e5e7eb; color: #374151; }
-    .media { background: #cffafe; color: #0f766e; }
-    .alta { background: #fee2e2; color: #b91c1c; }
-    .acoes {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-    .msg {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    .hidden { display: none !important; }
-    .resumo {
-      font-size: 14px;
-      color: #4b5563;
-      line-height: 1.6;
-    }
-    .userbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-    .thumb {
-      margin-top: 10px;
-      max-width: 220px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-    }
-    .mini {
-      font-size: 12px;
-      color: #6b7280;
-    }
-    h2, h3 { margin-top: 0; }
-    @media (max-width: 950px) {
-      .grid, .linha2, .linha3 { grid-template-columns: 1fr; }
+    .aberto{ background:#dbeafe; color:#1d4ed8; } .andamento{ background:#fef3c7; color:#b45309; } .finalizado{ background:#dcfce7; color:#15803d; }
+    .baixa{ background:#e5e7eb; color:#374151; } .media{ background:#cffafe; color:#0f766e; } .alta{ background:#fee2e2; color:#b91c1c; }
+    .acoes { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .msg { margin-top:10px; font-weight:bold; }
+    .resumo { font-size:14px; color:#4b5563; line-height:1.6; }
+    .thumb { margin-top:10px; max-width:220px; border-radius:12px; border:1px solid #ddd; }
+    .mini { font-size:12px; color:#6b7280; }
+    .userbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; font-size:14px; }
+    th { background:#f9fafb; }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns:1fr; }
+      .grid2, .grid3 { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
   <div class="topo">
     <h1>SUPORTE BSM</h1>
-    <p>Login por usuário e senha</p>
+    <p>Versão 5 - menu lateral, dashboard, usuários e chamados</p>
   </div>
 
   <div class="container">
     <div id="authBox" class="card">
       <h2>Login</h2>
-
-      <div class="linha2">
+      <div class="grid2">
         <div>
           <label>Nome completo (somente cadastro)</label>
           <input type="text" id="cadNome" placeholder="Seu nome completo" />
@@ -179,13 +79,10 @@
           <input type="text" id="authUsuario" placeholder="Ex.: adriano" />
         </div>
       </div>
-
       <label>Senha</label>
       <input type="password" id="authSenha" placeholder="Sua senha" />
-
       <button class="btn-blue" onclick="registrar()">Criar conta</button>
       <button onclick="entrar()">Entrar</button>
-
       <div id="authMsg" class="msg"></div>
     </div>
 
@@ -200,124 +97,154 @@
         </div>
       </div>
 
-      <div class="dashboard">
-        <div class="box"><span>Total</span><strong id="dashTotal">0</strong></div>
-        <div class="box"><span>Abertos</span><strong id="dashAbertos">0</strong></div>
-        <div class="box"><span>Em andamento</span><strong id="dashAndamento">0</strong></div>
-        <div class="box"><span>Finalizados</span><strong id="dashFinalizados">0</strong></div>
-        <div class="box"><span>Prioridade alta</span><strong id="dashAlta">0</strong></div>
-        <div class="box"><span>Hoje</span><strong id="dashHoje">0</strong></div>
-      </div>
-
-      <div class="grid">
-        <div class="card">
-          <h2 id="tituloFormulario">Abrir novo chamado</h2>
-
-          <label>Solicitante</label>
-          <input type="text" id="solicitante" placeholder="Nome de quem está abrindo o chamado" />
-
-          <label>Título</label>
-          <input type="text" id="titulo" placeholder="Ex.: Impressora não está funcionando" />
-
-          <label>Descrição</label>
-          <textarea id="descricao" placeholder="Descreva o problema"></textarea>
-
-          <div class="linha3">
-            <div>
-              <label>Setor</label>
-              <select id="setor">
-                <option value="TI">TI</option>
-                <option value="Manutenção">Manutenção</option>
-                <option value="Frota">Frota</option>
-                <option value="Compras">Compras</option>
-                <option value="RH">RH</option>
-                <option value="Produção">Produção</option>
-                <option value="Estoque">Estoque</option>
-              </select>
-            </div>
-            <div>
-              <label>Prioridade</label>
-              <select id="prioridade">
-                <option value="Baixa">Baixa</option>
-                <option value="Média">Média</option>
-                <option value="Alta">Alta</option>
-              </select>
-            </div>
-            <div>
-              <label>Responsável</label>
-              <input type="text" id="responsavel" placeholder="Responsável" />
-            </div>
-          </div>
-
-          <label>Foto do chamado</label>
-          <input type="file" id="foto" accept="image/*" />
-          <img id="previewFoto" class="thumb hidden" alt="Prévia da foto" />
-
-          <button id="btnSalvar" onclick="salvarOuAtualizar()">Salvar chamado</button>
-          <button id="btnCancelar" class="btn-gray hidden" onclick="cancelarEdicao()">Cancelar edição</button>
-
-          <div id="mensagem" class="msg"></div>
+      <div class="layout">
+        <div class="card menu">
+          <button id="btn-abrir" class="active" onclick="mostrarAba('abrir')">📋 Abrir Chamado</button>
+          <button id="btn-meus" onclick="mostrarAba('meus')">📁 Meus Chamados</button>
+          <button id="btn-dashboard" onclick="mostrarAba('dashboard')">📊 Dashboard</button>
+          <button id="btn-relatorios" onclick="mostrarAba('relatorios')">📄 Relatórios</button>
+          <button id="btn-todos" class="hidden" onclick="mostrarAba('todos')">🛠️ Todos Chamados</button>
+          <button id="btn-usuarios" class="hidden" onclick="mostrarAba('usuarios')">👥 Usuários</button>
         </div>
 
-        <div class="card">
-          <h2>Filtros</h2>
+        <div>
+          <div id="aba-abrir" class="card">
+            <h2 id="tituloFormulario">Abrir novo chamado</h2>
+            <label>Solicitante</label>
+            <input type="text" id="solicitante" placeholder="Nome de quem está abrindo o chamado" />
+            <label>Título</label>
+            <input type="text" id="titulo" placeholder="Ex.: Impressora não está funcionando" />
+            <label>Descrição</label>
+            <textarea id="descricao" placeholder="Descreva o problema"></textarea>
 
-          <label>Buscar</label>
-          <input type="text" id="busca" placeholder="Buscar por número, título, setor..." onkeyup="listarTickets()" />
+            <div class="grid3">
+              <div>
+                <label>Setor</label>
+                <select id="setor">
+                  <option value="TI">TI</option>
+                  <option value="Manutenção">Manutenção</option>
+                  <option value="Frota">Frota</option>
+                  <option value="Compras">Compras</option>
+                  <option value="RH">RH</option>
+                  <option value="Produção">Produção</option>
+                  <option value="Estoque">Estoque</option>
+                </select>
+              </div>
+              <div>
+                <label>Prioridade</label>
+                <select id="prioridade">
+                  <option value="Baixa">Baixa</option>
+                  <option value="Média">Média</option>
+                  <option value="Alta">Alta</option>
+                </select>
+              </div>
+              <div>
+                <label>Responsável</label>
+                <input type="text" id="responsavel" placeholder="Responsável" />
+              </div>
+            </div>
 
-          <div class="linha3">
-            <div>
-              <label>Status</label>
-              <select id="filtroStatus" onchange="listarTickets()">
-                <option value="">Todos</option>
-                <option value="Aberto">Aberto</option>
-                <option value="Em andamento">Em andamento</option>
-                <option value="Finalizado">Finalizado</option>
-              </select>
+            <label>Foto do chamado</label>
+            <input type="file" id="foto" accept="image/*" />
+            <img id="previewFoto" class="thumb hidden" alt="Prévia da foto" />
+
+            <button id="btnSalvar" onclick="salvarOuAtualizar()">Salvar chamado</button>
+            <button id="btnCancelar" class="btn-gray hidden" onclick="cancelarEdicao()">Cancelar edição</button>
+            <div id="mensagem" class="msg"></div>
+          </div>
+
+          <div id="aba-meus" class="card hidden">
+            <h2>Meus chamados</h2>
+            <div id="listaMeus">Carregando...</div>
+          </div>
+
+          <div id="aba-dashboard" class="hidden">
+            <div class="dashboard">
+              <div class="box"><span>Total</span><strong id="dashTotal">0</strong></div>
+              <div class="box"><span>Abertos</span><strong id="dashAbertos">0</strong></div>
+              <div class="box"><span>Em andamento</span><strong id="dashAndamento">0</strong></div>
+              <div class="box"><span>Finalizados</span><strong id="dashFinalizados">0</strong></div>
+              <div class="box"><span>Prioridade alta</span><strong id="dashAlta">0</strong></div>
+              <div class="box"><span>Hoje</span><strong id="dashHoje">0</strong></div>
             </div>
-            <div>
-              <label>Setor</label>
-              <select id="filtroSetor" onchange="listarTickets()">
-                <option value="">Todos</option>
-                <option value="TI">TI</option>
-                <option value="Manutenção">Manutenção</option>
-                <option value="Frota">Frota</option>
-                <option value="Compras">Compras</option>
-                <option value="RH">RH</option>
-                <option value="Produção">Produção</option>
-                <option value="Estoque">Estoque</option>
-              </select>
-            </div>
-            <div>
-              <label>Período</label>
-              <select id="filtroPeriodo" onchange="aplicarPeriodoRapido()">
-                <option value="">Todos</option>
-                <option value="hoje">Hoje</option>
-                <option value="ontem">Ontem</option>
-                <option value="semana">Esta semana</option>
-                <option value="mes">Este mês</option>
-              </select>
+            <div class="card">
+              <h2>Resumo</h2>
+              <div id="dashboardResumo" class="resumo">Carregando...</div>
             </div>
           </div>
 
-          <div class="linha2">
-            <div>
-              <label>Data inicial</label>
-              <input type="date" id="dataInicial" onchange="listarTickets()" />
+          <div id="aba-relatorios" class="card hidden">
+            <h2>Relatórios</h2>
+            <div class="grid3">
+              <div>
+                <label>Status</label>
+                <select id="filtroStatus" onchange="renderRelatorios()">
+                  <option value="">Todos</option>
+                  <option value="Aberto">Aberto</option>
+                  <option value="Em andamento">Em andamento</option>
+                  <option value="Finalizado">Finalizado</option>
+                </select>
+              </div>
+              <div>
+                <label>Setor</label>
+                <select id="filtroSetor" onchange="renderRelatorios()">
+                  <option value="">Todos</option>
+                  <option value="TI">TI</option>
+                  <option value="Manutenção">Manutenção</option>
+                  <option value="Frota">Frota</option>
+                  <option value="Compras">Compras</option>
+                  <option value="RH">RH</option>
+                  <option value="Produção">Produção</option>
+                  <option value="Estoque">Estoque</option>
+                </select>
+              </div>
+              <div>
+                <label>Período</label>
+                <select id="filtroPeriodo" onchange="aplicarPeriodoRapido()">
+                  <option value="">Todos</option>
+                  <option value="hoje">Hoje</option>
+                  <option value="ontem">Ontem</option>
+                  <option value="semana">Esta semana</option>
+                  <option value="mes">Este mês</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label>Data final</label>
-              <input type="date" id="dataFinal" onchange="listarTickets()" />
+            <div class="grid2">
+              <div>
+                <label>Data inicial</label>
+                <input type="date" id="dataInicial" onchange="renderRelatorios()" />
+              </div>
+              <div>
+                <label>Data final</label>
+                <input type="date" id="dataFinal" onchange="renderRelatorios()" />
+              </div>
             </div>
+            <button class="btn-gray" onclick="window.print()">Imprimir</button>
+            <div id="listaRelatorios" style="margin-top:15px;">Carregando...</div>
           </div>
 
-          <button class="btn-gray" onclick="listarTickets()">Atualizar lista</button>
+          <div id="aba-todos" class="card hidden">
+            <h2>Todos os chamados</h2>
+            <div id="listaTodos">Carregando...</div>
+          </div>
+
+          <div id="aba-usuarios" class="card hidden">
+            <h2>Usuários</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Usuário</th>
+                    <th>Email</th>
+                    <th>Perfil</th>
+                  </tr>
+                </thead>
+                <tbody id="listaUsuarios"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="card" style="margin-top:20px;">
-        <h2 id="tituloLista">Meus chamados</h2>
-        <div id="listaTickets">Carregando...</div>
       </div>
     </div>
   </div>
@@ -326,7 +253,6 @@
     const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
     const SENHA_ADMIN = "_Cpd419_";
-
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentUser = null;
@@ -346,21 +272,32 @@
       img.classList.remove("hidden");
     });
 
+    function mostrarAba(nome) {
+      ["abrir","meus","dashboard","relatorios","todos","usuarios"].forEach(id=>{
+        document.getElementById("aba-"+id)?.classList.add("hidden");
+        document.getElementById("btn-"+id)?.classList.remove("active");
+      });
+      document.getElementById("aba-"+nome).classList.remove("hidden");
+      document.getElementById("btn-"+nome).classList.add("active");
+      if (nome === "meus") renderMeus();
+      if (nome === "dashboard") renderDashboard();
+      if (nome === "relatorios") renderRelatorios();
+      if (nome === "todos") renderTodos();
+      if (nome === "usuarios") renderUsuarios();
+    }
+
     function mostrarAuthMsg(texto, cor = "green") {
-      const el = document.getElementById("authMsg");
-      el.innerText = texto;
-      el.style.color = cor;
+      authMsg.innerText = texto;
+      authMsg.style.color = cor;
     }
 
     function mostrarMensagem(texto, cor = "green") {
-      const el = document.getElementById("mensagem");
-      el.innerText = texto;
-      el.style.color = cor;
+      mensagem.innerText = texto;
+      mensagem.style.color = cor;
     }
 
     function pedirSenhaAdmin() {
-      const senha = prompt("Digite a senha do admin:");
-      return senha === SENHA_ADMIN;
+      return prompt("Digite a senha do admin:") === SENHA_ADMIN;
     }
 
     function classeStatus(status) {
@@ -378,22 +315,22 @@
     }
 
     function limparFormulario() {
-      document.getElementById("solicitante").value = currentProfile?.full_name || "";
-      document.getElementById("titulo").value = "";
-      document.getElementById("descricao").value = "";
-      document.getElementById("setor").value = "TI";
-      document.getElementById("prioridade").value = "Baixa";
-      document.getElementById("responsavel").value = "";
-      document.getElementById("foto").value = "";
-      document.getElementById("previewFoto").classList.add("hidden");
-      document.getElementById("previewFoto").src = "";
+      solicitante.value = currentProfile?.full_name || "";
+      titulo.value = "";
+      descricao.value = "";
+      setor.value = "TI";
+      prioridade.value = "Baixa";
+      responsavel.value = "";
+      foto.value = "";
+      previewFoto.classList.add("hidden");
+      previewFoto.src = "";
     }
 
     function cancelarEdicao() {
       ticketEditandoId = null;
-      document.getElementById("tituloFormulario").innerText = "Abrir novo chamado";
-      document.getElementById("btnSalvar").innerText = "Salvar chamado";
-      document.getElementById("btnCancelar").classList.add("hidden");
+      tituloFormulario.innerText = "Abrir novo chamado";
+      btnSalvar.innerText = "Salvar chamado";
+      btnCancelar.classList.add("hidden");
       limparFormulario();
       mostrarMensagem("");
     }
@@ -403,21 +340,16 @@
     }
 
     async function registrar() {
-      const nome = document.getElementById("cadNome").value.trim();
-      const usuario = document.getElementById("authUsuario").value.trim().toLowerCase();
-      const senha = document.getElementById("authSenha").value.trim();
+      const nome = cadNome.value.trim();
+      const usuario = authUsuario.value.trim().toLowerCase();
+      const senha = authSenha.value.trim();
 
       if (!nome || !usuario || !senha) {
         mostrarAuthMsg("Preencha nome, usuário e senha.", "red");
         return;
       }
 
-      const { data: userExists } = await client
-        .from("profiles")
-        .select("id")
-        .eq("username", usuario)
-        .limit(1);
-
+      const { data: userExists } = await client.from("profiles").select("id").eq("username", usuario).limit(1);
       if (userExists && userExists.length) {
         mostrarAuthMsg("Esse usuário já existe.", "red");
         return;
@@ -426,26 +358,20 @@
       const emailInterno = gerarEmailInterno(usuario);
       const role = ["adriano", "leonardo"].includes(usuario) ? "admin" : "usuario";
 
-      const { data, error } = await client.auth.signUp({
-        email: emailInterno,
-        password: senha
-      });
-
+      const { data, error } = await client.auth.signUp({ email: emailInterno, password: senha });
       if (error) {
         mostrarAuthMsg("Erro ao criar conta: " + error.message, "red");
         return;
       }
 
       if (data.user) {
-        const { error: profileError } = await client
-          .from("profiles")
-          .upsert({
-            id: data.user.id,
-            email: emailInterno,
-            full_name: nome,
-            username: usuario,
-            role: role
-          });
+        const { error: profileError } = await client.from("profiles").upsert({
+          id: data.user.id,
+          email: emailInterno,
+          full_name: nome,
+          username: usuario,
+          role: role
+        });
 
         if (profileError) {
           mostrarAuthMsg("Conta criada, mas erro ao salvar perfil: " + profileError.message, "red");
@@ -457,8 +383,8 @@
     }
 
     async function entrar() {
-      const usuario = document.getElementById("authUsuario").value.trim().toLowerCase();
-      const senha = document.getElementById("authSenha").value.trim();
+      const usuario = authUsuario.value.trim().toLowerCase();
+      const senha = authSenha.value.trim();
 
       if (!usuario || !senha) {
         mostrarAuthMsg("Informe usuário e senha.", "red");
@@ -477,11 +403,7 @@
       }
 
       const email = rows[0].email;
-
-      const { error } = await client.auth.signInWithPassword({
-        email,
-        password: senha
-      });
+      const { error } = await client.auth.signInWithPassword({ email, password: senha });
 
       if (error) {
         mostrarAuthMsg("Usuário ou senha inválidos.", "red");
@@ -495,15 +417,15 @@
       await client.auth.signOut();
       currentUser = null;
       currentProfile = null;
-      document.getElementById("appBox").classList.add("hidden");
-      document.getElementById("authBox").classList.remove("hidden");
+      appBox.classList.add("hidden");
+      authBox.classList.remove("hidden");
     }
 
     async function carregarSessao() {
       const { data } = await client.auth.getSession();
       if (!data.session) {
-        document.getElementById("appBox").classList.add("hidden");
-        document.getElementById("authBox").classList.remove("hidden");
+        appBox.classList.add("hidden");
+        authBox.classList.remove("hidden");
         return;
       }
 
@@ -526,90 +448,68 @@
       }
 
       currentProfile = profileRows[0];
+      authBox.classList.add("hidden");
+      appBox.classList.remove("hidden");
 
-      document.getElementById("authBox").classList.add("hidden");
-      document.getElementById("appBox").classList.remove("hidden");
+      userNome.innerText = currentProfile.full_name || currentProfile.username || "Usuário";
+      userInfo.innerText = (currentProfile.username || "") + " | Perfil: " + (currentProfile.role || "usuario");
 
-      document.getElementById("userNome").innerText = currentProfile.full_name || currentProfile.username || "Usuário";
-      document.getElementById("userInfo").innerText =
-        (currentProfile.username || "") + " | Perfil: " + (currentProfile.role || "usuario");
+      if (currentProfile.role === "admin") {
+        document.getElementById("btn-todos").classList.remove("hidden");
+        document.getElementById("btn-usuarios").classList.remove("hidden");
+      }
 
-      document.getElementById("tituloLista").innerText =
-        currentProfile.role === "admin" ? "Todos os chamados" : "Meus chamados";
-
-      document.getElementById("solicitante").value = currentProfile.full_name || "";
-
+      solicitante.value = currentProfile.full_name || "";
       await listarTickets();
+      mostrarAba("abrir");
     }
 
     async function salvarOuAtualizar() {
-      if (ticketEditandoId) {
-        await atualizarTicket();
-      } else {
-        await criarTicket();
-      }
+      if (ticketEditandoId) await atualizarTicket();
+      else await criarTicket();
     }
 
     async function uploadFotoSeExistir() {
-      const file = document.getElementById("foto").files[0];
+      const file = foto.files[0];
       if (!file) return { foto_path: null, foto_url: null };
 
       const ext = file.name.split(".").pop() || "jpg";
       const nome = `${currentUser.id}/${Date.now()}.${ext}`;
 
-      const { error } = await client.storage
-        .from("tickets-fotos")
-        .upload(nome, file, { upsert: true });
-
-      if (error) {
-        throw new Error(error.message);
-      }
+      const { error } = await client.storage.from("tickets-fotos").upload(nome, file, { upsert: true });
+      if (error) throw new Error(error.message);
 
       const { data } = client.storage.from("tickets-fotos").getPublicUrl(nome);
-
-      return {
-        foto_path: nome,
-        foto_url: data.publicUrl
-      };
+      return { foto_path: nome, foto_url: data.publicUrl };
     }
 
     async function criarTicket() {
-      const solicitante = document.getElementById("solicitante").value.trim();
-      const titulo = document.getElementById("titulo").value.trim();
-      const descricao = document.getElementById("descricao").value.trim();
-      const setor = document.getElementById("setor").value;
-      const prioridade = document.getElementById("prioridade").value;
-      const responsavel = document.getElementById("responsavel").value.trim();
+      const payloadBase = {
+        user_id: currentUser.id,
+        user_email: currentProfile.email,
+        solicitante: solicitante.value.trim(),
+        titulo: titulo.value.trim(),
+        descricao: descricao.value.trim(),
+        setor: setor.value,
+        prioridade: prioridade.value,
+        responsavel: responsavel.value.trim(),
+        status: "Aberto"
+      };
 
-      if (!solicitante || !titulo || !descricao) {
+      if (!payloadBase.solicitante || !payloadBase.titulo || !payloadBase.descricao) {
         mostrarMensagem("Preencha solicitante, título e descrição.", "red");
         return;
       }
 
-      let foto = { foto_path: null, foto_url: null };
+      let fotoPayload = { foto_path: null, foto_url: null };
       try {
-        foto = await uploadFotoSeExistir();
+        fotoPayload = await uploadFotoSeExistir();
       } catch (e) {
         mostrarMensagem("Erro ao enviar foto: " + e.message, "red");
         return;
       }
 
-      const { error } = await client.from("tickets").insert([
-        {
-          user_id: currentUser.id,
-          user_email: currentProfile.email,
-          solicitante,
-          titulo,
-          descricao,
-          setor,
-          prioridade,
-          responsavel,
-          status: "Aberto",
-          foto_path: foto.foto_path,
-          foto_url: foto.foto_url
-        }
-      ]);
-
+      const { error } = await client.from("tickets").insert([{ ...payloadBase, ...fotoPayload }]);
       if (error) {
         mostrarMensagem("Erro ao salvar chamado: " + error.message, "red");
         return;
@@ -618,6 +518,7 @@
       limparFormulario();
       mostrarMensagem("Chamado criado com sucesso.", "green");
       await listarTickets();
+      mostrarAba("meus");
     }
 
     async function atualizarTicket() {
@@ -626,39 +527,28 @@
         return;
       }
 
-      const solicitante = document.getElementById("solicitante").value.trim();
-      const titulo = document.getElementById("titulo").value.trim();
-      const descricao = document.getElementById("descricao").value.trim();
-      const setor = document.getElementById("setor").value;
-      const prioridade = document.getElementById("prioridade").value;
-      const responsavel = document.getElementById("responsavel").value.trim();
-
       const payload = {
-        solicitante,
-        titulo,
-        descricao,
-        setor,
-        prioridade,
-        responsavel
+        solicitante: solicitante.value.trim(),
+        titulo: titulo.value.trim(),
+        descricao: descricao.value.trim(),
+        setor: setor.value,
+        prioridade: prioridade.value,
+        responsavel: responsavel.value.trim()
       };
 
-      const file = document.getElementById("foto").files[0];
+      const file = foto.files[0];
       if (file) {
         try {
-          const foto = await uploadFotoSeExistir();
-          payload.foto_path = foto.foto_path;
-          payload.foto_url = foto.foto_url;
+          const fotoData = await uploadFotoSeExistir();
+          payload.foto_path = fotoData.foto_path;
+          payload.foto_url = fotoData.foto_url;
         } catch (e) {
           mostrarMensagem("Erro ao enviar foto: " + e.message, "red");
           return;
         }
       }
 
-      const { error } = await client
-        .from("tickets")
-        .update(payload)
-        .eq("id", ticketEditandoId);
-
+      const { error } = await client.from("tickets").update(payload).eq("id", ticketEditandoId);
       if (error) {
         mostrarMensagem("Erro ao atualizar chamado: " + error.message, "red");
         return;
@@ -667,6 +557,7 @@
       mostrarMensagem("Chamado atualizado com sucesso.", "green");
       cancelarEdicao();
       await listarTickets();
+      mostrarAba("todos");
     }
 
     function editarTicket(id) {
@@ -679,26 +570,26 @@
       if (!t) return;
 
       ticketEditandoId = id;
-      document.getElementById("tituloFormulario").innerText = "Editar chamado";
-      document.getElementById("btnSalvar").innerText = "Salvar alteração";
-      document.getElementById("btnCancelar").classList.remove("hidden");
+      tituloFormulario.innerText = "Editar chamado";
+      btnSalvar.innerText = "Salvar alteração";
+      btnCancelar.classList.remove("hidden");
 
-      document.getElementById("solicitante").value = t.solicitante || "";
-      document.getElementById("titulo").value = t.titulo || "";
-      document.getElementById("descricao").value = t.descricao || "";
-      document.getElementById("setor").value = t.setor || "TI";
-      document.getElementById("prioridade").value = t.prioridade || "Baixa";
-      document.getElementById("responsavel").value = t.responsavel || "";
+      solicitante.value = t.solicitante || "";
+      titulo.value = t.titulo || "";
+      descricao.value = t.descricao || "";
+      setor.value = t.setor || "TI";
+      prioridade.value = t.prioridade || "Baixa";
+      responsavel.value = t.responsavel || "";
 
-      const preview = document.getElementById("previewFoto");
       if (t.foto_url) {
-        preview.src = t.foto_url;
-        preview.classList.remove("hidden");
+        previewFoto.src = t.foto_url;
+        previewFoto.classList.remove("hidden");
       } else {
-        preview.src = "";
-        preview.classList.add("hidden");
+        previewFoto.src = "";
+        previewFoto.classList.add("hidden");
       }
 
+      mostrarAba("abrir");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -707,45 +598,37 @@
         alert("Senha incorreta.");
         return;
       }
-
       if (!confirm("Deseja excluir este chamado?")) return;
 
       const { error } = await client.from("tickets").delete().eq("id", id);
-
       if (error) {
         alert("Erro ao excluir chamado: " + error.message);
         return;
       }
 
       await listarTickets();
+      renderTodos();
     }
 
     async function colocarEmAndamento(id) {
-      const { error } = await client
-        .from("tickets")
-        .update({ status: "Em andamento" })
-        .eq("id", id);
-
+      const { error } = await client.from("tickets").update({ status: "Em andamento" }).eq("id", id);
       if (error) {
         alert("Erro ao atualizar status: " + error.message);
         return;
       }
-
       await listarTickets();
+      renderTodos();
     }
 
     async function reabrirTicket(id) {
-      const { error } = await client
-        .from("tickets")
-        .update({
-          status: "Aberto",
-          data_fechamento: null,
-          quem_atendeu: null,
-          observacao_atendimento: null,
-          peca_trocada: null,
-          motivo_fechamento: null
-        })
-        .eq("id", id);
+      const { error } = await client.from("tickets").update({
+        status: "Aberto",
+        data_fechamento: null,
+        quem_atendeu: null,
+        observacao_atendimento: null,
+        peca_trocada: null,
+        motivo_fechamento: null
+      }).eq("id", id);
 
       if (error) {
         alert("Erro ao reabrir chamado: " + error.message);
@@ -753,6 +636,7 @@
       }
 
       await listarTickets();
+      renderTodos();
     }
 
     async function finalizarTicket(id) {
@@ -763,27 +647,21 @@
 
       const quemAtendeu = prompt("Quem atendeu?");
       if (quemAtendeu === null) return;
-
       const observacao = prompt("O que foi feito?");
       if (observacao === null) return;
-
       const peca = prompt("Qual peça trocou? (se não trocou, deixe em branco)");
       if (peca === null) return;
-
       const motivo = prompt("Motivo do fechamento?");
       if (motivo === null) return;
 
-      const { error } = await client
-        .from("tickets")
-        .update({
-          status: "Finalizado",
-          quem_atendeu: quemAtendeu,
-          observacao_atendimento: observacao,
-          peca_trocada: peca,
-          motivo_fechamento: motivo,
-          data_fechamento: new Date().toISOString()
-        })
-        .eq("id", id);
+      const { error } = await client.from("tickets").update({
+        status: "Finalizado",
+        quem_atendeu: quemAtendeu,
+        observacao_atendimento: observacao,
+        peca_trocada: peca,
+        motivo_fechamento: motivo,
+        data_fechamento: new Date().toISOString()
+      }).eq("id", id);
 
       if (error) {
         alert("Erro ao finalizar chamado: " + error.message);
@@ -791,10 +669,11 @@
       }
 
       await listarTickets();
+      renderTodos();
     }
 
     function aplicarPeriodoRapido() {
-      const valor = document.getElementById("filtroPeriodo").value;
+      const valor = filtroPeriodo.value;
       const hoje = new Date();
 
       function formatarData(d) {
@@ -804,48 +683,38 @@
         return `${ano}-${mes}-${dia}`;
       }
 
-      let inicio = "";
-      let fim = "";
+      let inicio = "", fim = "";
 
       if (valor === "hoje") {
-        inicio = formatarData(hoje);
-        fim = formatarData(hoje);
+        inicio = formatarData(hoje); fim = formatarData(hoje);
       } else if (valor === "ontem") {
-        const ontem = new Date();
-        ontem.setDate(hoje.getDate() - 1);
-        inicio = formatarData(ontem);
-        fim = formatarData(ontem);
+        const ontem = new Date(); ontem.setDate(hoje.getDate() - 1);
+        inicio = formatarData(ontem); fim = formatarData(ontem);
       } else if (valor === "semana") {
         const inicioSemana = new Date(hoje);
         inicioSemana.setDate(hoje.getDate() - hoje.getDay());
-        inicio = formatarData(inicioSemana);
-        fim = formatarData(hoje);
+        inicio = formatarData(inicioSemana); fim = formatarData(hoje);
       } else if (valor === "mes") {
         const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-        inicio = formatarData(inicioMes);
-        fim = formatarData(hoje);
+        inicio = formatarData(inicioMes); fim = formatarData(hoje);
       } else {
-        document.getElementById("dataInicial").value = "";
-        document.getElementById("dataFinal").value = "";
-        listarTickets();
-        return;
+        dataInicial.value = "";
+        dataFinal.value = "";
       }
 
-      document.getElementById("dataInicial").value = inicio;
-      document.getElementById("dataFinal").value = fim;
-      listarTickets();
+      dataInicial.value = inicio;
+      dataFinal.value = fim;
+      renderRelatorios();
     }
 
     function dentroPeriodo(ticket) {
-      const di = document.getElementById("dataInicial").value;
-      const df = document.getElementById("dataFinal").value;
+      const di = dataInicial.value;
+      const df = dataFinal.value;
       if (!di && !df) return true;
 
-      const data = new Date(ticket.created_at);
-      const dataTexto = data.toISOString().slice(0, 10);
-
-      if (di && dataTexto < di) return false;
-      if (df && dataTexto > df) return false;
+      const data = new Date(ticket.created_at).toISOString().slice(0, 10);
+      if (di && data < di) return false;
+      if (df && data > df) return false;
       return true;
     }
 
@@ -859,65 +728,36 @@
       return `${horas}h ${minutos}min`;
     }
 
-    function atualizarDashboard(lista) {
-      document.getElementById("dashTotal").innerText = lista.length;
-      document.getElementById("dashAbertos").innerText = lista.filter(t => t.status === "Aberto").length;
-      document.getElementById("dashAndamento").innerText = lista.filter(t => t.status === "Em andamento").length;
-      document.getElementById("dashFinalizados").innerText = lista.filter(t => t.status === "Finalizado").length;
-      document.getElementById("dashAlta").innerText = lista.filter(t => t.prioridade === "Alta").length;
-
-      const hoje = new Date().toISOString().slice(0, 10);
-      document.getElementById("dashHoje").innerText = lista.filter(t => (t.created_at || "").slice(0, 10) === hoje).length;
-    }
-
     async function listarTickets() {
-      const { data, error } = await client
-        .from("tickets")
-        .select("*")
-        .order("created_at", { ascending: false });
-
+      const { data, error } = await client.from("tickets").select("*").order("created_at", { ascending: false });
       if (error) {
-        document.getElementById("listaTickets").innerHTML = "Erro ao carregar chamados: " + error.message;
+        console.error(error);
+        todosTickets = [];
         return;
       }
-
       todosTickets = data || [];
+    }
 
-      const busca = document.getElementById("busca").value.trim().toLowerCase();
-      const filtroStatus = document.getElementById("filtroStatus").value;
-      const filtroSetor = document.getElementById("filtroSetor").value;
+    function atualizarDashboard(lista) {
+      dashTotal.innerText = lista.length;
+      dashAbertos.innerText = lista.filter(t => t.status === "Aberto").length;
+      dashAndamento.innerText = lista.filter(t => t.status === "Em andamento").length;
+      dashFinalizados.innerText = lista.filter(t => t.status === "Finalizado").length;
+      dashAlta.innerText = lista.filter(t => t.prioridade === "Alta").length;
+      const hoje = new Date().toISOString().slice(0, 10);
+      dashHoje.innerText = lista.filter(t => (t.created_at || "").slice(0, 10) === hoje).length;
+    }
 
-      const lista = todosTickets.filter(t => {
-        const texto = (
-          (t.numero_chamado || "") + " " +
-          (t.titulo || "") + " " +
-          (t.descricao || "") + " " +
-          (t.setor || "") + " " +
-          (t.solicitante || "") + " " +
-          (t.responsavel || "")
-        ).toLowerCase();
-
-        const okBusca = !busca || texto.includes(busca);
-        const okStatus = !filtroStatus || t.status === filtroStatus;
-        const okSetor = !filtroSetor || t.setor === filtroSetor;
-        const okPeriodo = dentroPeriodo(t);
-
-        return okBusca && okStatus && okSetor && okPeriodo;
-      });
-
-      atualizarDashboard(lista);
-
+    function renderLista(lista, elementId, adminMode = false) {
+      const el = document.getElementById(elementId);
       if (!lista.length) {
-        document.getElementById("listaTickets").innerHTML = "Nenhum chamado encontrado.";
+        el.innerHTML = "Nenhum chamado encontrado.";
         return;
       }
 
       let html = "";
-
       lista.forEach(ticket => {
         const tempo = calcularTempo(ticket);
-        const admin = currentProfile?.role === "admin";
-
         html += `
           <div class="ticket">
             <div>
@@ -944,18 +784,82 @@
 
             ${ticket.foto_url ? `<div style="margin-top:10px;"><img src="${ticket.foto_url}" class="thumb" alt="Foto do chamado"></div>` : ""}
 
-            <div class="acoes">
-              ${admin ? `<button class="btn-yellow" onclick="colocarEmAndamento('${ticket.id}')">Em andamento</button>` : ""}
-              ${admin ? `<button class="btn-green" onclick="finalizarTicket('${ticket.id}')">Finalizar</button>` : ""}
-              ${admin ? `<button class="btn-gray" onclick="reabrirTicket('${ticket.id}')">Reabrir</button>` : ""}
-              ${admin ? `<button class="btn-gray" onclick="editarTicket('${ticket.id}')">Editar</button>` : ""}
-              ${admin ? `<button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>` : ""}
-            </div>
+            ${adminMode ? `
+              <div class="acoes">
+                <button class="btn-yellow" onclick="colocarEmAndamento('${ticket.id}')">Em andamento</button>
+                <button class="btn-green" onclick="finalizarTicket('${ticket.id}')">Finalizar</button>
+                <button class="btn-gray" onclick="reabrirTicket('${ticket.id}')">Reabrir</button>
+                <button class="btn-gray" onclick="editarTicket('${ticket.id}')">Editar</button>
+                <button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>
+              </div>
+            ` : ""}
           </div>
         `;
       });
 
-      document.getElementById("listaTickets").innerHTML = html;
+      el.innerHTML = html;
+    }
+
+    function renderMeus() {
+      const meus = todosTickets.filter(t => t.user_id === currentUser.id);
+      renderLista(meus, "listaMeus", false);
+    }
+
+    function renderTodos() {
+      if (currentProfile?.role !== "admin") return;
+      renderLista(todosTickets, "listaTodos", true);
+    }
+
+    function renderDashboard() {
+      const base = currentProfile?.role === "admin" ? todosTickets : todosTickets.filter(t => t.user_id === currentUser.id);
+      atualizarDashboard(base);
+
+      const porSetor = {};
+      base.forEach(t => {
+        const setorNome = t.setor || "Sem setor";
+        porSetor[setorNome] = (porSetor[setorNome] || 0) + 1;
+      });
+
+      let resumo = "";
+      Object.entries(porSetor).forEach(([setorNome, qtd]) => {
+        resumo += `<strong>${setorNome}</strong>: ${qtd}<br>`;
+      });
+      dashboardResumo.innerHTML = resumo || "Sem dados.";
+    }
+
+    function renderRelatorios() {
+      let lista = currentProfile?.role === "admin" ? [...todosTickets] : todosTickets.filter(t => t.user_id === currentUser.id);
+      const status = filtroStatus.value;
+      const setorNome = filtroSetor.value;
+
+      lista = lista.filter(t => {
+        const okStatus = !status || t.status === status;
+        const okSetor = !setorNome || t.setor === setorNome;
+        const okPeriodo = dentroPeriodo(t);
+        return okStatus && okSetor && okPeriodo;
+      });
+
+      renderLista(lista, "listaRelatorios", currentProfile?.role === "admin");
+    }
+
+    async function renderUsuarios() {
+      if (currentProfile?.role !== "admin") return;
+      const { data, error } = await client.from("profiles").select("*").order("full_name");
+      if (error) {
+        listaUsuarios.innerHTML = `<tr><td colspan="4">Erro ao carregar usuários: ${error.message}</td></tr>`;
+        return;
+      }
+      listaUsuarios.innerHTML = "";
+      (data || []).forEach(u => {
+        listaUsuarios.innerHTML += `
+          <tr>
+            <td>${u.full_name || ""}</td>
+            <td>${u.username || ""}</td>
+            <td>${u.email || ""}</td>
+            <td>${u.role || ""}</td>
+          </tr>
+        `;
+      });
     }
 
     carregarSessao();
