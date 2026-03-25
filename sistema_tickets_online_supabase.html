@@ -2,20 +2,20 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>SUPORTE BSM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUPORTE BSM - NÍVEL 6</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-body { font-family: Arial; background:#f4f6f8; margin:0; }
-.topo { background:#0b1f3a; color:white; padding:15px; font-size:22px; }
+body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; }
+.topo { background:#0b1f3a; color:white; padding:15px; font-size:22px; font-weight:bold; }
 .container { padding:20px; }
-.card { background:white; padding:20px; border-radius:10px; max-width:800px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1); }
-input, select, textarea { width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; }
-button { background:#0b1f3a; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; margin-right:5px; }
+.card { background:white; padding:20px; border-radius:10px; max-width:1200px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1); margin-bottom:20px; }
+input, select, textarea { width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid #ccc; }
+button { background:#0b1f3a; color:white; border:none; padding:10px 14px; border-radius:6px; cursor:pointer; margin-right:5px; margin-bottom:5px; }
 button:hover { background:#163a6b; }
 .menu { margin-bottom:15px; }
 .ticket { background:white; padding:15px; border-radius:10px; margin-bottom:10px; border:1px solid #ddd; }
-.tag { padding:3px 8px; border-radius:10px; font-size:12px; font-weight:bold; }
+.tag { padding:3px 8px; border-radius:10px; font-size:12px; font-weight:bold; display:inline-block; margin-right:5px; }
 .aberto { background:#dbeafe; }
 .andamento { background:#fef3c7; }
 .finalizado { background:#dcfce7; }
@@ -23,40 +23,81 @@ button:hover { background:#163a6b; }
 .media { background:#cffafe; }
 .alta { background:#fee2e2; }
 .hidden { display:none; }
+.grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap:15px;
+}
+.kpi {
+  background:white;
+  border-radius:10px;
+  padding:15px;
+  border:1px solid #ddd;
+  text-align:center;
+}
+.kpi strong {
+  display:block;
+  font-size:28px;
+  margin-top:8px;
+}
+.chart-bar-wrap { margin-top:15px; }
+.chart-row { margin-bottom:12px; }
+.chart-label { font-size:14px; margin-bottom:4px; }
+.chart-bar-bg {
+  width:100%;
+  background:#e5e7eb;
+  height:18px;
+  border-radius:999px;
+  overflow:hidden;
+}
+.chart-bar-fill {
+  height:18px;
+  background:#0b1f3a;
+}
+.row2 {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+@media(max-width:900px){
+  .row2 { grid-template-columns:1fr; }
+}
 </style>
 </head>
-
 <body>
 
-<div class="topo">SUPORTE BSM</div>
+<div class="topo">SUPORTE BSM - NÍVEL 6</div>
 
 <div class="container">
 
 <div id="loginBox" class="card">
-<h3>Login</h3>
-<label>Usuário</label>
-<input type="text" id="usuario">
-<label>Senha</label>
-<input type="password" id="senha">
-<button onclick="login()">Entrar</button>
-<div id="msgLogin" style="color:red;"></div>
+  <h3>Login</h3>
+  <label>Usuário</label>
+  <input type="text" id="usuario">
+  <label>Senha</label>
+  <input type="password" id="senha">
+  <button onclick="login()">Entrar</button>
+  <div id="msgLogin" style="color:red; margin-top:10px;"></div>
 </div>
 
 <div id="sistema" class="hidden">
-<div class="menu">
-<button onclick="novoChamado()">Novo Chamado</button>
-<button onclick="listarChamados()">Meus Chamados</button>
-<button onclick="listarTodos()" id="btnTodos" class="hidden">Todos</button>
-<button onclick="logout()">Sair</button>
-</div>
-<div id="conteudo"></div>
+  <div class="menu">
+    <button onclick="novoChamado()">Novo Chamado</button>
+    <button onclick="listarChamados()">Meus Chamados</button>
+    <button onclick="abrirDashboard()">Dashboard</button>
+    <button onclick="abrirRelatorio()">Relatórios</button>
+    <button onclick="listarTodos()" id="btnTodos" class="hidden">Todos Chamados</button>
+    <button onclick="logout()">Sair</button>
+  </div>
+
+  <div id="conteudo"></div>
 </div>
 
 </div>
 
 <script>
 const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
+const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let usuarioLogado = "";
@@ -72,7 +113,7 @@ async function login() {
     .ilike("username", usuarioDigitado)
     .limit(1);
 
-  if (!data || data.length == 0) {
+  if (!data || data.length === 0) {
     document.getElementById("msgLogin").innerText = "Usuário não encontrado";
     return;
   }
@@ -107,36 +148,46 @@ async function logout() {
   location.reload();
 }
 
+function gerarNumero() {
+  return "BSM-" + Math.floor(Math.random() * 90000 + 10000);
+}
+
 function novoChamado() {
   document.getElementById("conteudo").innerHTML = `
     <div class="card">
-    <h3>Novo Chamado</h3>
-    <label>Título</label>
-    <input type="text" id="titulo">
-    <label>Descrição</label>
-    <textarea id="descricao"></textarea>
-    <label>Prioridade</label>
-    <select id="prioridade">
-      <option>Baixa</option>
-      <option>Média</option>
-      <option>Alta</option>
-    </select>
-    <button onclick="salvarChamado()">Salvar</button>
+      <h3>Novo Chamado</h3>
+
+      <label>Título</label>
+      <input type="text" id="titulo">
+
+      <label>Descrição</label>
+      <textarea id="descricao"></textarea>
+
+      <label>Prioridade</label>
+      <select id="prioridade">
+        <option value="Baixa">Baixa</option>
+        <option value="Média">Média</option>
+        <option value="Alta">Alta</option>
+      </select>
+
+      <button onclick="salvarChamado()">Salvar</button>
     </div>
   `;
 }
 
-function gerarNumero() {
-  return "BSM-" + Math.floor(Math.random() * 10000);
-}
-
 async function salvarChamado() {
-  const titulo = document.getElementById("titulo").value;
-  const descricao = document.getElementById("descricao").value;
+  const titulo = document.getElementById("titulo").value.trim();
+  const descricao = document.getElementById("descricao").value.trim();
   const prioridade = document.getElementById("prioridade").value;
+  const numero = gerarNumero();
+
+  if (!titulo || !descricao) {
+    alert("Preencha título e descrição.");
+    return;
+  }
 
   const { error } = await client.from("tickets").insert([{
-    numero: gerarNumero(),
+    numero: numero,
     titulo: titulo,
     descricao: descricao,
     prioridade: prioridade,
@@ -144,68 +195,269 @@ async function salvarChamado() {
     usuario: usuarioLogado
   }]);
 
-  if (!error) {
-    alert("Chamado criado");
-    listarChamados();
-  } else {
-    alert("Erro ao salvar");
+  if (error) {
+    alert("Erro ao salvar chamado: " + error.message);
+    return;
   }
+
+  alert("Chamado criado com sucesso: " + numero);
+  listarChamados();
 }
 
 async function listarChamados() {
-  const { data } = await client
+  const { data, error } = await client
     .from("tickets")
     .select("*")
     .eq("usuario", usuarioLogado)
     .order("id", { ascending:false });
 
-  mostrarTickets(data);
+  if (error) {
+    document.getElementById("conteudo").innerHTML = "Erro ao carregar chamados.";
+    return;
+  }
+
+  mostrarTickets(data, false);
 }
 
 async function listarTodos() {
-  const { data } = await client
+  const { data, error } = await client
     .from("tickets")
     .select("*")
     .order("id", { ascending:false });
 
+  if (error) {
+    document.getElementById("conteudo").innerHTML = "Erro ao carregar todos os chamados.";
+    return;
+  }
+
   mostrarTickets(data, true);
 }
 
-async function finalizar(id) {
-  await client.from("tickets").update({ status:"Finalizado" }).eq("id", id);
+async function atendimentoChamado(id) {
+  const { error } = await client
+    .from("tickets")
+    .update({ status:"Em andamento" })
+    .eq("id", id);
+
+  if (error) {
+    alert("Erro ao atualizar chamado.");
+    return;
+  }
+
   listarTodos();
 }
 
-async function andamento(id) {
-  await client.from("tickets").update({ status:"Em andamento" }).eq("id", id);
+async function finalizarChamado(id) {
+  const observacao = prompt("O que foi feito?");
+  if (observacao === null) return;
+
+  const quemAtendeu = prompt("Quem atendeu?");
+  if (quemAtendeu === null) return;
+
+  const motivo = prompt("Motivo do fechamento?");
+  if (motivo === null) return;
+
+  const { error } = await client
+    .from("tickets")
+    .update({
+      status:"Finalizado",
+      observacao: observacao,
+      quem_atendeu: quemAtendeu,
+      motivo_fechamento: motivo,
+      data_fechamento: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (error) {
+    alert("Erro ao finalizar chamado: " + error.message);
+    return;
+  }
+
   listarTodos();
 }
 
-function mostrarTickets(data, admin=false) {
+function mostrarTickets(data, admin = false) {
+  if (!data || data.length === 0) {
+    document.getElementById("conteudo").innerHTML = "<div class='card'>Nenhum chamado encontrado.</div>";
+    return;
+  }
+
   let html = "";
 
   data.forEach(t => {
+    let statusClass = "";
+    let prioridadeClass = "";
+
+    if (t.status === "Aberto") statusClass = "aberto";
+    if (t.status === "Em andamento") statusClass = "andamento";
+    if (t.status === "Finalizado") statusClass = "finalizado";
+
+    if (t.prioridade === "Baixa") prioridadeClass = "baixa";
+    if (t.prioridade === "Média") prioridadeClass = "media";
+    if (t.prioridade === "Alta") prioridadeClass = "alta";
+
+    let tempo = "";
+    if (t.data_abertura && t.data_fechamento) {
+      const ini = new Date(t.data_abertura);
+      const fim = new Date(t.data_fechamento);
+      const ms = fim - ini;
+      const horas = Math.floor(ms / (1000 * 60 * 60));
+      const minutos = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+      tempo = ${horas}h ${minutos}min;
+    }
+
     html += `
       <div class="ticket">
-        <b>${t.numero}</b><br>
-        <b>${t.titulo}</b><br>
-        ${t.descricao}<br>
-        <span class="tag ${t.status == 'Aberto' ? 'aberto' : t.status == 'Em andamento' ? 'andamento' : 'finalizado'}">${t.status}</span>
-        <span class="tag ${t.prioridade == 'Baixa' ? 'baixa' : t.prioridade == 'Média' ? 'media' : 'alta'}">${t.prioridade}</span>
-        <br><b>Usuário:</b> ${t.usuario}
-        <br>
+        <div>
+          <span class="tag ${statusClass}">${t.status || ""}</span>
+          <span class="tag ${prioridadeClass}">${t.prioridade || ""}</span>
+        </div>
+
+        <h3>${t.numero || ""}</h3>
+        <strong>${t.titulo || ""}</strong>
+        <p>${t.descricao || ""}</p>
+        <p><b>Usuário:</b> ${t.usuario || ""}</p>
+        <p><b>Abertura:</b> ${t.data_abertura || t.data_abertura === null ? (t.data_abertura || "") : ""}</p>
+        <p><b>Fechamento:</b> ${t.data_fechamento || "-"}</p>
+        <p><b>Tempo:</b> ${tempo || "-"}</p>
+        <p><b>Quem atendeu:</b> ${t.quem_atendeu || "-"}</p>
+        <p><b>Observação:</b> ${t.observacao || "-"}</p>
+        <p><b>Motivo do fechamento:</b> ${t.motivo_fechamento || "-"}</p>
     `;
 
     if (admin) {
       html += `
-        <button onclick="andamento(${t.id})">Atender</button>
-        <button onclick="finalizar(${t.id})">Finalizar</button>
+        <button onclick="atendimentoChamado(${t.id})">Atender</button>
+        <button onclick="finalizarChamado(${t.id})">Finalizar</button>
       `;
     }
 
-    html += `</div>`;
+    html += </div>;
   });
 
+  document.getElementById("conteudo").innerHTML = html;
+}
+
+async function abrirDashboard() {
+  const { data, error } = await client
+    .from("tickets")
+    .select("*");
+
+  if (error) {
+    document.getElementById("conteudo").innerHTML = "Erro ao carregar dashboard.";
+    return;
+  }
+
+  const lista = (role === "admin" || role === "administrador")
+    ? data
+    : data.filter(t => t.usuario === usuarioLogado);
+
+  const total = lista.length;
+  const abertos = lista.filter(t => t.status === "Aberto").length;
+  const andamento = lista.filter(t => t.status === "Em andamento").length;
+  const finalizados = lista.filter(t => t.status === "Finalizado").length;
+  const alta = lista.filter(t => t.prioridade === "Alta").length;
+  const media = lista.filter(t => t.prioridade === "Média").length;
+  const baixa = lista.filter(t => t.prioridade === "Baixa").length;
+
+  const maxStatus = Math.max(abertos, andamento, finalizados, 1);
+  const maxPrior = Math.max(alta, media, baixa, 1);
+
+  let html = `
+    <div class="card">
+      <h3>Dashboard</h3>
+      <div class="grid">
+        <div class="kpi">Total<strong>${total}</strong></div>
+        <div class="kpi">Abertos<strong>${abertos}</strong></div>
+        <div class="kpi">Em andamento<strong>${andamento}</strong></div>
+        <div class="kpi">Finalizados<strong>${finalizados}</strong></div>
+        <div class="kpi">Prioridade Alta<strong>${alta}</strong></div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="card">
+        <h3>Chamados por Status</h3>
+        <div class="chart-bar-wrap">
+          <div class="chart-row">
+            <div class="chart-label">Aberto (${abertos})</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${(abertos/maxStatus)*100}%"></div></div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label">Em andamento (${andamento})</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${(andamento/maxStatus)*100}%"></div></div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label">Finalizado (${finalizados})</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${(finalizados/maxStatus)*100}%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Chamados por Prioridade</h3>
+        <div class="chart-bar-wrap">
+          <div class="chart-row">
+            <div class="chart-label">Alta (${alta})</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${(alta/maxPrior)*100}%"></div></div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label">Média (${media})</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${(media/maxPrior)*100}%"></div></div>
+          </div>
+          <div class="chart-row">
+            <div class="chart-label">Baixa (${baixa})</div>
+            <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${(baixa/maxPrior)*100}%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("conteudo").innerHTML = html;
+}
+
+async function abrirRelatorio() {
+  const { data, error } = await client
+    .from("tickets")
+    .select("*")
+    .order("id", { ascending:false });
+
+  if (error) {
+    document.getElementById("conteudo").innerHTML = "Erro ao carregar relatórios.";
+    return;
+  }
+
+  const lista = (role === "admin" || role === "administrador")
+    ? data
+    : data.filter(t => t.usuario === usuarioLogado);
+
+  let html = `
+    <div class="card">
+      <h3>Relatório de Chamados</h3>
+      <table>
+        <tr>
+          <th>Nº</th>
+          <th>Título</th>
+          <th>Status</th>
+          <th>Prioridade</th>
+          <th>Usuário</th>
+        </tr>
+  `;
+
+  lista.forEach(t => {
+    html += `
+      <tr>
+        <td>${t.numero || ""}</td>
+        <td>${t.titulo || ""}</td>
+        <td>${t.status || ""}</td>
+        <td>${t.prioridade || ""}</td>
+        <td>${t.usuario || ""}</td>
+      </tr>
+    `;
+  });
+
+  html += </table></div>;
   document.getElementById("conteudo").innerHTML = html;
 }
 </script>
