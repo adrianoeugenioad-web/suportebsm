@@ -5,148 +5,395 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BSM SUPORTE - Sistema de Tickets</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f8;
+      color: #1f2937;
+    }
+    .topo {
+      background: #111827;
+      color: white;
+      padding: 20px;
+    }
+    .topo h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+    .topo p {
+      margin: 6px 0 0;
+      color: #d1d5db;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+    h2, h3 {
+      margin-top: 0;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      margin-bottom: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    button {
+      background: #111827;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      opacity: 0.94;
+    }
+    .ticket {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #fafafa;
+    }
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    .aberto { background: #dbeafe; color: #1d4ed8; }
+    .andamento { background: #fef3c7; color: #b45309; }
+    .finalizado { background: #dcfce7; color: #15803d; }
+    .prioridade {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .baixa { background: #e5e7eb; color: #374151; }
+    .media { background: #cffafe; color: #0f766e; }
+    .alta { background: #fee2e2; color: #b91c1c; }
+    .msg {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .acoes {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-sec {
+      background: #374151;
+    }
+    .btn-green {
+      background: #15803d;
+    }
+    .btn-yellow {
+      background: #b45309;
+    }
+    .contador {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .box {
+      background: white;
+      padding: 14px 18px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      min-width: 140px;
+    }
+    .box strong {
+      display: block;
+      font-size: 26px;
+    }
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>BSM SUPORTE - Sistema de Tickets</h1>
-
-  <div id="loginBox">
-    <h3>Login</h3>
-    <input type="email" id="email" placeholder="Email" /><br><br>
-    <input type="password" id="senha" placeholder="Senha" /><br><br>
-    <button onclick="criarConta()">Criar Conta</button>
-    <button onclick="entrar()">Entrar</button>
-    <p id="msg"></p>
+  <div class="topo">
+    <h1>BSM SUPORTE - Sistema de Tickets</h1>
+    <p>Acesso direto, sem login, para uso interno da empresa.</p>
   </div>
 
-  <div id="sistema" style="display:none;">
-    <h3>Novo Ticket</h3>
-    <input type="text" id="titulo" placeholder="Título" /><br><br>
-    <input type="text" id="descricao" placeholder="Descrição" /><br><br>
-    <input type="text" id="setor" placeholder="Setor" /><br><br>
+  <div class="container">
+    <div class="contador">
+      <div class="box">
+        <span>Total</span>
+        <strong id="totalTickets">0</strong>
+      </div>
+      <div class="box">
+        <span>Abertos</span>
+        <strong id="totalAbertos">0</strong>
+      </div>
+      <div class="box">
+        <span>Em andamento</span>
+        <strong id="totalAndamento">0</strong>
+      </div>
+      <div class="box">
+        <span>Finalizados</span>
+        <strong id="totalFinalizados">0</strong>
+      </div>
+    </div>
 
-    <select id="prioridade">
-      <option value="Baixa">Baixa</option>
-      <option value="Média">Média</option>
-      <option value="Alta">Alta</option>
-    </select><br><br>
+    <div class="grid">
+      <div class="card">
+        <h2>Abrir novo ticket</h2>
 
-    <button onclick="criarTicket()">Salvar Ticket</button>
+        <label>Solicitante</label>
+        <input type="text" id="solicitante" placeholder="Nome de quem está abrindo o chamado" />
 
-    <h3>Lista de Tickets</h3>
-    <div id="lista"></div>
+        <label>Título</label>
+        <input type="text" id="titulo" placeholder="Ex.: Impressora não está funcionando" />
+
+        <label>Descrição</label>
+        <textarea id="descricao" placeholder="Descreva o problema"></textarea>
+
+        <label>Setor</label>
+        <select id="setor">
+          <option value="TI">TI</option>
+          <option value="Manutenção">Manutenção</option>
+          <option value="Frota">Frota</option>
+          <option value="Compras">Compras</option>
+          <option value="RH">RH</option>
+          <option value="Produção">Produção</option>
+          <option value="Estoque">Estoque</option>
+        </select>
+
+        <label>Prioridade</label>
+        <select id="prioridade">
+          <option value="Baixa">Baixa</option>
+          <option value="Média">Média</option>
+          <option value="Alta">Alta</option>
+        </select>
+
+        <label>Responsável</label>
+        <input type="text" id="responsavel" placeholder="Nome do responsável (opcional)" />
+
+        <button onclick="criarTicket()">Salvar ticket</button>
+        <div id="mensagem" class="msg"></div>
+      </div>
+
+      <div class="card">
+        <h2>Filtrar tickets</h2>
+
+        <label>Buscar</label>
+        <input type="text" id="busca" placeholder="Buscar por título, solicitante ou setor" onkeyup="listarTickets()" />
+
+        <label>Status</label>
+        <select id="filtroStatus" onchange="listarTickets()">
+          <option value="">Todos</option>
+          <option value="Aberto">Aberto</option>
+          <option value="Em andamento">Em andamento</option>
+          <option value="Finalizado">Finalizado</option>
+        </select>
+
+        <label>Setor</label>
+        <select id="filtroSetor" onchange="listarTickets()">
+          <option value="">Todos</option>
+          <option value="TI">TI</option>
+          <option value="Manutenção">Manutenção</option>
+          <option value="Frota">Frota</option>
+          <option value="Compras">Compras</option>
+          <option value="RH">RH</option>
+          <option value="Produção">Produção</option>
+          <option value="Estoque">Estoque</option>
+        </select>
+
+        <button class="btn-sec" onclick="listarTickets()">Atualizar lista</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2>Tickets cadastrados</h2>
+      <div id="listaTickets">Carregando...</div>
+    </div>
   </div>
 
   <script>
-    const SUPABASE_URL = "COLE_AQUI_SUA_PROJECT_URL";
-    const SUPABASE_KEY = "COLE_AQUI_SUA_CHAVE_PUBLICAVEL";
+    const SUPABASE_URL = "https://abcd1234.supabase.co";
+const SUPABASE_KEY = "sb_publishable_eyJxxxxxxxxxxxxxxxx";
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function mostrarMsg(texto, cor = "black") {
-      const msg = document.getElementById("msg");
-      msg.innerText = texto;
-      msg.style.color = cor;
+    function mostrarMensagem(texto, cor = "green") {
+      const el = document.getElementById("mensagem");
+      el.innerText = texto;
+      el.style.color = cor;
     }
 
-    async function criarConta() {
-      const email = document.getElementById("email").value.trim();
-      const senha = document.getElementById("senha").value.trim();
-
-      if (!email || !senha) {
-        mostrarMsg("Preencha email e senha.", "red");
-        return;
-      }
-
-      const { data, error } = await client.auth.signUp({
-        email: email,
-        password: senha
-      });
-
-      if (error) {
-        mostrarMsg("Erro ao criar conta: " + error.message, "red");
-        console.error(error);
-        return;
-      }
-
-      mostrarMsg("Conta criada com sucesso. Agora clique em Entrar.", "green");
-      console.log("Conta criada:", data);
+    function classeStatus(status) {
+      if (status === "Aberto") return "aberto";
+      if (status === "Em andamento") return "andamento";
+      if (status === "Finalizado") return "finalizado";
+      return "";
     }
 
-    async function entrar() {
-      const email = document.getElementById("email").value.trim();
-      const senha = document.getElementById("senha").value.trim();
-
-      const { data, error } = await client.auth.signInWithPassword({
-        email: email,
-        password: senha
-      });
-
-      if (error) {
-        mostrarMsg("Erro no login: " + error.message, "red");
-        console.error(error);
-        return;
-      }
-
-      mostrarMsg("Login realizado com sucesso.", "green");
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("sistema").style.display = "block";
-      carregarTickets();
-      console.log("Login:", data);
+    function classePrioridade(prioridade) {
+      if (prioridade === "Baixa") return "baixa";
+      if (prioridade === "Média") return "media";
+      if (prioridade === "Alta") return "alta";
+      return "";
     }
 
     async function criarTicket() {
+      const solicitante = document.getElementById("solicitante").value.trim();
       const titulo = document.getElementById("titulo").value.trim();
       const descricao = document.getElementById("descricao").value.trim();
-      const setor = document.getElementById("setor").value.trim();
+      const setor = document.getElementById("setor").value;
       const prioridade = document.getElementById("prioridade").value;
+      const responsavel = document.getElementById("responsavel").value.trim();
+
+      if (!solicitante || !titulo || !descricao) {
+        mostrarMensagem("Preencha solicitante, título e descrição.", "red");
+        return;
+      }
 
       const { error } = await client.from("tickets").insert([
         {
-          titulo,
-          descricao,
-          setor,
-          prioridade,
-          status: "Aberto"
+          titulo: titulo,
+          descricao: descricao,
+          setor: setor,
+          prioridade: prioridade,
+          responsavel: responsavel,
+          status: "Aberto",
+          solicitante: solicitante
         }
       ]);
 
       if (error) {
-        alert("Erro ao salvar ticket: " + error.message);
+        mostrarMensagem("Erro ao salvar ticket: " + error.message, "red");
         console.error(error);
         return;
       }
 
-      alert("Ticket criado com sucesso.");
-      carregarTickets();
+      document.getElementById("solicitante").value = "";
+      document.getElementById("titulo").value = "";
+      document.getElementById("descricao").value = "";
+      document.getElementById("responsavel").value = "";
+
+      mostrarMensagem("Ticket criado com sucesso.", "green");
+      listarTickets();
     }
 
-    async function carregarTickets() {
+    async function listarTickets() {
+      const busca = document.getElementById("busca").value.trim().toLowerCase();
+      const filtroStatus = document.getElementById("filtroStatus").value;
+      const filtroSetor = document.getElementById("filtroSetor").value;
+
       const { data, error } = await client
         .from("tickets")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) {
-        document.getElementById("lista").innerHTML = "Erro ao carregar tickets.";
+        document.getElementById("listaTickets").innerHTML = "Erro ao carregar tickets: " + error.message;
         console.error(error);
         return;
       }
 
+      let tickets = data || [];
+
+      tickets = tickets.filter(ticket => {
+        const texto = (
+          (ticket.titulo || "") + " " +
+          (ticket.descricao || "") + " " +
+          (ticket.setor || "") + " " +
+          (ticket.solicitante || "")
+        ).toLowerCase();
+
+        const okBusca = !busca || texto.includes(busca);
+        const okStatus = !filtroStatus || ticket.status === filtroStatus;
+        const okSetor = !filtroSetor || ticket.setor === filtroSetor;
+
+        return okBusca && okStatus && okSetor;
+      });
+
+      document.getElementById("totalTickets").innerText = tickets.length;
+      document.getElementById("totalAbertos").innerText = tickets.filter(t => t.status === "Aberto").length;
+      document.getElementById("totalAndamento").innerText = tickets.filter(t => t.status === "Em andamento").length;
+      document.getElementById("totalFinalizados").innerText = tickets.filter(t => t.status === "Finalizado").length;
+
+      if (!tickets.length) {
+        document.getElementById("listaTickets").innerHTML = "Nenhum ticket encontrado.";
+        return;
+      }
+
       let html = "";
-      data.forEach(ticket => {
+
+      tickets.forEach(ticket => {
         html += `
-          <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
-            <strong>${ticket.titulo || ""}</strong><br>
-            ${ticket.descricao || ""}<br>
-            Setor: ${ticket.setor || ""}<br>
-            Prioridade: ${ticket.prioridade || ""}<br>
-            Status: ${ticket.status || ""}
+          <div class="ticket">
+            <div>
+              <span class="status ${classeStatus(ticket.status)}">${ticket.status || ""}</span>
+              <span class="prioridade ${classePrioridade(ticket.prioridade)}">${ticket.prioridade || ""}</span>
+            </div>
+            <h3>${ticket.titulo || ""}</h3>
+            <p>${ticket.descricao || ""}</p>
+            <p><strong>Solicitante:</strong> ${ticket.solicitante || ""}</p>
+            <p><strong>Setor:</strong> ${ticket.setor || ""}</p>
+            <p><strong>Responsável:</strong> ${ticket.responsavel || ""}</p>
+            <p><strong>Data:</strong> ${ticket.created_at ? new Date(ticket.created_at).toLocaleString("pt-BR") : ""}</p>
+
+            <div class="acoes">
+              <button class="btn-yellow" onclick="alterarStatus('${ticket.id}', 'Em andamento')">Em andamento</button>
+              <button class="btn-green" onclick="alterarStatus('${ticket.id}', 'Finalizado')">Finalizado</button>
+              <button class="btn-sec" onclick="alterarStatus('${ticket.id}', 'Aberto')">Reabrir</button>
+            </div>
           </div>
         `;
       });
 
-      document.getElementById("lista").innerHTML = html || "Nenhum ticket encontrado.";
+      document.getElementById("listaTickets").innerHTML = html;
     }
+
+    async function alterarStatus(id, novoStatus) {
+      const { error } = await client
+        .from("tickets")
+        .update({ status: novoStatus })
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao atualizar status: " + error.message);
+        console.error(error);
+        return;
+      }
+
+      listarTickets();
+    }
+
+    listarTickets();
   </script>
 </body>
 </html>
