@@ -35,15 +35,21 @@
       cursor:pointer; font-weight:bold; margin-right:8px; margin-bottom:8px;
     }
     button:hover { opacity:.95; }
-    .btn-green{ background:#15803d; } .btn-yellow{ background:#b45309; } .btn-red{ background:#b91c1c; }
-    .btn-gray{ background:#374151; } .btn-blue{ background:#1d4ed8; }
+    .btn-green{ background:#15803d; }
+    .btn-yellow{ background:#b45309; }
+    .btn-red{ background:#b91c1c; }
+    .btn-gray{ background:#374151; }
     .ticket { border:1px solid #e5e7eb; border-radius:14px; padding:16px; margin-bottom:14px; background:#fafafa; }
     .status, .prioridade {
       display:inline-block; font-size:12px; font-weight:bold; padding:5px 10px; border-radius:999px;
       margin-right:8px; margin-bottom:8px;
     }
-    .aberto{ background:#dbeafe; color:#1d4ed8; } .andamento{ background:#fef3c7; color:#b45309; } .finalizado{ background:#dcfce7; color:#15803d; }
-    .baixa{ background:#e5e7eb; color:#374151; } .media{ background:#cffafe; color:#0f766e; } .alta{ background:#fee2e2; color:#b91c1c; }
+    .aberto{ background:#dbeafe; color:#1d4ed8; }
+    .andamento{ background:#fef3c7; color:#b45309; }
+    .finalizado{ background:#dcfce7; color:#15803d; }
+    .baixa{ background:#e5e7eb; color:#374151; }
+    .media{ background:#cffafe; color:#0f766e; }
+    .alta{ background:#fee2e2; color:#b91c1c; }
     .acoes { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
     .msg { margin-top:10px; font-weight:bold; }
     .resumo { font-size:14px; color:#4b5563; line-height:1.6; }
@@ -63,25 +69,16 @@
 <body>
   <div class="topo">
     <h1>SUPORTE BSM</h1>
-    <p>Versão 5 - menu lateral, dashboard, usuários e chamados</p>
+    <p>Versão 5 - login por usuário</p>
   </div>
 
   <div class="container">
     <div id="authBox" class="card">
       <h2>Login</h2>
-      <div class="grid2">
-        <div>
-          <label>Nome completo (somente cadastro)</label>
-          <input type="text" id="cadNome" placeholder="Seu nome completo" />
-        </div>
-        <div>
-          <label>Usuário</label>
-          <input type="text" id="authUsuario" placeholder="Ex.: adriano" />
-        </div>
-      </div>
+      <label>Usuário</label>
+      <input type="text" id="authUsuario" placeholder="Ex.: adriano" />
       <label>Senha</label>
       <input type="password" id="authSenha" placeholder="Sua senha" />
-      <button class="btn-blue" onclick="registrar()">Criar conta</button>
       <button onclick="entrar()">Entrar</button>
       <div id="authMsg" class="msg"></div>
     </div>
@@ -250,8 +247,8 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
+    const SUPABASE_URL = "COLE_AQUI_SUA_URL_SUPABASE";
+    const SUPABASE_KEY = "COLE_AQUI_SUA_CHAVE_PUBLICAVEL";
     const SENHA_ADMIN = "_Cpd419_";
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -260,16 +257,15 @@
     let ticketEditandoId = null;
     let todosTickets = [];
 
-    document.getElementById("foto").addEventListener("change", function (e) {
+    foto.addEventListener("change", function (e) {
       const file = e.target.files[0];
-      const img = document.getElementById("previewFoto");
       if (!file) {
-        img.classList.add("hidden");
-        img.src = "";
+        previewFoto.classList.add("hidden");
+        previewFoto.src = "";
         return;
       }
-      img.src = URL.createObjectURL(file);
-      img.classList.remove("hidden");
+      previewFoto.src = URL.createObjectURL(file);
+      previewFoto.classList.remove("hidden");
     });
 
     function mostrarAba(nome) {
@@ -333,53 +329,6 @@
       btnCancelar.classList.add("hidden");
       limparFormulario();
       mostrarMensagem("");
-    }
-
-    function gerarEmailInterno(username) {
-      return `${username.toLowerCase()}@suportebsm.local`;
-    }
-
-    async function registrar() {
-      const nome = cadNome.value.trim();
-      const usuario = authUsuario.value.trim().toLowerCase();
-      const senha = authSenha.value.trim();
-
-      if (!nome || !usuario || !senha) {
-        mostrarAuthMsg("Preencha nome, usuário e senha.", "red");
-        return;
-      }
-
-      const { data: userExists } = await client.from("profiles").select("id").eq("username", usuario).limit(1);
-      if (userExists && userExists.length) {
-        mostrarAuthMsg("Esse usuário já existe.", "red");
-        return;
-      }
-
-      const emailInterno = gerarEmailInterno(usuario);
-      const role = ["adriano", "leonardo"].includes(usuario) ? "admin" : "usuario";
-
-      const { data, error } = await client.auth.signUp({ email: emailInterno, password: senha });
-      if (error) {
-        mostrarAuthMsg("Erro ao criar conta: " + error.message, "red");
-        return;
-      }
-
-      if (data.user) {
-        const { error: profileError } = await client.from("profiles").upsert({
-          id: data.user.id,
-          email: emailInterno,
-          full_name: nome,
-          username: usuario,
-          role: role
-        });
-
-        if (profileError) {
-          mostrarAuthMsg("Conta criada, mas erro ao salvar perfil: " + profileError.message, "red");
-          return;
-        }
-      }
-
-      mostrarAuthMsg("Conta criada com sucesso. Agora clique em Entrar.", "green");
     }
 
     async function entrar() {
@@ -455,8 +404,8 @@
       userInfo.innerText = (currentProfile.username || "") + " | Perfil: " + (currentProfile.role || "usuario");
 
       if (currentProfile.role === "admin") {
-        document.getElementById("btn-todos").classList.remove("hidden");
-        document.getElementById("btn-usuarios").classList.remove("hidden");
+        btnTodos.classList.remove("hidden");
+        btnUsuarios.classList.remove("hidden");
       }
 
       solicitante.value = currentProfile.full_name || "";
@@ -501,15 +450,15 @@
         return;
       }
 
-      let fotoPayload = { foto_path: null, foto_url: null };
+      let fotoData = { foto_path: null, foto_url: null };
       try {
-        fotoPayload = await uploadFotoSeExistir();
+        fotoData = await uploadFotoSeExistir();
       } catch (e) {
         mostrarMensagem("Erro ao enviar foto: " + e.message, "red");
         return;
       }
 
-      const { error } = await client.from("tickets").insert([{ ...payloadBase, ...fotoPayload }]);
+      const { error } = await client.from("tickets").insert([{ ...payloadBase, ...fotoData }]);
       if (error) {
         mostrarMensagem("Erro ao salvar chamado: " + error.message, "red");
         return;
@@ -634,7 +583,6 @@
         alert("Erro ao reabrir chamado: " + error.message);
         return;
       }
-
       await listarTickets();
       renderTodos();
     }
@@ -684,7 +632,6 @@
       }
 
       let inicio = "", fim = "";
-
       if (valor === "hoje") {
         inicio = formatarData(hoje); fim = formatarData(hoje);
       } else if (valor === "ontem") {
@@ -701,7 +648,6 @@
         dataInicial.value = "";
         dataFinal.value = "";
       }
-
       dataInicial.value = inicio;
       dataFinal.value = fim;
       renderRelatorios();
@@ -711,7 +657,6 @@
       const di = dataInicial.value;
       const df = dataFinal.value;
       if (!di && !df) return true;
-
       const data = new Date(ticket.created_at).toISOString().slice(0, 10);
       if (di && data < di) return false;
       if (df && data > df) return false;
@@ -811,7 +756,10 @@
     }
 
     function renderDashboard() {
-      const base = currentProfile?.role === "admin" ? todosTickets : todosTickets.filter(t => t.user_id === currentUser.id);
+      const base = currentProfile?.role === "admin"
+        ? todosTickets
+        : todosTickets.filter(t => t.user_id === currentUser.id);
+
       atualizarDashboard(base);
 
       const porSetor = {};
@@ -828,7 +776,10 @@
     }
 
     function renderRelatorios() {
-      let lista = currentProfile?.role === "admin" ? [...todosTickets] : todosTickets.filter(t => t.user_id === currentUser.id);
+      let lista = currentProfile?.role === "admin"
+        ? [...todosTickets]
+        : todosTickets.filter(t => t.user_id === currentUser.id);
+
       const status = filtroStatus.value;
       const setorNome = filtroSetor.value;
 
