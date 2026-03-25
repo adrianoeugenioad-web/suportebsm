@@ -2,11 +2,82 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Sistema de Tickets Online</title>
+  <title>BSM SUPORTE - Sistema de Tickets</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<h1>Sistema de Tickets Online</h1>
-<p>Use este arquivo junto com o Supabase.</p>
-<p>Abra o arquivo LEIA-ME para instruções.</p>
+
+<h1>BSM SUPORTE - Sistema de Tickets</h1>
+
+<div id="login">
+  <h3>Login</h3>
+  <input type="email" id="email" placeholder="Email"><br><br>
+  <input type="password" id="senha" placeholder="Senha"><br><br>
+  <button onclick="criarConta()">Criar Conta</button>
+  <button onclick="login()">Entrar</button>
+</div>
+
+<div id="sistema" style="display:none;">
+  <h3>Novo Ticket</h3>
+  <input type="text" id="titulo" placeholder="Título"><br><br>
+  <input type="text" id="descricao" placeholder="Descrição"><br><br>
+  <input type="text" id="setor" placeholder="Setor"><br><br>
+  <select id="prioridade">
+    <option>Baixa</option>
+    <option>Média</option>
+    <option>Alta</option>
+  </select><br><br>
+  <button onclick="criarTicket()">Salvar Ticket</button>
+
+  <h3>Tickets</h3>
+  <div id="lista"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://xxxx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_xxxxx";
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function criarConta() {
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+  await supabase.auth.signUp({ email: email, password: senha });
+  alert("Conta criada!");
+}
+
+async function login() {
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+  await supabase.auth.signInWithPassword({ email: email, password: senha });
+  document.getElementById("login").style.display = "none";
+  document.getElementById("sistema").style.display = "block";
+  carregarTickets();
+}
+
+async function criarTicket() {
+  const titulo = document.getElementById("titulo").value;
+  const descricao = document.getElementById("descricao").value;
+  const setor = document.getElementById("setor").value;
+  const prioridade = document.getElementById("prioridade").value;
+
+  await supabase.from("tickets").insert([
+    { titulo, descricao, setor, prioridade }
+  ]);
+
+  alert("Ticket criado!");
+  carregarTickets();
+}
+
+async function carregarTickets() {
+  const { data } = await supabase.from("tickets").select("*");
+  let html = "";
+  data.forEach(ticket => {
+    html += "<p><b>" + ticket.titulo + "</b> - " + ticket.status + "</p>";
+  });
+  document.getElementById("lista").innerHTML = html;
+}
+</script>
+
 </body>
 </html>
