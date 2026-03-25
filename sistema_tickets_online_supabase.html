@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SUPORTE BSM</title>
+  <title>SUPORTE BSM - VERSÃO 2</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #f4f6f8;
-      color: #1f2937;
+      background: #f3f4f6;
+      color: #111827;
     }
     .topo {
       background: #111827;
-      color: white;
+      color: #fff;
       padding: 20px;
     }
     .topo h1 {
@@ -27,26 +27,26 @@
       color: #d1d5db;
     }
     .container {
-      max-width: 1200px;
+      max-width: 1350px;
       margin: 0 auto;
       padding: 20px;
     }
-    .contador {
-      margin-bottom: 16px;
-      display: flex;
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 12px;
-      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
     .box {
       background: white;
-      padding: 14px 18px;
       border-radius: 14px;
+      padding: 16px;
       box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-      min-width: 150px;
     }
     .box strong {
       display: block;
-      font-size: 26px;
+      font-size: 28px;
+      margin-top: 4px;
     }
     .grid {
       display: grid;
@@ -54,10 +54,10 @@
       gap: 20px;
     }
     .card {
-      background: white;
+      background: #fff;
       border-radius: 16px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
       padding: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
     h2, h3 {
       margin-top: 0;
@@ -65,21 +65,21 @@
     input, textarea, select {
       width: 100%;
       padding: 12px;
-      margin-top: 6px;
-      margin-bottom: 14px;
       border: 1px solid #d1d5db;
       border-radius: 10px;
+      margin-top: 6px;
+      margin-bottom: 14px;
       font-size: 14px;
     }
     textarea {
-      min-height: 100px;
+      min-height: 95px;
       resize: vertical;
     }
     button {
       background: #111827;
       color: white;
       border: none;
-      padding: 12px 18px;
+      padding: 11px 16px;
       border-radius: 10px;
       cursor: pointer;
       font-weight: bold;
@@ -87,77 +87,121 @@
       margin-bottom: 8px;
     }
     button:hover {
-      opacity: 0.94;
+      opacity: .95;
     }
-    .btn-sec { background: #374151; }
     .btn-green { background: #15803d; }
     .btn-yellow { background: #b45309; }
     .btn-red { background: #b91c1c; }
-    .msg {
-      margin-top: 10px;
-      font-weight: bold;
-    }
+    .btn-gray { background: #374151; }
     .ticket {
       border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 12px;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
       background: #fafafa;
     }
-    .status {
+    .status, .prioridade {
       display: inline-block;
-      padding: 5px 10px;
-      border-radius: 999px;
       font-size: 12px;
       font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 999px;
       margin-right: 8px;
+      margin-bottom: 8px;
     }
     .aberto { background: #dbeafe; color: #1d4ed8; }
     .andamento { background: #fef3c7; color: #b45309; }
     .finalizado { background: #dcfce7; color: #15803d; }
-    .prioridade {
-      display: inline-block;
-      padding: 5px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: bold;
-    }
+
     .baixa { background: #e5e7eb; color: #374151; }
     .media { background: #cffafe; color: #0f766e; }
     .alta { background: #fee2e2; color: #b91c1c; }
+
     .acoes {
-      margin-top: 12px;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .msg {
+      margin-top: 10px;
+      font-weight: bold;
     }
     .hidden {
       display: none;
     }
-    @media (max-width: 900px) {
-      .grid {
+    .linha2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .linha3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .resumo {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.6;
+    }
+    .chart-bar-wrap {
+      margin-top: 8px;
+    }
+    .chart-row {
+      margin-bottom: 10px;
+    }
+    .chart-label {
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .chart-bar-bg {
+      width: 100%;
+      height: 18px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .chart-bar-fill {
+      height: 18px;
+      background: #111827;
+      border-radius: 999px;
+    }
+    @media (max-width: 950px) {
+      .grid, .linha2, .linha3 {
         grid-template-columns: 1fr;
       }
+    }
+    @media print {
+      body { background: white; }
+      .topo, .nao-imprimir, button { display: none !important; }
+      .card, .box, .ticket {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+      .container { max-width: 100%; padding: 0; }
     }
   </style>
 </head>
 <body>
   <div class="topo">
     <h1>SUPORTE BSM</h1>
-    <p>Sistema interno de tickets</p>
+    <p>Sistema interno de tickets - Versão 2</p>
   </div>
 
   <div class="container">
-    <div class="contador">
-      <div class="box"><span>Total</span><strong id="totalTickets">0</strong></div>
-      <div class="box"><span>Abertos</span><strong id="totalAbertos">0</strong></div>
-      <div class="box"><span>Em andamento</span><strong id="totalAndamento">0</strong></div>
-      <div class="box"><span>Finalizados</span><strong id="totalFinalizados">0</strong></div>
+    <div class="dashboard">
+      <div class="box"><span>Total</span><strong id="dashTotal">0</strong></div>
+      <div class="box"><span>Abertos</span><strong id="dashAbertos">0</strong></div>
+      <div class="box"><span>Em andamento</span><strong id="dashAndamento">0</strong></div>
+      <div class="box"><span>Finalizados</span><strong id="dashFinalizados">0</strong></div>
+      <div class="box"><span>Prioridade alta</span><strong id="dashAlta">0</strong></div>
+      <div class="box"><span>Hoje</span><strong id="dashHoje">0</strong></div>
     </div>
 
-    <div class="grid">
+    <div class="grid nao-imprimir">
       <div class="card">
-        <h2 id="formTitulo">Abrir novo ticket</h2>
+        <h2 id="tituloFormulario">Abrir novo ticket</h2>
 
         <label>Solicitante</label>
         <input type="text" id="solicitante" placeholder="Nome de quem está abrindo o chamado" />
@@ -168,61 +212,106 @@
         <label>Descrição</label>
         <textarea id="descricao" placeholder="Descreva o problema"></textarea>
 
-        <label>Setor</label>
-        <select id="setor">
-          <option value="TI">TI</option>
-          <option value="Manutenção">Manutenção</option>
-          <option value="Frota">Frota</option>
-          <option value="Compras">Compras</option>
-          <option value="RH">RH</option>
-          <option value="Produção">Produção</option>
-          <option value="Estoque">Estoque</option>
-        </select>
+        <div class="linha3">
+          <div>
+            <label>Setor</label>
+            <select id="setor">
+              <option value="TI">TI</option>
+              <option value="Manutenção">Manutenção</option>
+              <option value="Frota">Frota</option>
+              <option value="Compras">Compras</option>
+              <option value="RH">RH</option>
+              <option value="Produção">Produção</option>
+              <option value="Estoque">Estoque</option>
+            </select>
+          </div>
+          <div>
+            <label>Prioridade</label>
+            <select id="prioridade">
+              <option value="Baixa">Baixa</option>
+              <option value="Média">Média</option>
+              <option value="Alta">Alta</option>
+            </select>
+          </div>
+          <div>
+            <label>Responsável</label>
+            <input type="text" id="responsavel" placeholder="Responsável" />
+          </div>
+        </div>
 
-        <label>Prioridade</label>
-        <select id="prioridade">
-          <option value="Baixa">Baixa</option>
-          <option value="Média">Média</option>
-          <option value="Alta">Alta</option>
-        </select>
-
-        <label>Responsável</label>
-        <input type="text" id="responsavel" placeholder="Nome do responsável" />
-
-        <button id="btnSalvar" onclick="salvarOuAtualizarTicket()">Salvar ticket</button>
-        <button id="btnCancelarEdicao" class="btn-sec hidden" onclick="cancelarEdicao()">Cancelar edição</button>
+        <button id="btnSalvar" onclick="salvarOuAtualizar()">Salvar ticket</button>
+        <button id="btnCancelar" class="btn-gray hidden" onclick="cancelarEdicao()">Cancelar edição</button>
 
         <div id="mensagem" class="msg"></div>
       </div>
 
       <div class="card">
-        <h2>Filtrar tickets</h2>
+        <h2>Filtros / Relatórios</h2>
 
         <label>Buscar</label>
-        <input type="text" id="busca" placeholder="Buscar por título, solicitante ou setor" onkeyup="listarTickets()" />
+        <input type="text" id="busca" placeholder="Buscar por título, setor, solicitante..." onkeyup="listarTickets()" />
 
-        <label>Status</label>
-        <select id="filtroStatus" onchange="listarTickets()">
-          <option value="">Todos</option>
-          <option value="Aberto">Aberto</option>
-          <option value="Em andamento">Em andamento</option>
-          <option value="Finalizado">Finalizado</option>
-        </select>
+        <div class="linha3">
+          <div>
+            <label>Status</label>
+            <select id="filtroStatus" onchange="listarTickets()">
+              <option value="">Todos</option>
+              <option value="Aberto">Aberto</option>
+              <option value="Em andamento">Em andamento</option>
+              <option value="Finalizado">Finalizado</option>
+            </select>
+          </div>
+          <div>
+            <label>Setor</label>
+            <select id="filtroSetor" onchange="listarTickets()">
+              <option value="">Todos</option>
+              <option value="TI">TI</option>
+              <option value="Manutenção">Manutenção</option>
+              <option value="Frota">Frota</option>
+              <option value="Compras">Compras</option>
+              <option value="RH">RH</option>
+              <option value="Produção">Produção</option>
+              <option value="Estoque">Estoque</option>
+            </select>
+          </div>
+          <div>
+            <label>Período</label>
+            <select id="filtroPeriodo" onchange="aplicarPeriodoRapido()">
+              <option value="">Todos</option>
+              <option value="hoje">Hoje</option>
+              <option value="ontem">Ontem</option>
+              <option value="semana">Esta semana</option>
+              <option value="mes">Este mês</option>
+              <option value="intervalo">Intervalo de datas</option>
+            </select>
+          </div>
+        </div>
 
-        <label>Setor</label>
-        <select id="filtroSetor" onchange="listarTickets()">
-          <option value="">Todos</option>
-          <option value="TI">TI</option>
-          <option value="Manutenção">Manutenção</option>
-          <option value="Frota">Frota</option>
-          <option value="Compras">Compras</option>
-          <option value="RH">RH</option>
-          <option value="Produção">Produção</option>
-          <option value="Estoque">Estoque</option>
-        </select>
+        <div class="linha2">
+          <div>
+            <label>Data inicial</label>
+            <input type="date" id="dataInicial" onchange="listarTickets()" />
+          </div>
+          <div>
+            <label>Data final</label>
+            <input type="date" id="dataFinal" onchange="listarTickets()" />
+          </div>
+        </div>
 
-        <button class="btn-sec" onclick="listarTickets()">Atualizar lista</button>
-        <button class="btn-yellow" onclick="liberarVisualizacao()">Ver tickets cadastrados</button>
+        <button class="btn-gray" onclick="listarTickets()">Atualizar lista</button>
+        <button class="btn-yellow" onclick="liberarLista()">Ver tickets cadastrados</button>
+        <button class="btn-green" onclick="window.print()">Imprimir / PDF</button>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:20px;">
+      <div class="card">
+        <h2>Dashboard por setor</h2>
+        <div id="graficoSetor" class="chart-bar-wrap"></div>
+      </div>
+      <div class="card">
+        <h2>Dashboard por responsável</h2>
+        <div id="graficoResponsavel" class="chart-bar-wrap"></div>
       </div>
     </div>
 
@@ -237,17 +326,24 @@
     const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
     const SENHA_PROTECAO = "2101";
+    const EMAIL_ALERTA_1 = "adrianoeugenio.ad@gmail.com";
+    const EMAIL_ALERTA_2 = "leonardo@bsmatacadista.com.br";
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let ticketsCarregados = [];
-    let ticketEditandoId = null;
     let listaLiberada = false;
+    let ticketEditandoId = null;
+    let todosTickets = [];
 
     function mostrarMensagem(texto, cor = "green") {
       const el = document.getElementById("mensagem");
       el.innerText = texto;
       el.style.color = cor;
+    }
+
+    function pedirSenha() {
+      const senha = prompt("Digite a senha:");
+      return senha === SENHA_PROTECAO;
     }
 
     function classeStatus(status) {
@@ -264,11 +360,6 @@
       return "";
     }
 
-    function pedirSenha() {
-      const senha = prompt("Digite a senha:");
-      return senha === SENHA_PROTECAO;
-    }
-
     function limparFormulario() {
       document.getElementById("solicitante").value = "";
       document.getElementById("titulo").value = "";
@@ -280,14 +371,14 @@
 
     function cancelarEdicao() {
       ticketEditandoId = null;
-      document.getElementById("formTitulo").innerText = "Abrir novo ticket";
+      document.getElementById("tituloFormulario").innerText = "Abrir novo ticket";
       document.getElementById("btnSalvar").innerText = "Salvar ticket";
-      document.getElementById("btnCancelarEdicao").classList.add("hidden");
+      document.getElementById("btnCancelar").classList.add("hidden");
       limparFormulario();
       mostrarMensagem("");
     }
 
-    async function salvarOuAtualizarTicket() {
+    async function salvarOuAtualizar() {
       if (ticketEditandoId) {
         await atualizarTicket();
       } else {
@@ -310,13 +401,13 @@
 
       const { error } = await client.from("tickets").insert([
         {
+          solicitante,
           titulo,
           descricao,
           setor,
           prioridade,
           responsavel,
-          status: "Aberto",
-          solicitante
+          status: "Aberto"
         }
       ]);
 
@@ -327,7 +418,12 @@
       }
 
       limparFormulario();
-      mostrarMensagem("Ticket criado com sucesso.", "green");
+      mostrarMensagem(
+        "Ticket criado com sucesso. Alerta previsto para: " +
+        EMAIL_ALERTA_1 + " e " + EMAIL_ALERTA_2,
+        "green"
+      );
+
       if (listaLiberada) {
         listarTickets();
       }
@@ -377,20 +473,20 @@
         return;
       }
 
-      const ticket = ticketsCarregados.find(t => String(t.id) === String(id));
-      if (!ticket) return;
+      const t = todosTickets.find(x => String(x.id) === String(id));
+      if (!t) return;
 
       ticketEditandoId = id;
-      document.getElementById("formTitulo").innerText = "Editar ticket";
+      document.getElementById("tituloFormulario").innerText = "Editar ticket";
       document.getElementById("btnSalvar").innerText = "Salvar alteração";
-      document.getElementById("btnCancelarEdicao").classList.remove("hidden");
+      document.getElementById("btnCancelar").classList.remove("hidden");
 
-      document.getElementById("solicitante").value = ticket.solicitante || "";
-      document.getElementById("titulo").value = ticket.titulo || "";
-      document.getElementById("descricao").value = ticket.descricao || "";
-      document.getElementById("setor").value = ticket.setor || "TI";
-      document.getElementById("prioridade").value = ticket.prioridade || "Baixa";
-      document.getElementById("responsavel").value = ticket.responsavel || "";
+      document.getElementById("solicitante").value = t.solicitante || "";
+      document.getElementById("titulo").value = t.titulo || "";
+      document.getElementById("descricao").value = t.descricao || "";
+      document.getElementById("setor").value = t.setor || "TI";
+      document.getElementById("prioridade").value = t.prioridade || "Baixa";
+      document.getElementById("responsavel").value = t.responsavel || "";
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -403,10 +499,7 @@
 
       if (!confirm("Deseja excluir este ticket?")) return;
 
-      const { error } = await client
-        .from("tickets")
-        .delete()
-        .eq("id", id);
+      const { error } = await client.from("tickets").delete().eq("id", id);
 
       if (error) {
         alert("Erro ao excluir ticket: " + error.message);
@@ -417,29 +510,89 @@
       listarTickets();
     }
 
-    async function alterarStatus(id, novoStatus) {
-      if (novoStatus === "Finalizado") {
-        if (!pedirSenha()) {
-          alert("Senha incorreta.");
-          return;
-        }
-      }
-
+    async function colocarEmAndamento(id) {
       const { error } = await client
         .from("tickets")
-        .update({ status: novoStatus })
+        .update({ status: "Em andamento" })
         .eq("id", id);
 
       if (error) {
         alert("Erro ao atualizar status: " + error.message);
-        console.error(error);
         return;
       }
 
       listarTickets();
     }
 
-    function liberarVisualizacao() {
+    async function reabrirTicket(id) {
+      const { error } = await client
+        .from("tickets")
+        .update({
+          status: "Aberto",
+          data_fechamento: null,
+          quem_atendeu: null,
+          observacao_atendimento: null,
+          peca_trocada: null,
+          motivo_fechamento: null
+        })
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao reabrir ticket: " + error.message);
+        return;
+      }
+
+      listarTickets();
+    }
+
+    async function finalizarTicket(id) {
+      if (!pedirSenha()) {
+        alert("Senha incorreta.");
+        return;
+      }
+
+      const ticket = todosTickets.find(t => String(t.id) === String(id));
+      if (!ticket) return;
+
+      const quemAtendeu = prompt("Quem atendeu?");
+      if (quemAtendeu === null) return;
+
+      const observacao = prompt("O que foi feito?");
+      if (observacao === null) return;
+
+      const peca = prompt("Qual peça trocou? (se não trocou, deixe em branco)");
+      if (peca === null) return;
+
+      const motivo = prompt("Motivo do fechamento?");
+      if (motivo === null) return;
+
+      const { error } = await client
+        .from("tickets")
+        .update({
+          status: "Finalizado",
+          quem_atendeu: quemAtendeu,
+          observacao_atendimento: observacao,
+          peca_trocada: peca,
+          motivo_fechamento: motivo,
+          data_fechamento: new Date().toISOString()
+        })
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao finalizar ticket: " + error.message);
+        console.error(error);
+        return;
+      }
+
+      alert(
+        "Ticket finalizado.\nResumo previsto para envio a:\n" +
+        EMAIL_ALERTA_1 + "\n" + EMAIL_ALERTA_2
+      );
+
+      listarTickets();
+    }
+
+    function liberarLista() {
       if (!pedirSenha()) {
         alert("Senha incorreta.");
         return;
@@ -451,12 +604,127 @@
       listarTickets();
     }
 
+    function aplicarPeriodoRapido() {
+      const valor = document.getElementById("filtroPeriodo").value;
+      const hoje = new Date();
+
+      function formatarData(d) {
+        const ano = d.getFullYear();
+        const mes = String(d.getMonth() + 1).padStart(2, "0");
+        const dia = String(d.getDate()).padStart(2, "0");
+        return `${ano}-${mes}-${dia}`;
+      }
+
+      let inicio = "";
+      let fim = "";
+
+      if (valor === "hoje") {
+        inicio = formatarData(hoje);
+        fim = formatarData(hoje);
+      } else if (valor === "ontem") {
+        const ontem = new Date();
+        ontem.setDate(hoje.getDate() - 1);
+        inicio = formatarData(ontem);
+        fim = formatarData(ontem);
+      } else if (valor === "semana") {
+        const inicioSemana = new Date(hoje);
+        inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+        inicio = formatarData(inicioSemana);
+        fim = formatarData(hoje);
+      } else if (valor === "mes") {
+        const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        inicio = formatarData(inicioMes);
+        fim = formatarData(hoje);
+      } else if (valor === "intervalo") {
+        listarTickets();
+        return;
+      } else {
+        document.getElementById("dataInicial").value = "";
+        document.getElementById("dataFinal").value = "";
+        listarTickets();
+        return;
+      }
+
+      document.getElementById("dataInicial").value = inicio;
+      document.getElementById("dataFinal").value = fim;
+      listarTickets();
+    }
+
+    function dentroPeriodo(ticket) {
+      const di = document.getElementById("dataInicial").value;
+      const df = document.getElementById("dataFinal").value;
+      if (!di && !df) return true;
+
+      const data = new Date(ticket.created_at);
+      const dataTexto = data.toISOString().slice(0, 10);
+
+      if (di && dataTexto < di) return false;
+      if (df && dataTexto > df) return false;
+      return true;
+    }
+
+    function calcularTempo(ticket) {
+      if (!ticket.created_at || !ticket.data_fechamento) return "";
+      const inicio = new Date(ticket.created_at);
+      const fim = new Date(ticket.data_fechamento);
+      const ms = fim - inicio;
+      const horas = Math.floor(ms / (1000 * 60 * 60));
+      const minutos = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+      return `${horas}h ${minutos}min`;
+    }
+
+    function renderGrafico(elementId, objetoContagem) {
+      const el = document.getElementById(elementId);
+      const entries = Object.entries(objetoContagem);
+      if (!entries.length) {
+        el.innerHTML = '<div class="resumo">Sem dados.</div>';
+        return;
+      }
+
+      const max = Math.max(...entries.map(x => x[1]), 1);
+      let html = "";
+
+      entries.forEach(([nome, valor]) => {
+        const perc = (valor / max) * 100;
+        html += `
+          <div class="chart-row">
+            <div class="chart-label">${nome} (${valor})</div>
+            <div class="chart-bar-bg">
+              <div class="chart-bar-fill" style="width:${perc}%"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      el.innerHTML = html;
+    }
+
+    function atualizarDashboard(listaFiltrada) {
+      document.getElementById("dashTotal").innerText = listaFiltrada.length;
+      document.getElementById("dashAbertos").innerText = listaFiltrada.filter(t => t.status === "Aberto").length;
+      document.getElementById("dashAndamento").innerText = listaFiltrada.filter(t => t.status === "Em andamento").length;
+      document.getElementById("dashFinalizados").innerText = listaFiltrada.filter(t => t.status === "Finalizado").length;
+      document.getElementById("dashAlta").innerText = listaFiltrada.filter(t => t.prioridade === "Alta").length;
+
+      const hoje = new Date().toISOString().slice(0, 10);
+      document.getElementById("dashHoje").innerText = listaFiltrada.filter(t => (t.created_at || "").slice(0,10) === hoje).length;
+
+      const porSetor = {};
+      const porResponsavel = {};
+
+      listaFiltrada.forEach(t => {
+        const setor = t.setor || "Sem setor";
+        const resp = t.responsavel || "Sem responsável";
+        porSetor[setor] = (porSetor[setor] || 0) + 1;
+        porResponsavel[resp] = (porResponsavel[resp] || 0) + 1;
+      });
+
+      renderGrafico("graficoSetor", porSetor);
+      renderGrafico("graficoResponsavel", porResponsavel);
+    }
+
     async function listarTickets() {
       if (!listaLiberada) return;
-
-      const busca = document.getElementById("busca").value.trim().toLowerCase();
-      const filtroStatus = document.getElementById("filtroStatus").value;
-      const filtroSetor = document.getElementById("filtroSetor").value;
 
       const { data, error } = await client
         .from("tickets")
@@ -469,57 +737,70 @@
         return;
       }
 
-      ticketsCarregados = data || [];
+      todosTickets = data || [];
 
-      let tickets = [...ticketsCarregados];
+      const busca = document.getElementById("busca").value.trim().toLowerCase();
+      const filtroStatus = document.getElementById("filtroStatus").value;
+      const filtroSetor = document.getElementById("filtroSetor").value;
 
-      tickets = tickets.filter(ticket => {
+      let listaFiltrada = todosTickets.filter(t => {
         const texto = (
-          (ticket.titulo || "") + " " +
-          (ticket.descricao || "") + " " +
-          (ticket.setor || "") + " " +
-          (ticket.solicitante || "") + " " +
-          (ticket.responsavel || "")
+          (t.titulo || "") + " " +
+          (t.descricao || "") + " " +
+          (t.setor || "") + " " +
+          (t.solicitante || "") + " " +
+          (t.responsavel || "") + " " +
+          (t.quem_atendeu || "")
         ).toLowerCase();
 
         const okBusca = !busca || texto.includes(busca);
-        const okStatus = !filtroStatus || ticket.status === filtroStatus;
-        const okSetor = !filtroSetor || ticket.setor === filtroSetor;
+        const okStatus = !filtroStatus || t.status === filtroStatus;
+        const okSetor = !filtroSetor || t.setor === filtroSetor;
+        const okPeriodo = dentroPeriodo(t);
 
-        return okBusca && okStatus && okSetor;
+        return okBusca && okStatus && okSetor && okPeriodo;
       });
 
-      document.getElementById("totalTickets").innerText = tickets.length;
-      document.getElementById("totalAbertos").innerText = tickets.filter(t => t.status === "Aberto").length;
-      document.getElementById("totalAndamento").innerText = tickets.filter(t => t.status === "Em andamento").length;
-      document.getElementById("totalFinalizados").innerText = tickets.filter(t => t.status === "Finalizado").length;
+      atualizarDashboard(listaFiltrada);
 
-      if (!tickets.length) {
+      if (!listaFiltrada.length) {
         document.getElementById("listaTickets").innerHTML = "Nenhum ticket encontrado.";
         return;
       }
 
       let html = "";
 
-      tickets.forEach(ticket => {
+      listaFiltrada.forEach(ticket => {
+        const tempo = calcularTempo(ticket);
+
         html += `
           <div class="ticket">
             <div>
               <span class="status ${classeStatus(ticket.status)}">${ticket.status || ""}</span>
               <span class="prioridade ${classePrioridade(ticket.prioridade)}">${ticket.prioridade || ""}</span>
             </div>
+
             <h3>${ticket.titulo || ""}</h3>
             <p>${ticket.descricao || ""}</p>
-            <p><strong>Solicitante:</strong> ${ticket.solicitante || ""}</p>
-            <p><strong>Setor:</strong> ${ticket.setor || ""}</p>
-            <p><strong>Responsável:</strong> ${ticket.responsavel || ""}</p>
-            <p><strong>Data:</strong> ${ticket.created_at ? new Date(ticket.created_at).toLocaleString("pt-BR") : ""}</p>
 
-            <div class="acoes">
-              <button class="btn-yellow" onclick="alterarStatus('${ticket.id}', 'Em andamento')">Em andamento</button>
-              <button class="btn-green" onclick="alterarStatus('${ticket.id}', 'Finalizado')">Finalizar</button>
-              <button class="btn-sec" onclick="alterarStatus('${ticket.id}', 'Aberto')">Reabrir</button>
-              <button class="btn-sec" onclick="editarTicket('${ticket.id}')">Editar</button>
+            <div class="resumo">
+              <strong>Solicitante:</strong> ${ticket.solicitante || ""}<br>
+              <strong>Setor:</strong> ${ticket.setor || ""}<br>
+              <strong>Responsável:</strong> ${ticket.responsavel || ""}<br>
+              <strong>Data de abertura:</strong> ${ticket.created_at ? new Date(ticket.created_at).toLocaleString("pt-BR") : ""}<br>
+              <strong>Data de fechamento:</strong> ${ticket.data_fechamento ? new Date(ticket.data_fechamento).toLocaleString("pt-BR") : "-"}<br>
+              <strong>Tempo de atendimento:</strong> ${tempo || "-"}<br>
+              <strong>Quem atendeu:</strong> ${ticket.quem_atendeu || "-"}<br>
+              <strong>Peça trocada:</strong> ${ticket.peca_trocada || "-"}<br>
+              <strong>Motivo do fechamento:</strong> ${ticket.motivo_fechamento || "-"}<br>
+              <strong>Observação de atendimento:</strong> ${ticket.observacao_atendimento || "-"}
+            </div>
+
+            <div class="acoes nao-imprimir">
+              <button class="btn-yellow" onclick="colocarEmAndamento('${ticket.id}')">Em andamento</button>
+              <button class="btn-green" onclick="finalizarTicket('${ticket.id}')">Finalizar</button>
+              <button class="btn-gray" onclick="reabrirTicket('${ticket.id}')">Reabrir</button>
+              <button class="btn-gray" onclick="editarTicket('${ticket.id}')">Editar</button>
               <button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>
             </div>
           </div>
