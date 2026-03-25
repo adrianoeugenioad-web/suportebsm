@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SUPORTE BSM - VERSÃO 2</title>
+  <title>SUPORTE BSM - VERSÃO 3</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
@@ -186,7 +186,7 @@
 <body>
   <div class="topo">
     <h1>SUPORTE BSM</h1>
-    <p>Sistema interno de tickets - Versão 2</p>
+    <p>Sistema interno de tickets - Versão 3</p>
   </div>
 
   <div class="container">
@@ -336,6 +336,25 @@
     let ticketEditandoId = null;
     let todosTickets = [];
 
+    async function enviarEmailSeguro(payload) {
+      try {
+        if (
+          URL_EMAIL &&
+          URL_EMAIL.startsWith("https://script.google.com/macros/s/")
+        ) {
+          await fetch(URL_EMAIL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+        } else {
+          console.warn("URL_EMAIL não configurada corretamente.");
+        }
+      } catch (e) {
+        console.error("Erro ao enviar e-mail:", e);
+      }
+    }
+
+
     function mostrarMensagem(texto, cor = "green") {
       const el = document.getElementById("mensagem");
       el.innerText = texto;
@@ -417,6 +436,22 @@
         console.error(error);
         return;
       }
+
+      await enviarEmailSeguro({
+        assunto: "Novo Ticket Aberto - SUPORTE BSM",
+        mensagem: `
+          <h2>Novo Ticket Aberto</h2>
+          <b>Solicitante:</b> ${solicitante}<br>
+          <b>Título:</b> ${titulo}<br>
+          <b>Descrição:</b> ${descricao}<br>
+          <b>Setor:</b> ${setor}<br>
+          <b>Prioridade:</b> ${prioridade}<br>
+          <b>Responsável:</b> ${responsavel}<br>
+          <br>
+          <b>Acesse o sistema:</b><br>
+          https://adrianoeugenioad-web.github.io/suportebsm/sistema_tickets_online_supabase.html
+        `
+      });
 
       limparFormulario();
       mostrarMensagem(
@@ -584,6 +619,22 @@
         console.error(error);
         return;
       }
+
+      await enviarEmailSeguro({
+        assunto: "Ticket Finalizado - SUPORTE BSM",
+        mensagem: `
+          <h2>Ticket Finalizado</h2>
+          <b>Título:</b> ${ticket.titulo}<br>
+          <b>Solicitante:</b> ${ticket.solicitante}<br>
+          <b>Quem atendeu:</b> ${quemAtendeu}<br>
+          <b>O que foi feito:</b> ${observacao}<br>
+          <b>Peça trocada:</b> ${peca}<br>
+          <b>Motivo:</b> ${motivo}<br>
+          <br>
+          <b>Sistema:</b><br>
+          https://adrianoeugenioad-web.github.io/suportebsm/sistema_tickets_online_supabase.html
+        `
+      });
 
       alert(
         "Ticket finalizado.\nResumo previsto para envio a:\n" +
