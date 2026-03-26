@@ -1,163 +1,235 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SUPORTE BSM - Login</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-    }
-    .topo {
-      background: #0b1f3a;
-      color: white;
-      padding: 16px;
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .box {
-      max-width: 420px;
-      margin: 40px auto;
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.08);
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      margin-bottom: 14px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    button {
-      width: 100%;
-      padding: 11px;
-      background: #0b1f3a;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #163a6b;
-    }
-    .msg {
-      margin-top: 12px;
-      font-weight: bold;
-    }
-    .ok {
-      color: green;
-    }
-    .erro {
-      color: red;
-    }
-    .hidden {
-      display: none;
-    }
-    .painel {
-      max-width: 700px;
-      margin: 20px auto;
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.08);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUPORTE BSM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body { font-family: Arial; background:#f4f6f8; margin:0; }
+.topo { background:#0b1f3a; color:white; padding:15px; font-size:22px; }
+.container { padding:20px; }
+.card { background:white; padding:20px; border-radius:10px; max-width:1000px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1); margin-bottom:20px;}
+input, select, textarea { width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; }
+button { background:#0b1f3a; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; margin-right:5px; }
+button:hover { background:#163a6b; }
+.menu { margin-bottom:15px; }
+.ticket { background:white; padding:15px; border-radius:10px; margin-bottom:10px; border:1px solid #ddd; }
+.hidden { display:none; }
+</style>
 </head>
+
 <body>
-  <div class="topo">SUPORTE BSM</div>
 
-  <div id="loginBox" class="box">
-    <h2>Login</h2>
+<div class="topo">SUPORTE BSM</div>
 
-    <label>Usuário</label>
-    <input type="text" id="usuario" placeholder="Ex.: Adriano" />
+<div class="container">
 
-    <label>Senha</label>
-    <input type="password" id="senha" placeholder="Sua senha" />
+<div id="loginBox" class="card">
+<h3>Login</h3>
+<label>Usuário</label>
+<input type="text" id="usuario">
+<label>Senha</label>
+<input type="password" id="senha">
+<button onclick="login()">Entrar</button>
+<div id="msgLogin" style="color:red;"></div>
+</div>
 
-    <button onclick="login()">Entrar</button>
-
-    <div id="msgLogin" class="msg"></div>
-  </div>
-
-  <div id="painelBox" class="painel hidden">
-    <h2>Login realizado com sucesso</h2>
-    <p><strong>Usuário:</strong> <span id="nomeUsuario"></span></p>
-    <p><strong>Email:</strong> <span id="emailUsuario"></span></p>
-    <p><strong>Perfil:</strong> <span id="perfilUsuario"></span></p>
+<div id="sistema" class="hidden">
+  <div class="menu">
+    <button onclick="novoChamado()">Novo Chamado</button>
+    <button onclick="listarChamados()">Meus Chamados</button>
+    <button onclick="abrirDashboard()">Dashboard</button>
+    <button onclick="abrirRelatorio()">Relatórios</button>
+    <button onclick="listarTodos()" id="btnTodos" class="hidden">Todos</button>
     <button onclick="logout()">Sair</button>
   </div>
 
-  <script>
-  const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
+  <div id="conteudo"></div>
+</div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let usuarioLogado = "";
+let role = "";
 
-    function mostrarMsg(texto, tipo = "erro") {
-      const el = document.getElementById("msgLogin");
-      el.innerText = texto;
-      el.className = "msg " + (tipo === "ok" ? "ok" : "erro");
+async function login() {
+  const usuarioDigitado = document.getElementById("usuario").value.trim();
+  const senha = document.getElementById("senha").value;
+
+  const { data } = await client
+    .from("profiles")
+    .select("*")
+    .ilike("username", usuarioDigitado)
+    .limit(1);
+
+  if (!data || data.length == 0) {
+    document.getElementById("msgLogin").innerText = "Usuário não encontrado";
+    return;
+  }
+
+  const perfil = data[0];
+
+  const { error: erroLogin } = await client.auth.signInWithPassword({
+    email: perfil.email,
+    password: senha
+  });
+
+  if (erroLogin) {
+    document.getElementById("msgLogin").innerText = "Senha inválida";
+    return;
+  }
+
+  usuarioLogado = perfil.username;
+  role = perfil.role;
+
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("sistema").classList.remove("hidden");
+
+  if (role === "admin") {
+    document.getElementById("btnTodos").classList.remove("hidden");
+  }
+
+  listarChamados();
+}
+
+async function logout() {
+  await client.auth.signOut();
+  location.reload();
+}
+
+function gerarNumero() {
+  return "BSM-" + Math.floor(Math.random() * 10000);
+}
+
+function novoChamado() {
+  document.getElementById("conteudo").innerHTML = `
+    <div class="card">
+    <h3>Novo Chamado</h3>
+    <label>Título</label>
+    <input type="text" id="titulo">
+    <label>Descrição</label>
+    <textarea id="descricao"></textarea>
+    <label>Prioridade</label>
+    <select id="prioridade">
+      <option>Baixa</option>
+      <option>Média</option>
+      <option>Alta</option>
+    </select>
+    <button onclick="salvarChamado()">Salvar</button>
+    </div>
+  `;
+}
+
+async function salvarChamado() {
+  const titulo = document.getElementById("titulo").value;
+  const descricao = document.getElementById("descricao").value;
+  const prioridade = document.getElementById("prioridade").value;
+
+  await client.from("tickets").insert([{
+    numero: gerarNumero(),
+    titulo: titulo,
+    descricao: descricao,
+    prioridade: prioridade,
+    status: "Aberto",
+    usuario: usuarioLogado
+  }]);
+
+  listarChamados();
+}
+
+async function listarChamados() {
+  const { data } = await client
+    .from("tickets")
+    .select("*")
+    .eq("usuario", usuarioLogado)
+    .order("id", { ascending:false });
+
+  mostrarTickets(data);
+}
+
+async function listarTodos() {
+  const { data } = await client
+    .from("tickets")
+    .select("*")
+    .order("id", { ascending:false });
+
+  mostrarTickets(data, true);
+}
+
+function mostrarTickets(data, admin=false) {
+  let html = "";
+
+  data.forEach(t => {
+    html += `
+      <div class="ticket">
+        <b>${t.numero}</b><br>
+        <b>${t.titulo}</b><br>
+        ${t.descricao}<br>
+        Status: ${t.status}<br>
+        Prioridade: ${t.prioridade}<br>
+        Usuário: ${t.usuario}<br>
+    `;
+
+    if (admin) {
+      html += `<button onclick="finalizar(${t.id})">Finalizar</button>`;
     }
 
-    async function login() {
-      const usuarioDigitado = document.getElementById("usuario").value.trim();
-      const senha = document.getElementById("senha").value;
+    html += `</div>`;
+  });
 
-      if (!usuarioDigitado || !senha) {
-        mostrarMsg("Informe usuário e senha.");
-        return;
-      }
+  document.getElementById("conteudo").innerHTML = html;
+}
 
-      const { data, error } = await client
-        .from("profiles")
-        .select("username, email, role, full_name")
-        .ilike("username", usuarioDigitado)
-        .limit(1);
+async function finalizar(id) {
+  await client.from("tickets").update({ status:"Finalizado" }).eq("id", id);
+  listarTodos();
+}
 
-      if (error) {
-        mostrarMsg("Erro ao consultar profiles: " + error.message);
-        return;
-      }
+async function abrirDashboard() {
+  const { data } = await client.from("tickets").select("*");
 
-      if (!data || !data.length) {
-        mostrarMsg("Usuário não encontrado.");
-        return;
-      }
+  const total = data.length;
+  const abertos = data.filter(t => t.status == "Aberto").length;
+  const finalizados = data.filter(t => t.status == "Finalizado").length;
 
-      const perfil = data[0];
+  document.getElementById("conteudo").innerHTML = `
+    <div class="card">
+      <h3>Dashboard</h3>
+      Total: ${total} <br>
+      Abertos: ${abertos} <br>
+      Finalizados: ${finalizados}
+    </div>
+  `;
+}
 
-      const { error: erroLogin } = await client.auth.signInWithPassword({
-        email: perfil.email,
-        password: senha
-      });
+async function abrirRelatorio() {
+  const { data } = await client.from("tickets").select("*");
 
-      if (erroLogin) {
-        mostrarMsg("Senha inválida.");
-        return;
-      }
+  let html = `<div class="card"><h3>Relatório</h3><table border="1" width="100%">
+  <tr><th>Nº</th><th>Título</th><th>Status</th><th>Prioridade</th><th>Usuário</th></tr>`;
 
-      document.getElementById("loginBox").classList.add("hidden");
-      document.getElementById("painelBox").classList.remove("hidden");
+  data.forEach(t => {
+    html += `<tr>
+      <td>${t.numero}</td>
+      <td>${t.titulo}</td>
+      <td>${t.status}</td>
+      <td>${t.prioridade}</td>
+      <td>${t.usuario}</td>
+    </tr>`;
+  });
 
-      document.getElementById("nomeUsuario").innerText =
-        perfil.full_name || perfil.username || "-";
-      document.getElementById("emailUsuario").innerText = perfil.email || "-";
-      document.getElementById("perfilUsuario").innerText = perfil.role || "-";
-    }
+  html += "</table></div>";
 
-    async function logout() {
-      await client.auth.signOut();
-      location.reload();
-    }
-  </script>
+  document.getElementById("conteudo").innerHTML = html;
+}
+</script>
+
 </body>
 </html>
