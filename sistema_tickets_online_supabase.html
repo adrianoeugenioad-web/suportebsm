@@ -3,83 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SUPORTE BSM - VERSÃO COMPLETA</title>
+  <title>SUPORTE BSM - VERSÃO 7</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f3f4f6;
-      color: #111827;
-    }
-    .topo {
-      background: #111827;
-      color: #fff;
-      padding: 20px;
-    }
-    .topo h1 {
-      margin: 0;
-      font-size: 32px;
-    }
-    .topo p {
-      margin: 6px 0 0;
-      color: #d1d5db;
-    }
-    .container {
-      max-width: 1350px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .box {
-      background: white;
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-    }
-    .box strong {
-      display: block;
-      font-size: 28px;
-      margin-top: 4px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f3f4f6; color: #111827; }
+    .topo { background: #111827; color: #fff; padding: 20px; }
+    .topo h1 { margin: 0; font-size: 32px; }
+    .topo p { margin: 6px 0 0; color: #d1d5db; }
+    .container { max-width: 1350px; margin: 0 auto; padding: 20px; }
+    .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .box { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .box strong { display: block; font-size: 28px; margin-top: 4px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
     h2, h3 { margin-top: 0; }
     input, textarea, select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      margin-top: 6px;
-      margin-bottom: 14px;
-      font-size: 14px;
+      width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px;
+      margin-top: 6px; margin-bottom: 14px; font-size: 14px;
     }
     textarea { min-height: 95px; resize: vertical; }
     button {
-      background: #111827;
-      color: white;
-      border: none;
-      padding: 11px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-right: 8px;
-      margin-bottom: 8px;
+      background: #111827; color: white; border: none; padding: 11px 16px; border-radius: 10px;
+      cursor: pointer; font-weight: bold; margin-right: 8px; margin-bottom: 8px;
     }
     button:hover { opacity: .95; }
     .btn-green { background: #15803d; }
@@ -87,21 +33,10 @@
     .btn-red { background: #b91c1c; }
     .btn-gray { background: #374151; }
     .btn-blue { background: #1d4ed8; }
-    .ticket {
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 14px;
-      background: #fafafa;
-    }
+    .ticket { border: 1px solid #e5e7eb; border-radius: 14px; padding: 16px; margin-bottom: 14px; background: #fafafa; }
     .status, .prioridade {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: bold;
-      padding: 5px 10px;
-      border-radius: 999px;
-      margin-right: 8px;
-      margin-bottom: 8px;
+      display: inline-block; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 999px;
+      margin-right: 8px; margin-bottom: 8px;
     }
     .aberto { background: #dbeafe; color: #1d4ed8; }
     .andamento { background: #fef3c7; color: #b45309; }
@@ -109,77 +44,30 @@
     .baixa { background: #e5e7eb; color: #374151; }
     .media { background: #cffafe; color: #0f766e; }
     .alta { background: #fee2e2; color: #b91c1c; }
-    .acoes {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-    .msg {
-      margin-top: 10px;
-      font-weight: bold;
-    }
+    .acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .msg { margin-top: 10px; font-weight: bold; }
     .hidden { display: none; }
-    .linha2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .linha3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-    }
-    .resumo {
-      font-size: 14px;
-      color: #4b5563;
-      line-height: 1.6;
-    }
+    .linha2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .linha3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .resumo { font-size: 14px; color: #4b5563; line-height: 1.6; }
     .chart-row { margin-bottom: 10px; }
     .chart-label { font-size: 13px; margin-bottom: 4px; }
-    .chart-bar-bg {
-      width: 100%;
-      height: 18px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .chart-bar-fill {
-      height: 18px;
-      background: #111827;
-      border-radius: 999px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    table th, table td {
-      border: 1px solid #e5e7eb;
-      padding: 10px;
-      text-align: left;
-      font-size: 14px;
-    }
+    .chart-bar-bg { width: 100%; height: 18px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+    .chart-bar-fill { height: 18px; background: #111827; border-radius: 999px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table th, table td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; font-size: 14px; }
     table th { background: #f9fafb; }
     .admin-bar { margin-bottom: 10px; }
-    .login-wrap {
-      max-width: 480px;
-      margin: 30px auto;
-    }
-    .small-note {
-      font-size: 12px;
-      color: #6b7280;
-    }
+    .login-wrap { max-width: 480px; margin: 30px auto; }
+    .small-note { font-size: 12px; color: #6b7280; }
+    .thumb { max-width: 220px; border-radius: 10px; border: 1px solid #ddd; margin-top: 8px; }
     @media (max-width: 950px) {
       .grid, .linha2, .linha3 { grid-template-columns: 1fr; }
     }
     @media print {
       body { background: white; }
       .topo, .nao-imprimir, button, #painelUsuarios { display: none !important; }
-      .card, .box, .ticket {
-        box-shadow: none;
-        border: 1px solid #ccc;
-      }
+      .card, .box, .ticket { box-shadow: none; border: 1px solid #ccc; }
       .container { max-width: 100%; padding: 0; }
     }
   </style>
@@ -187,7 +75,7 @@
 <body>
   <div class="topo">
     <h1>SUPORTE BSM</h1>
-    <p>Sistema interno de tickets - Versão completa</p>
+    <p>Sistema interno de tickets - Versão 7</p>
   </div>
 
   <div id="telaLogin" class="container">
@@ -266,6 +154,10 @@
           </div>
         </div>
 
+        <label>Anexo de foto</label>
+        <input type="file" id="foto" accept="image/*" />
+        <img id="previewFoto" class="thumb hidden" alt="Prévia da foto" />
+
         <button id="btnSalvar" onclick="salvarOuAtualizar()">Salvar ticket</button>
         <button id="btnCancelar" class="btn-gray hidden" onclick="cancelarEdicao()">Cancelar edição</button>
 
@@ -343,7 +235,7 @@
 
     <div class="card hidden" style="margin-top:20px;" id="painelUsuarios">
       <h2>Gerenciar usuários</h2>
-      <div class="small-note">Admin pode criar usuário e senha direto por esta tela.</div>
+      <div class="small-note">Admin pode criar, editar e resetar senha de usuários.</div>
 
       <div class="linha2">
         <div>
@@ -371,6 +263,9 @@
       </div>
 
       <button class="btn-green" onclick="criarUsuario()">Criar usuário</button>
+      <button class="btn-gray hidden" id="btnSalvarUsuarioEdicao" onclick="salvarEdicaoUsuario()">Salvar edição do usuário</button>
+      <button class="btn-gray hidden" id="btnCancelarUsuarioEdicao" onclick="cancelarEdicaoUsuario()">Cancelar edição</button>
+
       <div id="msgUsuarios" class="msg"></div>
       <div id="listaUsuarios" style="margin-top:15px;"></div>
     </div>
@@ -387,8 +282,24 @@
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let ticketEditandoId = null;
+    let usuarioEditandoId = null;
     let todosTickets = [];
     let usuarioSessao = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const foto = document.getElementById("foto");
+      const preview = document.getElementById("previewFoto");
+      foto.addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        if (!file) {
+          preview.classList.add("hidden");
+          preview.src = "";
+          return;
+        }
+        preview.src = URL.createObjectURL(file);
+        preview.classList.remove("hidden");
+      });
+    });
 
     function mostrarLoginMsg(texto, cor = "red") {
       const el = document.getElementById("msgLogin");
@@ -398,6 +309,12 @@
 
     function mostrarMensagem(texto, cor = "green") {
       const el = document.getElementById("mensagem");
+      el.innerText = texto;
+      el.style.color = cor;
+    }
+
+    function mostrarMsgUsuarios(texto, cor = "green") {
+      const el = document.getElementById("msgUsuarios");
       el.innerText = texto;
       el.style.color = cor;
     }
@@ -456,6 +373,21 @@
       if (!painel.classList.contains("hidden")) listarUsuarios();
     }
 
+    function resetarFormularioUsuario() {
+      document.getElementById("novoUsuario").value = "";
+      document.getElementById("novaSenha").value = "";
+      document.getElementById("novoNome").value = "";
+      document.getElementById("novoPerfil").value = "usuario";
+    }
+
+    function cancelarEdicaoUsuario() {
+      usuarioEditandoId = null;
+      resetarFormularioUsuario();
+      document.getElementById("btnSalvarUsuarioEdicao").classList.add("hidden");
+      document.getElementById("btnCancelarUsuarioEdicao").classList.add("hidden");
+      mostrarMsgUsuarios("");
+    }
+
     async function listarUsuarios() {
       const { data, error } = await client
         .from("usuarios_sistema")
@@ -482,6 +414,7 @@
               <th>Usuário</th>
               <th>Nome</th>
               <th>Perfil</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -494,6 +427,10 @@
             <td>${u.usuario || ""}</td>
             <td>${u.nome || ""}</td>
             <td>${u.perfil || ""}</td>
+            <td>
+              <button class="btn-blue" onclick='editarUsuario(${JSON.stringify(u).replace(/'/g, "&apos;")})'>Editar</button>
+              <button class="btn-yellow" onclick="resetarSenhaPrompt(${u.id}, '${String(u.usuario).replace(/'/g, "\\'")}')">Resetar senha</button>
+            </td>
           </tr>
         `;
       });
@@ -507,35 +444,84 @@
       const senha = document.getElementById("novaSenha").value.trim();
       const nome = document.getElementById("novoNome").value.trim();
       const perfil = document.getElementById("novoPerfil").value;
-      const msg = document.getElementById("msgUsuarios");
 
       if (!usuario || !senha || !nome) {
-        msg.innerText = "Preencha usuário, senha e nome.";
-        msg.style.color = "red";
+        mostrarMsgUsuarios("Preencha usuário, senha e nome.", "red");
         return;
       }
 
       const { error } = await client.from("usuarios_sistema").insert([{
-        usuario,
-        senha,
-        nome,
-        perfil
+        usuario, senha, nome, perfil
       }]);
 
       if (error) {
-        msg.innerText = "Erro ao criar usuário: " + error.message;
-        msg.style.color = "red";
+        mostrarMsgUsuarios("Erro ao criar usuário: " + error.message, "red");
         return;
       }
 
-      msg.innerText = "Usuário criado com sucesso.";
-      msg.style.color = "green";
+      mostrarMsgUsuarios("Usuário criado com sucesso.", "green");
+      resetarFormularioUsuario();
+      listarUsuarios();
+    }
 
-      document.getElementById("novoUsuario").value = "";
+    function editarUsuario(usuario) {
+      usuarioEditandoId = usuario.id;
+      document.getElementById("novoUsuario").value = usuario.usuario || "";
       document.getElementById("novaSenha").value = "";
-      document.getElementById("novoNome").value = "";
-      document.getElementById("novoPerfil").value = "usuario";
+      document.getElementById("novoNome").value = usuario.nome || "";
+      document.getElementById("novoPerfil").value = usuario.perfil || "usuario";
+      document.getElementById("btnSalvarUsuarioEdicao").classList.remove("hidden");
+      document.getElementById("btnCancelarUsuarioEdicao").classList.remove("hidden");
+      mostrarMsgUsuarios("Editando usuário: " + (usuario.usuario || ""), "#1d4ed8");
+      window.scrollTo({ top: document.getElementById("painelUsuarios").offsetTop - 20, behavior: "smooth" });
+    }
 
+    async function salvarEdicaoUsuario() {
+      if (!usuarioEditandoId) return;
+
+      const usuario = document.getElementById("novoUsuario").value.trim();
+      const nome = document.getElementById("novoNome").value.trim();
+      const perfil = document.getElementById("novoPerfil").value;
+
+      if (!usuario || !nome) {
+        mostrarMsgUsuarios("Preencha usuário e nome.", "red");
+        return;
+      }
+
+      const { error } = await client
+        .from("usuarios_sistema")
+        .update({ usuario, nome, perfil })
+        .eq("id", usuarioEditandoId);
+
+      if (error) {
+        mostrarMsgUsuarios("Erro ao editar usuário: " + error.message, "red");
+        return;
+      }
+
+      mostrarMsgUsuarios("Usuário atualizado com sucesso.", "green");
+      cancelarEdicaoUsuario();
+      listarUsuarios();
+    }
+
+    async function resetarSenhaPrompt(id, usuario) {
+      const novaSenha = prompt("Digite a nova senha para " + usuario + ":");
+      if (novaSenha === null) return;
+      if (!novaSenha.trim()) {
+        alert("Senha inválida.");
+        return;
+      }
+
+      const { error } = await client
+        .from("usuarios_sistema")
+        .update({ senha: novaSenha.trim() })
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao resetar senha: " + error.message);
+        return;
+      }
+
+      alert("Senha alterada com sucesso.");
       listarUsuarios();
     }
 
@@ -561,6 +547,9 @@
       document.getElementById("setor").value = "TI";
       document.getElementById("prioridade").value = "Baixa";
       document.getElementById("responsavel").value = "";
+      document.getElementById("foto").value = "";
+      document.getElementById("previewFoto").src = "";
+      document.getElementById("previewFoto").classList.add("hidden");
     }
 
     function cancelarEdicao() {
@@ -577,6 +566,26 @@
       else await criarTicket();
     }
 
+    async function enviarFotoSeExistir() {
+      const input = document.getElementById("foto");
+      const file = input.files[0];
+      if (!file) return { foto_url: null };
+
+      const nomeArquivo = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+      const caminho = `tickets/${nomeArquivo}`;
+
+      const { error: uploadError } = await client.storage
+        .from("tickets-fotos")
+        .upload(caminho, file, { upsert: true });
+
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+
+      const { data } = client.storage.from("tickets-fotos").getPublicUrl(caminho);
+      return { foto_url: data.publicUrl };
+    }
+
     async function criarTicket() {
       const solicitante = document.getElementById("solicitante").value.trim();
       const whatsapp = document.getElementById("whatsapp").value.trim();
@@ -591,6 +600,14 @@
         return;
       }
 
+      let fotoPayload = { foto_url: null };
+      try {
+        fotoPayload = await enviarFotoSeExistir();
+      } catch (e) {
+        mostrarMensagem("Erro ao enviar foto: " + e.message, "red");
+        return;
+      }
+
       const { error } = await client.from("tickets").insert([{
         solicitante,
         whatsapp,
@@ -600,7 +617,8 @@
         prioridade,
         responsavel,
         status: "Aberto",
-        usuario_abertura: usuarioSessao?.usuario || null
+        usuario_abertura: usuarioSessao?.usuario || null,
+        ...fotoPayload
       }]);
 
       if (error) {
@@ -622,9 +640,22 @@
       const prioridade = document.getElementById("prioridade").value;
       const responsavel = document.getElementById("responsavel").value.trim();
 
+      const payload = { solicitante, whatsapp, titulo, descricao, setor, prioridade, responsavel };
+
+      const input = document.getElementById("foto");
+      if (input.files[0]) {
+        try {
+          const fotoPayload = await enviarFotoSeExistir();
+          payload.foto_url = fotoPayload.foto_url;
+        } catch (e) {
+          mostrarMensagem("Erro ao enviar foto: " + e.message, "red");
+          return;
+        }
+      }
+
       const { error } = await client
         .from("tickets")
-        .update({ solicitante, whatsapp, titulo, descricao, setor, prioridade, responsavel })
+        .update(payload)
         .eq("id", ticketEditandoId);
 
       if (error) {
@@ -653,6 +684,13 @@
       document.getElementById("setor").value = t.setor || "TI";
       document.getElementById("prioridade").value = t.prioridade || "Baixa";
       document.getElementById("responsavel").value = t.responsavel || "";
+      if (t.foto_url) {
+        document.getElementById("previewFoto").src = t.foto_url;
+        document.getElementById("previewFoto").classList.remove("hidden");
+      } else {
+        document.getElementById("previewFoto").src = "";
+        document.getElementById("previewFoto").classList.add("hidden");
+      }
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -733,10 +771,8 @@
       }
 
       const numero = String(ticket.whatsapp).replace(/\D/g, "");
-
       const mensagem = `Olá, ${ticket.solicitante || ""}!\nSeu suporte foi concluído com sucesso.\n\nNúmero do chamado: ${ticket.numero_chamado || "-"}\nTítulo: ${ticket.titulo || "-"}\nStatus: ${ticket.status || "-"}\n\nQuem atendeu: ${ticket.quem_atendeu || "-"}\nO que foi feito: ${ticket.observacao_atendimento || "-"}\nPeça trocada: ${ticket.peca_trocada || "-"}\nMotivo do fechamento: ${ticket.motivo_fechamento || "-"}\n\nSUPORTE BSM`;
-
-      const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+      const url = `https://web.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensagem)}`;
       window.open(url, "_blank");
     }
 
@@ -942,6 +978,7 @@
               <strong>Motivo do fechamento:</strong> ${ticket.motivo_fechamento || "-"}<br>
               <strong>Observação de atendimento:</strong> ${ticket.observacao_atendimento || "-"}<br>
               <strong>Usuário de abertura:</strong> ${ticket.usuario_abertura || "-"}
+              ${ticket.foto_url ? `<br><strong>Foto:</strong><br><img src="${ticket.foto_url}" class="thumb" alt="Foto do ticket">` : ""}
             </div>
 
             <div class="acoes">
