@@ -93,6 +93,8 @@
     .btn-yellow { background: #b45309; }
     .btn-red { background: #b91c1c; }
     .btn-gray { background: #374151; }
+    .btn-blue { background: #1d4ed8; }
+
     .ticket {
       border: 1px solid #e5e7eb;
       border-radius: 14px;
@@ -167,6 +169,23 @@
       background: #111827;
       border-radius: 999px;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table th, table td {
+      border: 1px solid #e5e7eb;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+    table th {
+      background: #f9fafb;
+    }
+    .admin-bar {
+      margin-bottom: 10px;
+    }
     @media (max-width: 950px) {
       .grid, .linha2, .linha3 {
         grid-template-columns: 1fr;
@@ -197,6 +216,11 @@
       <div class="box"><span>Finalizados</span><strong id="dashFinalizados">0</strong></div>
       <div class="box"><span>Prioridade alta</span><strong id="dashAlta">0</strong></div>
       <div class="box"><span>Hoje</span><strong id="dashHoje">0</strong></div>
+    </div>
+
+    <div class="admin-bar nao-imprimir hidden" id="adminBar">
+      <button class="btn-blue" onclick="abrirPainelUsuarios()">Gerenciar usuários</button>
+      <button class="btn-gray" onclick="listarUsuarios()">Atualizar usuários</button>
     </div>
 
     <div class="grid nao-imprimir">
@@ -315,6 +339,52 @@
       </div>
     </div>
 
+    <div class="card hidden" style="margin-top:20px;" id="painelUsuarios">
+      <h2>Gerenciar usuários</h2>
+
+      <div class="linha2">
+        <div>
+          <label>Nome completo</label>
+          <input type="text" id="novoNome" placeholder="Nome completo" />
+        </div>
+        <div>
+          <label>Usuário</label>
+          <input type="text" id="novoUsuario" placeholder="Ex.: joao" />
+        </div>
+      </div>
+
+      <div class="linha2">
+        <div>
+          <label>E-mail</label>
+          <input type="email" id="novoEmail" placeholder="email@empresa.com" />
+        </div>
+        <div>
+          <label>Senha</label>
+          <input type="password" id="novaSenha" placeholder="Senha do usuário" />
+        </div>
+      </div>
+
+      <div class="linha2">
+        <div>
+          <label>Perfil</label>
+          <select id="novoPerfil">
+            <option value="usuario">Usuário</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <div>
+          <label>Observação</label>
+          <input type="text" id="obsUsuario" placeholder="Opcional" />
+        </div>
+      </div>
+
+      <button class="btn-green" onclick="criarUsuarioAdmin()">Criar usuário</button>
+      <div id="msgUsuarios" class="msg"></div>
+
+      <h3 style="margin-top:25px;">Usuários cadastrados</h3>
+      <div id="listaUsuarios">Clique em Atualizar usuários.</div>
+    </div>
+
     <div class="card" style="margin-top:20px;">
       <h2>Tickets cadastrados</h2>
       <div id="bloqueioLista">Área protegida. Clique em <strong>Ver tickets cadastrados</strong> e informe a senha.</div>
@@ -326,12 +396,18 @@
     const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
     const SENHA_PROTECAO = "2101";
+    const ADMIN_USUARIO = "Adriano";
+    const ADMIN_SENHA = "Bsm419";
+
+    // Quando você criar a Edge Function, troque aqui:
+    const URL_CRIAR_USUARIO = "";
 
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let listaLiberada = false;
     let ticketEditandoId = null;
     let todosTickets = [];
+    let adminAtivo = false;
 
     function mostrarMensagem(texto, cor = "green") {
       const el = document.getElementById("mensagem");
@@ -342,6 +418,138 @@
     function pedirSenha() {
       const senha = prompt("Digite a senha:");
       return senha === SENHA_PROTECAO;
+    }
+
+    function verificarAdminMaster() {
+      const usuario = prompt("Usuário administrador:");
+      const senha = prompt("Senha do administrador:");
+
+      if (usuario === ADMIN_USUARIO && senha === ADMIN_SENHA) {
+        adminAtivo = true;
+        document.getElementById("adminBar").classList.remove("hidden");
+        alert("Administrador liberado.");
+      } else {
+        alert("Usuário ou senha de administrador inválidos.");
+      }
+    }
+
+    function abrirPainelUsuarios() {
+      if (!adminAtivo) {
+        verificarAdminMaster();
+      }
+      if (!adminAtivo) return;
+      document.getElementById("painelUsuarios").classList.remove("hidden");
+      listarUsuarios();
+      window.scrollTo({ top: document.getElementById("painelUsuarios").offsetTop - 20, behavior: "smooth" });
+    }
+
+    async function listarUsuarios() {
+      if (!adminAtivo) return;
+
+      const { data, error } = await client
+        .from("profiles")
+        .select("id, username, full_name, email, role")
+        .order("full_name", { ascending: true });
+
+      if (error) {
+        document.getElementById("listaUsuarios").innerHTML = "Erro ao carregar usuários: " + error.message;
+        return;
+      }
+
+      if (!data || !data.length) {
+        document.getElementById("listaUsuarios").innerHTML = "Nenhum usuário encontrado.";
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Usuário</th>
+              <th>E-mail</th>
+              <th>Perfil</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.forEach(u => {
+        html += `
+          <tr>
+            <td>${u.full_name || ""}</td>
+            <td>${u.username || ""}</td>
+            <td>${u.email || ""}</td>
+            <td>${u.role || ""}</td>
+          </tr>
+        `;
+      });
+
+      html += "</tbody></table>";
+      document.getElementById("listaUsuarios").innerHTML = html;
+    }
+
+    async function criarUsuarioAdmin() {
+      if (!adminAtivo) {
+        alert("Acesso restrito ao administrador.");
+        return;
+      }
+
+      const nome = document.getElementById("novoNome").value.trim();
+      const usuario = document.getElementById("novoUsuario").value.trim();
+      const email = document.getElementById("novoEmail").value.trim();
+      const senha = document.getElementById("novaSenha").value.trim();
+      const perfil = document.getElementById("novoPerfil").value;
+
+      const msg = document.getElementById("msgUsuarios");
+
+      if (!nome || !usuario || !email || !senha) {
+        msg.innerText = "Preencha nome, usuário, e-mail e senha.";
+        msg.style.color = "red";
+        return;
+      }
+
+      if (!URL_CRIAR_USUARIO) {
+        msg.innerText = "Tela pronta. Falta ligar a URL segura de criação de usuários.";
+        msg.style.color = "#b45309";
+        return;
+      }
+
+      try {
+        const resp = await fetch(URL_CRIAR_USUARIO, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome,
+            usuario,
+            email,
+            senha,
+            perfil
+          })
+        });
+
+        const retorno = await resp.json();
+
+        if (!resp.ok) {
+          msg.innerText = retorno.erro || "Erro ao criar usuário.";
+          msg.style.color = "red";
+          return;
+        }
+
+        msg.innerText = "Usuário criado com sucesso.";
+        msg.style.color = "green";
+
+        document.getElementById("novoNome").value = "";
+        document.getElementById("novoUsuario").value = "";
+        document.getElementById("novoEmail").value = "";
+        document.getElementById("novaSenha").value = "";
+        document.getElementById("novoPerfil").value = "usuario";
+
+        listarUsuarios();
+      } catch (e) {
+        msg.innerText = "Erro ao conectar com a criação de usuários.";
+        msg.style.color = "red";
+      }
     }
 
     function classeStatus(status) {
