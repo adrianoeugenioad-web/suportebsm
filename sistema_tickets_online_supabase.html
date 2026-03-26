@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SUPORTE BSM - VERSÃO 3</title>
+  <title>SUPORTE BSM - VERSÃO 4</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
@@ -69,10 +69,7 @@
       margin-bottom: 14px;
       font-size: 14px;
     }
-    textarea {
-      min-height: 95px;
-      resize: vertical;
-    }
+    textarea { min-height: 95px; resize: vertical; }
     button {
       background: #111827;
       color: white;
@@ -169,15 +166,28 @@
       max-width: 480px;
       margin: 30px auto;
     }
+    .small-note {
+      font-size: 12px;
+      color: #6b7280;
+    }
     @media (max-width: 950px) {
       .grid, .linha2, .linha3 { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: white; }
+      .topo, .nao-imprimir, button, #painelUsuarios { display: none !important; }
+      .card, .box, .ticket {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+      .container { max-width: 100%; padding: 0; }
     }
   </style>
 </head>
 <body>
   <div class="topo">
     <h1>SUPORTE BSM</h1>
-    <p>Sistema interno de tickets - Versão 3</p>
+    <p>Sistema interno de tickets - Versão 4</p>
   </div>
 
   <div id="telaLogin" class="container">
@@ -188,6 +198,7 @@
       <label>Senha</label>
       <input type="password" id="loginSenha" placeholder="Senha" />
       <button class="btn-blue" onclick="fazerLogin()">Entrar</button>
+      <div class="small-note">Administrador padrão: Adriano / Bsm419</div>
       <div id="msgLogin" class="msg"></div>
     </div>
   </div>
@@ -212,7 +223,7 @@
       <button class="btn-gray" onclick="logout()">Sair</button>
     </div>
 
-    <div class="grid">
+    <div class="grid nao-imprimir">
       <div class="card">
         <h2 id="tituloFormulario">Abrir novo ticket</h2>
 
@@ -260,6 +271,7 @@
 
       <div class="card">
         <h2>Filtros / Relatórios</h2>
+
         <label>Buscar</label>
         <input type="text" id="busca" placeholder="Buscar por título, setor, solicitante..." onkeyup="listarTickets()" />
 
@@ -311,6 +323,7 @@
         </div>
 
         <button class="btn-gray" onclick="listarTickets()">Atualizar lista</button>
+        <button class="btn-green" onclick="window.print()">Imprimir / PDF</button>
       </div>
     </div>
 
@@ -327,6 +340,8 @@
 
     <div class="card hidden" style="margin-top:20px;" id="painelUsuarios">
       <h2>Gerenciar usuários</h2>
+      <div class="small-note">Admin pode criar usuário e senha direto por esta tela.</div>
+
       <div class="linha2">
         <div>
           <label>Usuário</label>
@@ -337,6 +352,7 @@
           <input type="text" id="novaSenha" placeholder="Senha do usuário" />
         </div>
       </div>
+
       <div class="linha2">
         <div>
           <label>Nome</label>
@@ -350,6 +366,7 @@
           </select>
         </div>
       </div>
+
       <button class="btn-green" onclick="criarUsuario()">Criar usuário</button>
       <div id="msgUsuarios" class="msg"></div>
       <div id="listaUsuarios" style="margin-top:15px;"></div>
@@ -370,7 +387,7 @@
     let todosTickets = [];
     let usuarioSessao = null;
 
-    function mostrarLoginMsg(texto, cor="red"){
+    function mostrarLoginMsg(texto, cor = "red") {
       const el = document.getElementById("msgLogin");
       el.innerText = texto;
       el.style.color = cor;
@@ -466,6 +483,7 @@
           </thead>
           <tbody>
       `;
+
       data.forEach(u => {
         html += `
           <tr>
@@ -476,6 +494,7 @@
           </tr>
         `;
       });
+
       html += "</tbody></table>";
       alvo.innerHTML = html;
     }
@@ -678,13 +697,17 @@
       const motivo = prompt("Motivo do fechamento?");
       if (motivo === null) return;
 
+      const agoraBrasil = new Date().toLocaleString("sv-SE", {
+        timeZone: "America/Sao_Paulo"
+      }).replace(" ", "T");
+
       const { error } = await client.from("tickets").update({
         status: "Finalizado",
         quem_atendeu: quemAtendeu,
         observacao_atendimento: observacao,
         peca_trocada: peca,
         motivo_fechamento: motivo,
-        data_fechamento: new Date().toISOString()
+        data_fechamento: agoraBrasil
       }).eq("id", id);
 
       if (error) {
@@ -759,6 +782,9 @@
       const inicio = new Date(ticket.created_at);
       const fim = new Date(ticket.data_fechamento);
       const ms = fim - inicio;
+
+      if (isNaN(ms) || ms < 0) return "";
+
       const horas = Math.floor(ms / (1000 * 60 * 60));
       const minutos = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
       return `${horas}h ${minutos}min`;
@@ -876,11 +902,16 @@
             <p>${ticket.descricao || ""}</p>
 
             <div class="resumo">
+              <strong>Número do chamado:</strong> ${ticket.numero_chamado || "-"}<br>
               <strong>Solicitante:</strong> ${ticket.solicitante || ""}<br>
               <strong>Setor:</strong> ${ticket.setor || ""}<br>
               <strong>Responsável:</strong> ${ticket.responsavel || ""}<br>
-              <strong>Data de abertura:</strong> ${ticket.created_at ? new Date(ticket.created_at).toLocaleString("pt-BR") : ""}<br>
-              <strong>Data de fechamento:</strong> ${ticket.data_fechamento ? new Date(ticket.data_fechamento).toLocaleString("pt-BR") : "-"}<br>
+              <strong>Data de abertura:</strong> ${ticket.data_abertura_brasil || "-"}<br>
+              <strong>Data de fechamento:</strong> ${
+                ticket.data_fechamento
+                  ? new Date(ticket.data_fechamento).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })
+                  : "-"
+              }<br>
               <strong>Tempo de atendimento:</strong> ${tempo || "-"}<br>
               <strong>Quem atendeu:</strong> ${ticket.quem_atendeu || "-"}<br>
               <strong>Peça trocada:</strong> ${ticket.peca_trocada || "-"}<br>
