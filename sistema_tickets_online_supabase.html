@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SUPORTE BSM - VERSÃO 4</title>
+  <title>SUPORTE BSM - VERSÃO COMPLETA</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
@@ -187,7 +187,7 @@
 <body>
   <div class="topo">
     <h1>SUPORTE BSM</h1>
-    <p>Sistema interno de tickets - Versão 4</p>
+    <p>Sistema interno de tickets - Versão completa</p>
   </div>
 
   <div id="telaLogin" class="container">
@@ -229,6 +229,9 @@
 
         <label>Solicitante</label>
         <input type="text" id="solicitante" placeholder="Nome de quem está abrindo o chamado" />
+
+        <label>WhatsApp do solicitante</label>
+        <input type="text" id="whatsapp" placeholder="Ex.: 5531999999999" />
 
         <label>Título</label>
         <input type="text" id="titulo" placeholder="Ex.: Impressora não está funcionando" />
@@ -552,6 +555,7 @@
 
     function limparFormulario() {
       document.getElementById("solicitante").value = usuarioSessao?.nome || "";
+      document.getElementById("whatsapp").value = "";
       document.getElementById("titulo").value = "";
       document.getElementById("descricao").value = "";
       document.getElementById("setor").value = "TI";
@@ -575,6 +579,7 @@
 
     async function criarTicket() {
       const solicitante = document.getElementById("solicitante").value.trim();
+      const whatsapp = document.getElementById("whatsapp").value.trim();
       const titulo = document.getElementById("titulo").value.trim();
       const descricao = document.getElementById("descricao").value.trim();
       const setor = document.getElementById("setor").value;
@@ -588,6 +593,7 @@
 
       const { error } = await client.from("tickets").insert([{
         solicitante,
+        whatsapp,
         titulo,
         descricao,
         setor,
@@ -609,6 +615,7 @@
 
     async function atualizarTicket() {
       const solicitante = document.getElementById("solicitante").value.trim();
+      const whatsapp = document.getElementById("whatsapp").value.trim();
       const titulo = document.getElementById("titulo").value.trim();
       const descricao = document.getElementById("descricao").value.trim();
       const setor = document.getElementById("setor").value;
@@ -617,7 +624,7 @@
 
       const { error } = await client
         .from("tickets")
-        .update({ solicitante, titulo, descricao, setor, prioridade, responsavel })
+        .update({ solicitante, whatsapp, titulo, descricao, setor, prioridade, responsavel })
         .eq("id", ticketEditandoId);
 
       if (error) {
@@ -640,6 +647,7 @@
       document.getElementById("btnCancelar").classList.remove("hidden");
 
       document.getElementById("solicitante").value = t.solicitante || "";
+      document.getElementById("whatsapp").value = t.whatsapp || "";
       document.getElementById("titulo").value = t.titulo || "";
       document.getElementById("descricao").value = t.descricao || "";
       document.getElementById("setor").value = t.setor || "TI";
@@ -716,6 +724,20 @@
       }
 
       listarTickets();
+    }
+
+    function enviarWhatsApp(ticket) {
+      if (!ticket.whatsapp) {
+        alert("Este ticket não possui número de WhatsApp cadastrado.");
+        return;
+      }
+
+      const numero = String(ticket.whatsapp).replace(/\D/g, "");
+
+      const mensagem = `Olá, ${ticket.solicitante || ""}!\nSeu suporte foi concluído com sucesso.\n\nNúmero do chamado: ${ticket.numero_chamado || "-"}\nTítulo: ${ticket.titulo || "-"}\nStatus: ${ticket.status || "-"}\n\nQuem atendeu: ${ticket.quem_atendeu || "-"}\nO que foi feito: ${ticket.observacao_atendimento || "-"}\nPeça trocada: ${ticket.peca_trocada || "-"}\nMotivo do fechamento: ${ticket.motivo_fechamento || "-"}\n\nSUPORTE BSM`;
+
+      const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+      window.open(url, "_blank");
     }
 
     function aplicarPeriodoRapido() {
@@ -868,7 +890,8 @@
           (t.setor || "") + " " +
           (t.solicitante || "") + " " +
           (t.responsavel || "") + " " +
-          (t.quem_atendeu || "")
+          (t.quem_atendeu || "") + " " +
+          (t.numero_chamado || "")
         ).toLowerCase();
 
         const okBusca = !busca || texto.includes(busca);
@@ -904,6 +927,7 @@
             <div class="resumo">
               <strong>Número do chamado:</strong> ${ticket.numero_chamado || "-"}<br>
               <strong>Solicitante:</strong> ${ticket.solicitante || ""}<br>
+              <strong>WhatsApp:</strong> ${ticket.whatsapp || "-"}<br>
               <strong>Setor:</strong> ${ticket.setor || ""}<br>
               <strong>Responsável:</strong> ${ticket.responsavel || ""}<br>
               <strong>Data de abertura:</strong> ${ticket.data_abertura_brasil || "-"}<br>
@@ -924,6 +948,7 @@
               ${usuarioSessao && usuarioSessao.perfil === "admin" ? `
                 <button class="btn-yellow" onclick="colocarEmAndamento('${ticket.id}')">Em andamento</button>
                 <button class="btn-green" onclick="finalizarTicket('${ticket.id}')">Finalizar</button>
+                <button class="btn-blue" onclick='enviarWhatsApp(${JSON.stringify(ticket).replace(/'/g, "&apos;")})'>WhatsApp</button>
                 <button class="btn-gray" onclick="reabrirTicket('${ticket.id}')">Reabrir</button>
                 <button class="btn-gray" onclick="editarTicket('${ticket.id}')">Editar</button>
                 <button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>
