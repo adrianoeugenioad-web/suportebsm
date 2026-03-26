@@ -7,15 +7,53 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body { font-family: Arial; background:#f4f6f8; margin:0; }
+body { font-family: Arial; background:#eef1f5; margin:0; }
 .topo { background:#0b1f3a; color:white; padding:15px; font-size:22px; }
 .container { padding:20px; }
-.card { background:white; padding:20px; border-radius:10px; max-width:1000px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1); margin-bottom:20px;}
-input, select, textarea { width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; }
-button { background:#0b1f3a; color:white; border:none; padding:10px; border-radius:6px; cursor:pointer; margin-right:5px; }
+
+.card {
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  max-width:900px;
+  margin:auto;
+  box-shadow:0 0 10px rgba(0,0,0,0.15);
+  margin-top:20px;
+}
+
+input, select, textarea {
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+button {
+  background:#0b1f3a;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:6px;
+  cursor:pointer;
+  margin:5px;
+}
+
 button:hover { background:#163a6b; }
-.menu { margin-bottom:15px; }
-.ticket { background:white; padding:15px; border-radius:10px; margin-bottom:10px; border:1px solid #ddd; }
+
+.menu {
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.ticket {
+  background:white;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:10px;
+  border:1px solid #ddd;
+}
+
 .hidden { display:none; }
 </style>
 </head>
@@ -26,8 +64,9 @@ button:hover { background:#163a6b; }
 
 <div class="container">
 
+<!-- LOGIN -->
 <div id="loginBox" class="card">
-<h3>Login</h3>
+<h2>Login</h2>
 <label>Usuário</label>
 <input type="text" id="usuario">
 <label>Senha</label>
@@ -36,19 +75,21 @@ button:hover { background:#163a6b; }
 <div id="msgLogin" style="color:red;"></div>
 </div>
 
+<!-- SISTEMA -->
 <div id="sistema" class="hidden">
-  <div class="menu">
-    <button onclick="novoChamado()">Novo Chamado</button>
-    <button onclick="listarChamados()">Meus Chamados</button>
-    <button onclick="abrirDashboard()">Dashboard</button>
-    <button onclick="abrirRelatorio()">Relatórios</button>
-    <button onclick="listarTodos()" id="btnTodos" class="hidden">Todos</button>
-    <button onclick="logout()">Sair</button>
-  </div>
 
-  <div id="conteudo"></div>
+<div class="menu">
+<button onclick="novoChamado()">Novo Chamado</button>
+<button onclick="listarChamados()">Meus Chamados</button>
+<button onclick="dashboard()">Dashboard</button>
+<button onclick="relatorio()">Relatórios</button>
+<button onclick="todosChamados()" id="btnTodos" class="hidden">Todos</button>
+<button onclick="logout()">Sair</button>
 </div>
 
+<div id="conteudo"></div>
+
+</div>
 </div>
 
 <script>
@@ -76,12 +117,12 @@ async function login() {
 
   const perfil = data[0];
 
-  const { error: erroLogin } = await client.auth.signInWithPassword({
+  const { error } = await client.auth.signInWithPassword({
     email: perfil.email,
     password: senha
   });
 
-  if (erroLogin) {
+  if (error) {
     document.getElementById("msgLogin").innerText = "Senha inválida";
     return;
   }
@@ -128,15 +169,11 @@ function novoChamado() {
 }
 
 async function salvarChamado() {
-  const titulo = document.getElementById("titulo").value;
-  const descricao = document.getElementById("descricao").value;
-  const prioridade = document.getElementById("prioridade").value;
-
   await client.from("tickets").insert([{
     numero: gerarNumero(),
-    titulo: titulo,
-    descricao: descricao,
-    prioridade: prioridade,
+    titulo: titulo.value,
+    descricao: descricao.value,
+    prioridade: prioridade.value,
     status: "Aberto",
     usuario: usuarioLogado
   }]);
@@ -151,22 +188,21 @@ async function listarChamados() {
     .eq("usuario", usuarioLogado)
     .order("id", { ascending:false });
 
-  mostrarTickets(data);
+  mostrar(data, false);
 }
 
-async function listarTodos() {
+async function todosChamados() {
   const { data } = await client
     .from("tickets")
     .select("*")
     .order("id", { ascending:false });
 
-  mostrarTickets(data, true);
+  mostrar(data, true);
 }
 
-function mostrarTickets(data, admin=false) {
+function mostrar(lista, admin) {
   let html = "";
-
-  data.forEach(t => {
+  lista.forEach(t => {
     html += `
       <div class="ticket">
         <b>${t.numero}</b><br>
@@ -176,11 +212,9 @@ function mostrarTickets(data, admin=false) {
         Prioridade: ${t.prioridade}<br>
         Usuário: ${t.usuario}<br>
     `;
-
-    if (admin) {
+    if(admin){
       html += `<button onclick="finalizar(${t.id})">Finalizar</button>`;
     }
-
     html += `</div>`;
   });
 
@@ -189,27 +223,26 @@ function mostrarTickets(data, admin=false) {
 
 async function finalizar(id) {
   await client.from("tickets").update({ status:"Finalizado" }).eq("id", id);
-  listarTodos();
+  todosChamados();
 }
 
-async function abrirDashboard() {
+async function dashboard() {
   const { data } = await client.from("tickets").select("*");
 
-  const total = data.length;
-  const abertos = data.filter(t => t.status == "Aberto").length;
-  const finalizados = data.filter(t => t.status == "Finalizado").length;
+  let abertos = data.filter(x => x.status=="Aberto").length;
+  let finalizados = data.filter(x => x.status=="Finalizado").length;
 
   document.getElementById("conteudo").innerHTML = `
     <div class="card">
-      <h3>Dashboard</h3>
-      Total: ${total} <br>
-      Abertos: ${abertos} <br>
-      Finalizados: ${finalizados}
+    <h3>Dashboard</h3>
+    Total: ${data.length}<br>
+    Abertos: ${abertos}<br>
+    Finalizados: ${finalizados}
     </div>
   `;
 }
 
-async function abrirRelatorio() {
+async function relatorio() {
   const { data } = await client.from("tickets").select("*");
 
   let html = `<div class="card"><h3>Relatório</h3><table border="1" width="100%">
