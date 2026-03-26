@@ -59,9 +59,7 @@
       padding: 20px;
       box-shadow: 0 4px 14px rgba(0,0,0,0.08);
     }
-    h2, h3 {
-      margin-top: 0;
-    }
+    h2, h3 { margin-top: 0; }
     input, textarea, select {
       width: 100%;
       padding: 12px;
@@ -86,15 +84,12 @@
       margin-right: 8px;
       margin-bottom: 8px;
     }
-    button:hover {
-      opacity: .95;
-    }
+    button:hover { opacity: .95; }
     .btn-green { background: #15803d; }
     .btn-yellow { background: #b45309; }
     .btn-red { background: #b91c1c; }
     .btn-gray { background: #374151; }
     .btn-blue { background: #1d4ed8; }
-
     .ticket {
       border: 1px solid #e5e7eb;
       border-radius: 14px;
@@ -114,11 +109,9 @@
     .aberto { background: #dbeafe; color: #1d4ed8; }
     .andamento { background: #fef3c7; color: #b45309; }
     .finalizado { background: #dcfce7; color: #15803d; }
-
     .baixa { background: #e5e7eb; color: #374151; }
     .media { background: #cffafe; color: #0f766e; }
     .alta { background: #fee2e2; color: #b91c1c; }
-
     .acoes {
       display: flex;
       gap: 8px;
@@ -129,9 +122,7 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
     .linha2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -147,16 +138,8 @@
       color: #4b5563;
       line-height: 1.6;
     }
-    .chart-bar-wrap {
-      margin-top: 8px;
-    }
-    .chart-row {
-      margin-bottom: 10px;
-    }
-    .chart-label {
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
+    .chart-row { margin-bottom: 10px; }
+    .chart-label { font-size: 13px; margin-bottom: 4px; }
     .chart-bar-bg {
       width: 100%;
       height: 18px;
@@ -180,25 +163,14 @@
       text-align: left;
       font-size: 14px;
     }
-    table th {
-      background: #f9fafb;
-    }
-    .admin-bar {
-      margin-bottom: 10px;
+    table th { background: #f9fafb; }
+    .admin-bar { margin-bottom: 10px; }
+    .login-wrap {
+      max-width: 480px;
+      margin: 30px auto;
     }
     @media (max-width: 950px) {
-      .grid, .linha2, .linha3 {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media print {
-      body { background: white; }
-      .topo, .nao-imprimir, button { display: none !important; }
-      .card, .box, .ticket {
-        box-shadow: none;
-        border: 1px solid #ccc;
-      }
-      .container { max-width: 100%; padding: 0; }
+      .grid, .linha2, .linha3 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -208,7 +180,19 @@
     <p>Sistema interno de tickets - Versão 3</p>
   </div>
 
-  <div class="container">
+  <div id="telaLogin" class="container">
+    <div class="card login-wrap">
+      <h2>Login do sistema</h2>
+      <label>Usuário</label>
+      <input type="text" id="loginUsuario" placeholder="Ex.: Adriano" />
+      <label>Senha</label>
+      <input type="password" id="loginSenha" placeholder="Senha" />
+      <button class="btn-blue" onclick="fazerLogin()">Entrar</button>
+      <div id="msgLogin" class="msg"></div>
+    </div>
+  </div>
+
+  <div id="app" class="container hidden">
     <div class="dashboard">
       <div class="box"><span>Total</span><strong id="dashTotal">0</strong></div>
       <div class="box"><span>Abertos</span><strong id="dashAbertos">0</strong></div>
@@ -218,12 +202,17 @@
       <div class="box"><span>Hoje</span><strong id="dashHoje">0</strong></div>
     </div>
 
-    <div class="admin-bar nao-imprimir hidden" id="adminBar">
+    <div class="admin-bar hidden" id="adminBar">
       <button class="btn-blue" onclick="abrirPainelUsuarios()">Gerenciar usuários</button>
       <button class="btn-gray" onclick="listarUsuarios()">Atualizar usuários</button>
+      <button class="btn-gray" onclick="logout()">Sair</button>
     </div>
 
-    <div class="grid nao-imprimir">
+    <div class="admin-bar" id="userBar">
+      <button class="btn-gray" onclick="logout()">Sair</button>
+    </div>
+
+    <div class="grid">
       <div class="card">
         <h2 id="tituloFormulario">Abrir novo ticket</h2>
 
@@ -271,7 +260,6 @@
 
       <div class="card">
         <h2>Filtros / Relatórios</h2>
-
         <label>Buscar</label>
         <input type="text" id="busca" placeholder="Buscar por título, setor, solicitante..." onkeyup="listarTickets()" />
 
@@ -323,48 +311,37 @@
         </div>
 
         <button class="btn-gray" onclick="listarTickets()">Atualizar lista</button>
-        <button class="btn-yellow" onclick="liberarLista()">Ver tickets cadastrados</button>
-        <button class="btn-green" onclick="window.print()">Imprimir / PDF</button>
       </div>
     </div>
 
     <div class="grid" style="margin-top:20px;">
       <div class="card">
         <h2>Dashboard por setor</h2>
-        <div id="graficoSetor" class="chart-bar-wrap"></div>
+        <div id="graficoSetor"></div>
       </div>
       <div class="card">
         <h2>Dashboard por responsável</h2>
-        <div id="graficoResponsavel" class="chart-bar-wrap"></div>
+        <div id="graficoResponsavel"></div>
       </div>
     </div>
 
     <div class="card hidden" style="margin-top:20px;" id="painelUsuarios">
       <h2>Gerenciar usuários</h2>
-
       <div class="linha2">
-        <div>
-          <label>Nome completo</label>
-          <input type="text" id="novoNome" placeholder="Nome completo" />
-        </div>
         <div>
           <label>Usuário</label>
           <input type="text" id="novoUsuario" placeholder="Ex.: joao" />
         </div>
-      </div>
-
-      <div class="linha2">
-        <div>
-          <label>E-mail</label>
-          <input type="email" id="novoEmail" placeholder="email@empresa.com" />
-        </div>
         <div>
           <label>Senha</label>
-          <input type="password" id="novaSenha" placeholder="Senha do usuário" />
+          <input type="text" id="novaSenha" placeholder="Senha do usuário" />
         </div>
       </div>
-
       <div class="linha2">
+        <div>
+          <label>Nome</label>
+          <input type="text" id="novoNome" placeholder="Nome completo" />
+        </div>
         <div>
           <label>Perfil</label>
           <select id="novoPerfil">
@@ -372,42 +349,32 @@
             <option value="admin">Administrador</option>
           </select>
         </div>
-        <div>
-          <label>Observação</label>
-          <input type="text" id="obsUsuario" placeholder="Opcional" />
-        </div>
       </div>
-
-      <button class="btn-green" onclick="criarUsuarioAdmin()">Criar usuário</button>
+      <button class="btn-green" onclick="criarUsuario()">Criar usuário</button>
       <div id="msgUsuarios" class="msg"></div>
-
-      <h3 style="margin-top:25px;">Usuários cadastrados</h3>
-      <div id="listaUsuarios">Clique em Atualizar usuários.</div>
+      <div id="listaUsuarios" style="margin-top:15px;"></div>
     </div>
 
     <div class="card" style="margin-top:20px;">
       <h2>Tickets cadastrados</h2>
-      <div id="bloqueioLista">Área protegida. Clique em <strong>Ver tickets cadastrados</strong> e informe a senha.</div>
-      <div id="listaTickets" class="hidden">Carregando...</div>
+      <div id="listaTickets">Carregando...</div>
     </div>
   </div>
 
   <script>
     const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
     const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
-    const SENHA_PROTECAO = "2101";
-    const ADMIN_USUARIO = "Adriano";
-    const ADMIN_SENHA = "Bsm419";
-
-    // Quando você criar a Edge Function, troque aqui:
-    const URL_CRIAR_USUARIO = "";
-
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let listaLiberada = false;
     let ticketEditandoId = null;
     let todosTickets = [];
-    let adminAtivo = false;
+    let usuarioSessao = null;
+
+    function mostrarLoginMsg(texto, cor="red"){
+      const el = document.getElementById("msgLogin");
+      el.innerText = texto;
+      el.style.color = cor;
+    }
 
     function mostrarMensagem(texto, cor = "green") {
       const el = document.getElementById("mensagem");
@@ -415,49 +382,75 @@
       el.style.color = cor;
     }
 
-    function pedirSenha() {
-      const senha = prompt("Digite a senha:");
-      return senha === SENHA_PROTECAO;
-    }
+    async function fazerLogin() {
+      const usuario = document.getElementById("loginUsuario").value.trim();
+      const senha = document.getElementById("loginSenha").value.trim();
 
-    function verificarAdminMaster() {
-      const usuario = prompt("Usuário administrador:");
-      const senha = prompt("Senha do administrador:");
-
-      if (usuario === ADMIN_USUARIO && senha === ADMIN_SENHA) {
-        adminAtivo = true;
-        document.getElementById("adminBar").classList.remove("hidden");
-        alert("Administrador liberado.");
-      } else {
-        alert("Usuário ou senha de administrador inválidos.");
+      if (!usuario || !senha) {
+        mostrarLoginMsg("Informe usuário e senha.");
+        return;
       }
-    }
-
-    function abrirPainelUsuarios() {
-      if (!adminAtivo) {
-        verificarAdminMaster();
-      }
-      if (!adminAtivo) return;
-      document.getElementById("painelUsuarios").classList.remove("hidden");
-      listarUsuarios();
-      window.scrollTo({ top: document.getElementById("painelUsuarios").offsetTop - 20, behavior: "smooth" });
-    }
-
-    async function listarUsuarios() {
-      if (!adminAtivo) return;
 
       const { data, error } = await client
-        .from("profiles")
-        .select("id, username, full_name, email, role")
-        .order("full_name", { ascending: true });
+        .from("usuarios_sistema")
+        .select("*")
+        .eq("usuario", usuario)
+        .eq("senha", senha)
+        .limit(1);
 
       if (error) {
-        document.getElementById("listaUsuarios").innerHTML = "Erro ao carregar usuários: " + error.message;
+        mostrarLoginMsg("Erro ao consultar usuários: " + error.message);
         return;
       }
 
       if (!data || !data.length) {
-        document.getElementById("listaUsuarios").innerHTML = "Nenhum usuário encontrado.";
+        mostrarLoginMsg("Usuário ou senha inválidos.");
+        return;
+      }
+
+      usuarioSessao = data[0];
+
+      document.getElementById("telaLogin").classList.add("hidden");
+      document.getElementById("app").classList.remove("hidden");
+
+      if (usuarioSessao.perfil === "admin") {
+        document.getElementById("adminBar").classList.remove("hidden");
+        document.getElementById("userBar").classList.add("hidden");
+      } else {
+        document.getElementById("adminBar").classList.add("hidden");
+        document.getElementById("userBar").classList.remove("hidden");
+      }
+
+      document.getElementById("solicitante").value = usuarioSessao.nome || usuarioSessao.usuario;
+      listarTickets();
+    }
+
+    function logout() {
+      usuarioSessao = null;
+      location.reload();
+    }
+
+    function abrirPainelUsuarios() {
+      const painel = document.getElementById("painelUsuarios");
+      painel.classList.toggle("hidden");
+      if (!painel.classList.contains("hidden")) listarUsuarios();
+    }
+
+    async function listarUsuarios() {
+      const { data, error } = await client
+        .from("usuarios_sistema")
+        .select("id, usuario, nome, perfil")
+        .order("usuario", { ascending: true });
+
+      const alvo = document.getElementById("listaUsuarios");
+
+      if (error) {
+        alvo.innerHTML = "Erro ao carregar usuários: " + error.message;
+        return;
+      }
+
+      if (!data || !data.length) {
+        alvo.innerHTML = "Nenhum usuário cadastrado.";
         return;
       }
 
@@ -465,91 +458,63 @@
         <table>
           <thead>
             <tr>
-              <th>Nome</th>
+              <th>ID</th>
               <th>Usuário</th>
-              <th>E-mail</th>
+              <th>Nome</th>
               <th>Perfil</th>
             </tr>
           </thead>
           <tbody>
       `;
-
       data.forEach(u => {
         html += `
           <tr>
-            <td>${u.full_name || ""}</td>
-            <td>${u.username || ""}</td>
-            <td>${u.email || ""}</td>
-            <td>${u.role || ""}</td>
+            <td>${u.id}</td>
+            <td>${u.usuario || ""}</td>
+            <td>${u.nome || ""}</td>
+            <td>${u.perfil || ""}</td>
           </tr>
         `;
       });
-
       html += "</tbody></table>";
-      document.getElementById("listaUsuarios").innerHTML = html;
+      alvo.innerHTML = html;
     }
 
-    async function criarUsuarioAdmin() {
-      if (!adminAtivo) {
-        alert("Acesso restrito ao administrador.");
-        return;
-      }
-
-      const nome = document.getElementById("novoNome").value.trim();
+    async function criarUsuario() {
       const usuario = document.getElementById("novoUsuario").value.trim();
-      const email = document.getElementById("novoEmail").value.trim();
       const senha = document.getElementById("novaSenha").value.trim();
+      const nome = document.getElementById("novoNome").value.trim();
       const perfil = document.getElementById("novoPerfil").value;
-
       const msg = document.getElementById("msgUsuarios");
 
-      if (!nome || !usuario || !email || !senha) {
-        msg.innerText = "Preencha nome, usuário, e-mail e senha.";
+      if (!usuario || !senha || !nome) {
+        msg.innerText = "Preencha usuário, senha e nome.";
         msg.style.color = "red";
         return;
       }
 
-      if (!URL_CRIAR_USUARIO) {
-        msg.innerText = "Tela pronta. Falta ligar a URL segura de criação de usuários.";
-        msg.style.color = "#b45309";
+      const { error } = await client.from("usuarios_sistema").insert([{
+        usuario,
+        senha,
+        nome,
+        perfil
+      }]);
+
+      if (error) {
+        msg.innerText = "Erro ao criar usuário: " + error.message;
+        msg.style.color = "red";
         return;
       }
 
-      try {
-        const resp = await fetch(URL_CRIAR_USUARIO, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nome,
-            usuario,
-            email,
-            senha,
-            perfil
-          })
-        });
+      msg.innerText = "Usuário criado com sucesso.";
+      msg.style.color = "green";
 
-        const retorno = await resp.json();
+      document.getElementById("novoUsuario").value = "";
+      document.getElementById("novaSenha").value = "";
+      document.getElementById("novoNome").value = "";
+      document.getElementById("novoPerfil").value = "usuario";
 
-        if (!resp.ok) {
-          msg.innerText = retorno.erro || "Erro ao criar usuário.";
-          msg.style.color = "red";
-          return;
-        }
-
-        msg.innerText = "Usuário criado com sucesso.";
-        msg.style.color = "green";
-
-        document.getElementById("novoNome").value = "";
-        document.getElementById("novoUsuario").value = "";
-        document.getElementById("novoEmail").value = "";
-        document.getElementById("novaSenha").value = "";
-        document.getElementById("novoPerfil").value = "usuario";
-
-        listarUsuarios();
-      } catch (e) {
-        msg.innerText = "Erro ao conectar com a criação de usuários.";
-        msg.style.color = "red";
-      }
+      listarUsuarios();
     }
 
     function classeStatus(status) {
@@ -567,7 +532,7 @@
     }
 
     function limparFormulario() {
-      document.getElementById("solicitante").value = "";
+      document.getElementById("solicitante").value = usuarioSessao?.nome || "";
       document.getElementById("titulo").value = "";
       document.getElementById("descricao").value = "";
       document.getElementById("setor").value = "TI";
@@ -585,11 +550,8 @@
     }
 
     async function salvarOuAtualizar() {
-      if (ticketEditandoId) {
-        await atualizarTicket();
-      } else {
-        await criarTicket();
-      }
+      if (ticketEditandoId) await atualizarTicket();
+      else await criarTicket();
     }
 
     async function criarTicket() {
@@ -605,17 +567,16 @@
         return;
       }
 
-      const { error } = await client.from("tickets").insert([
-        {
-          solicitante,
-          titulo,
-          descricao,
-          setor,
-          prioridade,
-          responsavel,
-          status: "Aberto"
-        }
-      ]);
+      const { error } = await client.from("tickets").insert([{
+        solicitante,
+        titulo,
+        descricao,
+        setor,
+        prioridade,
+        responsavel,
+        status: "Aberto",
+        usuario_abertura: usuarioSessao?.usuario || null
+      }]);
 
       if (error) {
         mostrarMensagem("Erro ao salvar ticket: " + error.message, "red");
@@ -624,18 +585,10 @@
 
       limparFormulario();
       mostrarMensagem("Ticket criado com sucesso.", "green");
-
-      if (listaLiberada) {
-        listarTickets();
-      }
+      listarTickets();
     }
 
     async function atualizarTicket() {
-      if (!pedirSenha()) {
-        alert("Senha incorreta.");
-        return;
-      }
-
       const solicitante = document.getElementById("solicitante").value.trim();
       const titulo = document.getElementById("titulo").value.trim();
       const descricao = document.getElementById("descricao").value.trim();
@@ -645,14 +598,7 @@
 
       const { error } = await client
         .from("tickets")
-        .update({
-          solicitante,
-          titulo,
-          descricao,
-          setor,
-          prioridade,
-          responsavel
-        })
+        .update({ solicitante, titulo, descricao, setor, prioridade, responsavel })
         .eq("id", ticketEditandoId);
 
       if (error) {
@@ -662,15 +608,10 @@
 
       mostrarMensagem("Ticket atualizado com sucesso.", "green");
       cancelarEdicao();
-      if (listaLiberada) listarTickets();
+      listarTickets();
     }
 
     function editarTicket(id) {
-      if (!pedirSenha()) {
-        alert("Senha incorreta.");
-        return;
-      }
-
       const t = todosTickets.find(x => String(x.id) === String(id));
       if (!t) return;
 
@@ -690,15 +631,9 @@
     }
 
     async function excluirTicket(id) {
-      if (!pedirSenha()) {
-        alert("Senha incorreta.");
-        return;
-      }
-
       if (!confirm("Deseja excluir este ticket?")) return;
 
       const { error } = await client.from("tickets").delete().eq("id", id);
-
       if (error) {
         alert("Erro ao excluir ticket: " + error.message);
         return;
@@ -708,87 +643,55 @@
     }
 
     async function colocarEmAndamento(id) {
-      const { error } = await client
-        .from("tickets")
-        .update({ status: "Em andamento" })
-        .eq("id", id);
-
+      const { error } = await client.from("tickets").update({ status: "Em andamento" }).eq("id", id);
       if (error) {
         alert("Erro ao atualizar status: " + error.message);
         return;
       }
-
       listarTickets();
     }
 
     async function reabrirTicket(id) {
-      const { error } = await client
-        .from("tickets")
-        .update({
-          status: "Aberto",
-          data_fechamento: null,
-          quem_atendeu: null,
-          observacao_atendimento: null,
-          peca_trocada: null,
-          motivo_fechamento: null
-        })
-        .eq("id", id);
+      const { error } = await client.from("tickets").update({
+        status: "Aberto",
+        data_fechamento: null,
+        quem_atendeu: null,
+        observacao_atendimento: null,
+        peca_trocada: null,
+        motivo_fechamento: null
+      }).eq("id", id);
 
       if (error) {
         alert("Erro ao reabrir ticket: " + error.message);
         return;
       }
-
       listarTickets();
     }
 
     async function finalizarTicket(id) {
-      if (!pedirSenha()) {
-        alert("Senha incorreta.");
-        return;
-      }
-
       const quemAtendeu = prompt("Quem atendeu?");
       if (quemAtendeu === null) return;
-
       const observacao = prompt("O que foi feito?");
       if (observacao === null) return;
-
       const peca = prompt("Qual peça trocou? (se não trocou, deixe em branco)");
       if (peca === null) return;
-
       const motivo = prompt("Motivo do fechamento?");
       if (motivo === null) return;
 
-      const { error } = await client
-        .from("tickets")
-        .update({
-          status: "Finalizado",
-          quem_atendeu: quemAtendeu,
-          observacao_atendimento: observacao,
-          peca_trocada: peca,
-          motivo_fechamento: motivo,
-          data_fechamento: new Date().toISOString()
-        })
-        .eq("id", id);
+      const { error } = await client.from("tickets").update({
+        status: "Finalizado",
+        quem_atendeu: quemAtendeu,
+        observacao_atendimento: observacao,
+        peca_trocada: peca,
+        motivo_fechamento: motivo,
+        data_fechamento: new Date().toISOString()
+      }).eq("id", id);
 
       if (error) {
         alert("Erro ao finalizar ticket: " + error.message);
         return;
       }
 
-      listarTickets();
-    }
-
-    function liberarLista() {
-      if (!pedirSenha()) {
-        alert("Senha incorreta.");
-        return;
-      }
-
-      listaLiberada = true;
-      document.getElementById("bloqueioLista").classList.add("hidden");
-      document.getElementById("listaTickets").classList.remove("hidden");
       listarTickets();
     }
 
@@ -912,8 +815,6 @@
     }
 
     async function listarTickets() {
-      if (!listaLiberada) return;
-
       const { data, error } = await client
         .from("tickets")
         .select("*")
@@ -924,13 +825,17 @@
         return;
       }
 
-      todosTickets = data || [];
+      todosTickets = (data || []).filter(t => {
+        if (!usuarioSessao) return false;
+        if (usuarioSessao.perfil === "admin") return true;
+        return (t.usuario_abertura || "").toLowerCase() === (usuarioSessao.usuario || "").toLowerCase();
+      });
 
       const busca = document.getElementById("busca").value.trim().toLowerCase();
       const filtroStatus = document.getElementById("filtroStatus").value;
       const filtroSetor = document.getElementById("filtroSetor").value;
 
-      let listaFiltrada = todosTickets.filter(t => {
+      const listaFiltrada = todosTickets.filter(t => {
         const texto = (
           (t.titulo || "") + " " +
           (t.descricao || "") + " " +
@@ -980,15 +885,18 @@
               <strong>Quem atendeu:</strong> ${ticket.quem_atendeu || "-"}<br>
               <strong>Peça trocada:</strong> ${ticket.peca_trocada || "-"}<br>
               <strong>Motivo do fechamento:</strong> ${ticket.motivo_fechamento || "-"}<br>
-              <strong>Observação de atendimento:</strong> ${ticket.observacao_atendimento || "-"}
+              <strong>Observação de atendimento:</strong> ${ticket.observacao_atendimento || "-"}<br>
+              <strong>Usuário de abertura:</strong> ${ticket.usuario_abertura || "-"}
             </div>
 
-            <div class="acoes nao-imprimir">
-              <button class="btn-yellow" onclick="colocarEmAndamento('${ticket.id}')">Em andamento</button>
-              <button class="btn-green" onclick="finalizarTicket('${ticket.id}')">Finalizar</button>
-              <button class="btn-gray" onclick="reabrirTicket('${ticket.id}')">Reabrir</button>
-              <button class="btn-gray" onclick="editarTicket('${ticket.id}')">Editar</button>
-              <button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>
+            <div class="acoes">
+              ${usuarioSessao && usuarioSessao.perfil === "admin" ? `
+                <button class="btn-yellow" onclick="colocarEmAndamento('${ticket.id}')">Em andamento</button>
+                <button class="btn-green" onclick="finalizarTicket('${ticket.id}')">Finalizar</button>
+                <button class="btn-gray" onclick="reabrirTicket('${ticket.id}')">Reabrir</button>
+                <button class="btn-gray" onclick="editarTicket('${ticket.id}')">Editar</button>
+                <button class="btn-red" onclick="excluirTicket('${ticket.id}')">Excluir</button>
+              ` : ""}
             </div>
           </div>
         `;
