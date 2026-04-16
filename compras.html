@@ -221,6 +221,11 @@
       color: #166534;
     }
 
+    .valor-total {
+      min-width: 90px;
+      display: inline-block;
+    }
+
     @media (max-width: 900px) {
       .topo-produto { grid-template-columns: 1fr; }
       .grid-produtos { grid-template-columns: 1fr; }
@@ -298,7 +303,7 @@
       <div class="dash">Data<strong id="dashData">-</strong></div>
       <div class="dash">Produtos<strong id="dashProdutos">0</strong></div>
       <div class="dash">Aprovados<strong id="dashAprovados">0</strong></div>
-      <div class="dash">Total aprovado<strong id="dashTotal">0.00</strong></div>
+      <div class="dash">Total aprovado<strong id="dashTotal">0,00</strong></div>
       <div class="dash">Status<strong id="dashStatus">PENDENTE</strong></div>
     </div>
 
@@ -370,6 +375,24 @@
     let proximoProdutoId = 1;
     let usuarioSessao = null;
     let cotacaoAtual = null;
+
+    function parseNumeroBR(valor){
+      if(valor === null || valor === undefined) return 0;
+      let v = String(valor).trim();
+      if(!v) return 0;
+      v = v.replace(/\./g, "");
+      v = v.replace(",", ".");
+      const n = parseFloat(v);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function formatarMoedaBR(valor){
+      const n = Number(valor || 0);
+      return n.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
 
     function formatarDataBR(dataISO){
       if(!dataISO) return "-";
@@ -482,14 +505,14 @@
         const partes = r.id.split("_");
         const produtoId = partes[1];
         const fornecedorId = partes[2];
-        total += parseFloat(document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText || 0);
+        total += parseNumeroBR(document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText || 0);
         qtdAprovados++;
       });
 
       document.getElementById("dashData").innerText = formatarDataBR(document.getElementById("dataReferencia").value);
       document.getElementById("dashProdutos").innerText = qtdProdutos;
       document.getElementById("dashAprovados").innerText = qtdAprovados;
-      document.getElementById("dashTotal").innerText = total.toFixed(2);
+      document.getElementById("dashTotal").innerText = formatarMoedaBR(total);
 
       const status = cotacaoAtual?.status_aprovacao || "PENDENTE";
       document.getElementById("dashStatus").innerText = status;
@@ -527,8 +550,9 @@
 
     function destacarMenor(produtoId){
       let valores = [];
+
       for(let i=1; i<=FORNECEDORES; i++){
-        const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+        const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
         if(v > 0) valores.push(v);
       }
 
@@ -537,8 +561,10 @@
       for(let i=1; i<=FORNECEDORES; i++){
         const row = document.getElementById(`row_${produtoId}_${i}`);
         if(!row) continue;
+
         row.classList.remove("menor");
-        const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+        const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+
         if(menor > 0 && v === menor){
           row.classList.add("menor");
         }
@@ -546,9 +572,12 @@
     }
 
     function calcular(produtoId, fornecedorId, salvar = true){
-      const kg = parseFloat(document.getElementById(`kg_${produtoId}`).value || 0);
-      const vu = parseFloat(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
-      document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = (kg * vu).toFixed(2);
+      const kg = parseNumeroBR(document.getElementById(`kg_${produtoId}`).value || 0);
+      const vu = parseNumeroBR(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
+      const total = kg * vu;
+
+      document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = formatarMoedaBR(total);
+
       destacarMenor(produtoId);
       atualizarListaFornecedoresLote();
       atualizarDashboard();
@@ -600,7 +629,7 @@
         const produtoId = card.id.replace("card_","");
         for(let f=1; f<=FORNECEDORES; f++){
           const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
-          const valor = parseFloat(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
+          const valor = parseNumeroBR(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
           const chk = document.getElementById(`ok_${produtoId}_${f}`);
           const row = document.getElementById(`row_${produtoId}_${f}`);
 
@@ -635,8 +664,8 @@
         htmlFornecedores += `
           <tr id="row_${produtoId}_${f}" class="${aprovado ? "aprovado" : ""}">
             <td><input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}"></td>
-            <td><input type="number" step="0.0001" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
-            <td id="total_${produtoId}_${f}">0.00</td>
+            <td><input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
+            <td id="total_${produtoId}_${f}" class="valor-total">0,00</td>
             <td>
               <select id="class_${produtoId}_${f}">
                 <option value="">Classificação</option>
@@ -657,7 +686,7 @@
 
         <div class="topo-produto">
           <input type="text" placeholder="Nome do produto" id="prod_${produtoId}" value="${escapeHtml(dados?.nome || "")}">
-          <input type="number" placeholder="KG" id="kg_${produtoId}" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
+          <input type="text" placeholder="KG" id="kg_${produtoId}" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
         </div>
 
         <table>
@@ -707,7 +736,7 @@
         });
       });
 
-      container.querySelectorAll("input[type='text'], input[type='number'], select").forEach(inp => {
+      container.querySelectorAll("input[type='text'], select").forEach(inp => {
         inp.addEventListener("input", () => {
           marcarNaoSalvo();
           salvarAutomatico();
@@ -985,8 +1014,8 @@
         produtos.forEach(prod => {
           (prod.fornecedores || []).forEach(forn => {
             if(forn.aprovado){
-              const kg = parseFloat(prod.kg || 0);
-              const vu = parseFloat(forn.valor || 0);
+              const kg = parseNumeroBR(prod.kg || 0);
+              const vu = parseNumeroBR(forn.valor || 0);
               total += (kg * vu);
             }
           });
@@ -1000,7 +1029,7 @@
           <strong>${formatarDataBR(registro.data_referencia)}</strong>
           <div>Comprador: ${escapeHtml(registro.comprador_nome || "-")}</div>
           <div>Produtos: ${produtos.length}</div>
-          <div>Total aprovado: R$ ${total.toFixed(2)}</div>
+          <div>Total aprovado: R$ ${formatarMoedaBR(total)}</div>
           <div class="chip ${statusClass}" style="margin-bottom:8px;">${registro.status_aprovacao || "PENDENTE"}</div>
           <button class="btn-blue" onclick="abrirCotacao('${registro.data_referencia}','${registro.comprador_usuario}','${escapeHtml(registro.comprador_nome || "")}')">Abrir</button>
           ${usuarioSessao.perfil === "admin" ? `<button class="btn-red" onclick="excluirCotacao('${registro.data_referencia}','${registro.comprador_usuario}')">Excluir</button>` : ""}
@@ -1125,21 +1154,25 @@
       }
 
       let html = "";
+
       data.forEach(reg => {
         const produtos = reg.dados?.produtos || [];
+        let totalGeral = 0;
+
         html += `
           <div class="card" style="margin-bottom:12px;">
             <strong>Data:</strong> ${formatarDataBR(reg.data_referencia)}<br>
             <strong>Comprador:</strong> ${escapeHtml(reg.comprador_nome || "-")}<br>
             <strong>Aprovado por:</strong> ${escapeHtml(reg.aprovado_por || "-")}<br>
             <strong>Data aprovação:</strong> ${formatarDataHoraBR(reg.aprovado_em)}<br><br>
+
             <table>
               <tr>
                 <th>Produto</th>
                 <th>KG</th>
-                <th>Fornecedor</th>
+                <th>Fornecedor Aprovado</th>
                 <th>Classificação</th>
-                <th>Valor Unit.</th>
+                <th>Valor Unitário</th>
                 <th>Total</th>
               </tr>
         `;
@@ -1147,27 +1180,85 @@
         produtos.forEach(prod => {
           (prod.fornecedores || []).forEach(f => {
             if(f.aprovado){
-              const kg = parseFloat(prod.kg || 0);
-              const vu = parseFloat(f.valor || 0);
+              const kg = parseNumeroBR(prod.kg || 0);
+              const vu = parseNumeroBR(f.valor || 0);
               const total = kg * vu;
+              totalGeral += total;
+
               html += `
                 <tr>
                   <td>${escapeHtml(prod.nome || "")}</td>
-                  <td>${kg || 0}</td>
+                  <td>${formatarMoedaBR(kg)}</td>
                   <td>${escapeHtml(f.nome || "")}</td>
                   <td>${escapeHtml(f.classificacao || "")}</td>
-                  <td>${vu.toFixed(2)}</td>
-                  <td>${total.toFixed(2)}</td>
+                  <td>${formatarMoedaBR(vu)}</td>
+                  <td>${formatarMoedaBR(total)}</td>
                 </tr>
               `;
             }
           });
         });
 
-        html += `</table></div>`;
+        html += `
+              <tr>
+                <td colspan="5" style="text-align:right;"><strong>Total Geral Aprovado</strong></td>
+                <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
+              </tr>
+            </table>
+
+            <div style="margin-top:10px;">
+              <button class="btn-green" onclick="enviarRelatorioAprovadoWhatsApp('${reg.id}')">📲 Enviar para WhatsApp</button>
+            </div>
+          </div>
+        `;
       });
 
       alvo.innerHTML = html;
+    }
+
+    async function enviarRelatorioAprovadoWhatsApp(cotacaoId){
+      const { data: reg, error } = await client
+        .from("cotacoes_bsm")
+        .select("*")
+        .eq("id", cotacaoId)
+        .maybeSingle();
+
+      if(error || !reg){
+        alert("Não foi possível carregar a cotação para envio.");
+        return;
+      }
+
+      const produtos = reg.dados?.produtos || [];
+
+      let texto = `*RELATÓRIO DE APROVADOS - BSM*%0A`;
+      texto += `Data: ${formatarDataBR(reg.data_referencia)}%0A`;
+      texto += `Comprador: ${encodeURIComponent(reg.comprador_nome || "-")}%0A`;
+      texto += `Aprovado por: ${encodeURIComponent(reg.aprovado_por || "-")}%0A`;
+      texto += `Aprovado em: ${encodeURIComponent(formatarDataHoraBR(reg.aprovado_em))}%0A%0A`;
+
+      let totalGeral = 0;
+
+      produtos.forEach(prod => {
+        (prod.fornecedores || []).forEach(f => {
+          if(f.aprovado){
+            const kg = parseNumeroBR(prod.kg || 0);
+            const vu = parseNumeroBR(f.valor || 0);
+            const total = kg * vu;
+            totalGeral += total;
+
+            texto += `Produto: ${encodeURIComponent(prod.nome || "")}%0A`;
+            texto += `Fornecedor: ${encodeURIComponent(f.nome || "")}%0A`;
+            texto += `Classificação: ${encodeURIComponent(f.classificacao || "")}%0A`;
+            texto += `KG: ${encodeURIComponent(formatarMoedaBR(kg))}%0A`;
+            texto += `Valor Unitário: R$ ${encodeURIComponent(formatarMoedaBR(vu))}%0A`;
+            texto += `Total: R$ ${encodeURIComponent(formatarMoedaBR(total))}%0A%0A`;
+          }
+        });
+      });
+
+      texto += `*TOTAL GERAL: R$ ${encodeURIComponent(formatarMoedaBR(totalGeral))}*`;
+
+      window.open("https://web.whatsapp.com/send?text=" + texto, "_blank");
     }
 
     function ativarEventosInputs(container){
@@ -1180,7 +1271,7 @@
         });
       });
 
-      container.querySelectorAll("input[type='text'], input[type='number'], select").forEach(inp => {
+      container.querySelectorAll("input[type='text'], select").forEach(inp => {
         inp.addEventListener("input", () => {
           marcarNaoSalvo();
           salvarAutomatico();
