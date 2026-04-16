@@ -1,1178 +1,857 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BSM - Sistema de Cotação</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BSM COTAÇÃO - NUVEM</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body{
-      font-family:Arial,sans-serif;
-      margin:0;
-      background:#0f2b4a;
-      color:#fff;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f2b4a;
+      color: #fff;
     }
-    header{
-      background:#0c223a;
-      padding:16px;
-      text-align:center;
-      font-size:22px;
-      font-weight:bold;
+    .topo {
+      background: #0c223a;
+      padding: 18px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
     }
-    .topbar{
-      padding:12px;
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      flex-wrap:wrap;
-      align-items:center;
+    .container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 16px;
     }
-    .box-topo{
-      background:rgba(255,255,255,.08);
-      padding:10px 12px;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-weight:bold;
+    .topbar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
     }
-    .box-topo input, .box-topo select{
-      border:none;
-      border-radius:8px;
-      padding:8px;
+    .box {
+      background: #173a63;
+      border-radius: 14px;
+      padding: 14px;
     }
-    button.action{
-      padding:9px 14px;
-      border-radius:20px;
-      border:none;
-      cursor:pointer;
-      font-weight:bold;
+    .box label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: bold;
     }
-    button.action:hover{filter:brightness(1.05)}
-    .dashboard{
-      background:#0c223a;
-      padding:12px;
-      margin:10px;
-      border-radius:12px;
-      text-align:center;
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
     }
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(420px,1fr));
-      gap:15px;
-      padding:15px;
+    textarea { min-height: 80px; resize: vertical; }
+    .acoes-topo {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
     }
-    .card{
-      background:#173a63;
-      border-radius:14px;
-      padding:12px;
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: bold;
+      cursor: pointer;
     }
-    .card h4{
-      margin-top:0;
+    .btn { background: #111827; color: #fff; }
+    .btn-green { background: #15803d; color: #fff; }
+    .btn-blue { background: #1d4ed8; color: #fff; }
+    .btn-red { background: #b91c1c; color: #fff; }
+    .btn-yellow { background: #b45309; color: #fff; }
+    .status-save {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: #374151;
+      font-weight: bold;
     }
-    table{
-      width:100%;
-      border-collapse:collapse;
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
     }
-    th,td{
-      padding:4px;
-      text-align:center;
+    .dash {
+      background: #173a63;
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
     }
-    input[type="text"], input[type="number"], textarea, select{
-      width:100%;
-      padding:8px;
-      border-radius:8px;
-      border:none;
-      box-sizing:border-box;
+    .dash strong {
+      display: block;
+      font-size: 26px;
+      margin-top: 6px;
     }
-    .aprovado td{
-      background:rgba(46,204,113,0.18);
-      color:#2ecc71 !important;
-      font-weight:900;
-      font-style:italic;
+    .grid-produtos {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+      gap: 16px;
     }
-    .menor{
-      background:#f1c40f;
-      color:#000;
-      font-weight:bold;
+    .card {
+      background: #173a63;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.18);
     }
-    .card.locked{
-      outline:2px solid rgba(46,204,113,.55);
-      box-shadow:0 10px 24px rgba(0,0,0,.22);
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
     }
-    .lockBadge{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      font-size:11px;
-      font-weight:900;
-      padding:4px 10px;
-      border-radius:999px;
-      background:rgba(46,204,113,.18);
-      color:#2ecc71;
-      margin-left:8px;
+    .topo-produto {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: 10px;
+      margin-bottom: 12px;
     }
-    .unlockBtn, .removeBtn{
-      float:right;
-      padding:6px 10px;
-      border-radius:10px;
-      border:none;
-      cursor:pointer;
-      font-weight:900;
-      margin-left:6px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      overflow: hidden;
     }
-    .unlockBtn{
-      background:rgba(255,255,255,.12);
-      color:#fff;
+    th, td {
+      padding: 8px;
+      text-align: center;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .removeBtn{
-      background:#b91c1c;
-      color:#fff;
+    th { background: rgba(0,0,0,0.18); }
+    .aprovado td {
+      background: rgba(46, 204, 113, 0.18);
+      color: #7CFFAE;
+      font-weight: bold;
     }
-    .painel-salvos{
-      margin:10px;
-      background:#0c223a;
-      border-radius:12px;
-      padding:12px;
+    .menor td {
+      outline: 2px solid #f1c40f;
+      outline-offset: -2px;
     }
-    .painel-salvos h3{
-      margin-top:0;
+    .ok-check {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
     }
-    .lista-salvos{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:10px;
+    .linha-acoes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
     }
-    .item-salvo{
-      background:#173a63;
-      border-radius:12px;
-      padding:10px;
+    .lista-salvos {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
     }
-    .item-salvo strong{
-      display:block;
-      margin-bottom:6px;
+    .salvo {
+      background: #173a63;
+      border-radius: 12px;
+      padding: 12px;
     }
-    .item-salvo button{
-      margin-top:8px;
-      margin-right:6px;
-      padding:7px 10px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-weight:bold;
+    .salvo strong {
+      display: block;
+      margin-bottom: 8px;
     }
-    .btn-abrir{background:#f1c40f;color:#000}
-    .btn-excluir{background:#b91c1c;color:#fff}
-    .linha-acoes{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:center;
-    }
-    .status-save{
-      font-weight:bold;
-      padding:10px 12px;
-      border-radius:12px;
-      background:#444;
-    }
-    .topo-produto{
-      display:grid;
-      grid-template-columns:1fr 140px;
-      gap:8px;
-      margin-bottom:10px;
-    }
-    .resumo-lote{
-      margin-top:8px;
-      font-size:14px;
-    }
-    .ok-check{
-      width:20px !important;
-      height:20px;
-      cursor:pointer;
-    }
-    @media(max-width:700px){
-      .topo-produto{
-        grid-template-columns:1fr;
-      }
-    }
-    @media print{
-      .topbar,.painel-salvos,.removeBtn,.unlockBtn,.linha-acoes{display:none !important;}
-      body{background:#fff;color:#000}
-      .card,.dashboard,header{background:#fff;color:#000;border:1px solid #ccc}
+    .hidden { display: none; }
+    @media (max-width: 900px) {
+      .topo-produto { grid-template-columns: 1fr; }
+      .grid-produtos { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <div class="topo">BSM SISTEMA DE COTAÇÃO DE PREÇOS - NUVEM</div>
 
-<header>BSM SISTEMA DE COTAÇÃO DE PREÇOS</header>
-
-<div class="topbar">
-  <label class="box-topo">
-    📅 Data:
-    <input type="date" id="dataReferencia">
-  </label>
-
-  <label class="box-topo">
-    👤 Responsável:
-    <input type="text" id="responsavel" placeholder="Nome do responsável">
-  </label>
-
-  <label class="box-topo" style="min-width:320px;">
-    📝 Observação:
-    <input type="text" id="observacao" placeholder="Ex.: cotação de carnes, frios e aves">
-  </label>
-
-  <span id="indicAprov" class="box-topo">🔒 Aprovação bloqueada</span>
-
-  <label class="box-topo">
-    ✅ Aprovar em lote:
-    <select id="fornecedorLote">
-      <option value="">Selecione o fornecedor</option>
-    </select>
-  </label>
-
-  <button class="action" onclick="bloquearAprovacao()">🔐 Bloquear</button>
-  <button class="action" onclick="adicionarProduto()">➕ Adicionar Produto</button>
-  <button class="action" onclick="aprovarFornecedorEmLote()">✅ Aprovar Lote</button>
-  <button class="action" onclick="salvarManual()">💾 Salvar (OK)</button>
-  <button class="action" onclick="printReport()">🖨️ Imprimir</button>
-  <button class="action" onclick="enviarWhatsApp()">📲 Aprovados</button>
-  <button class="action" onclick="enviarWhatsNaoAprovados()">📩 Não Aprovados</button>
-  <button class="action" onclick="limparDadosDaData()">🗑️ Limpar Data</button>
-
-  <span id="statusSalvar" class="status-save">🟢 Salvo</span>
-</div>
-
-<div class="dashboard">
-  <div><strong>Data selecionada:</strong> <span id="dataExibida">-</span></div>
-  <div><strong>Total aprovado:</strong> R$ <span id="totalDia">0.00</span></div>
-  <div><strong>Quantidade de produtos:</strong> <span id="qtdProdutos">0</span></div>
-  <div><strong>Itens aprovados no lote:</strong> <span id="qtdAprovadosLote">0</span></div>
-  <div class="resumo-lote"><strong>Fornecedor do lote:</strong> <span id="fornecedorLoteExibido">-</span></div>
-</div>
-
-<div class="painel-salvos">
-  <h3>📂 Cotações salvas</h3>
-  <div class="lista-salvos" id="listaCotacoesSalvas"></div>
-</div>
-
-<div class="grid" id="containerProdutos"></div>
-
-<datalist id="listaFornecedores">
-  <option value="3 B COMERCIAL LTDA">
-  <option value="A K QUALITY SERVICE COMERCIO, REPRE TRANSP LTDA">
-  <option value="ABATEDOURO DORENSE LTDA">
-  <option value="ADRIANO EUGENIO">
-  <option value="AGRO ALIMENTOS FERREIRA LTDA">
-  <option value="ALIMENTAR FOODS FRIGORIFICO LTDA">
-  <option value="ALIMENTOS ESMERALDA IND E COM LTDA">
-  <option value="ANDREA DA SILVA VIANA NASCIMENTO">
-  <option value="ARMAZEM DO MAR LTDA">
-  <option value="ATACADAO S.A">
-  <option value="AVIVAR ALIMENTOS LTDA">
-  <option value="AVIVAR ALIMENTOS S/A">
-  <option value="BALANÇO">
-  <option value="BARBOSA &amp; CIA LTDA">
-  <option value="BH FOODS COMERCIO E INDUSTRIA LTDA">
-  <option value="BMG FOODS IMPORTACAO E EXPORTACAO LTDA">
-  <option value="BRF S.A.">
-  <option value="C S DISTRIBUIDORA DE CARNES LTDA">
-  <option value="CAMPESCA - INDUSTRIA E COMERCIO DE PESCADO LTDA">
-  <option value="CARAMUJO">
-  <option value="CARNES BADALO LTDA">
-  <option value="CARNES NELORE IMPORTACAO EXPORTACAO EIRELI">
-  <option value="CASA DE CARNES INDUSTRIAL LTDA.">
-  <option value="CASSIO OLEGARIO DE SA">
-  <option value="CATIA APARECIDA DE AZEVEDO DE FREITAS">
-  <option value="CEMA CENTRAL MINEIRA ATACADISTA LTDA">
-  <option value="CENTER FRIOS COMERCIO E INDUSTRIA LTDA">
-  <option value="CERRADO COMERCIO E DISTRIBUICAO DE CARNES LTDA">
-  <option value="CICLO ALIMENTOS LTDA">
-  <option value="COMERCIAL DE ALIMENTOS PEDRA BRANCA">
-  <option value="COMERCIAL FRAGA LTDA">
-  <option value="COMERCIAL GALA LTDA">
-  <option value="COMERCIAL IRMAOS SARAIVA LTDA">
-  <option value="COMERCIO E INDUSTRIA DE CARNES FRIGO REI LTDA">
-  <option value="COOPERATIVA DOS GRANJEIROS DO OESTE DE MINAS LTDA">
-  <option value="D C A ALIMENTOS LTDA">
-  <option value="DEFUMADOS MORETO LTDA">
-  <option value="DELL COMPUTADORES DO BRASIL">
-  <option value="DHF PRODUTOS ALIMENTICIOS LTDA">
-  <option value="DIAMANTE ALIMENTOS LTDA">
-  <option value="DIEGO JUNIOR FELIX">
-  <option value="DISEP- DISTRIBUIDORA DE ALIMENTOS E RACAO LTDA">
-  <option value="DISTRIBUIDORA DE CARNES DRF LTDA">
-  <option value="DISTRIBUIDORA DE CARNES SABARA LTDA">
-  <option value="DISTRIBUIDORA LORENZO LTDA">
-  <option value="DISTRIBUIDORA RGD LTDA">
-  <option value="DISTRIBUIDORA SSB LTDA">
-  <option value="DISTRIBUIDORA XAVIER LTDA">
-  <option value="DMA DISTRIBUIDORA S/A">
-  <option value="E-PORK INDUSTRIA E COMERCIO DE CARNES LTDA">
-  <option value="ELFRIG - FRIGORIFICO ELDORADO LTDA">
-  <option value="EQUIFLEX DISTRIBUIDORA">
-  <option value="ERLI APARECIDA DE OLIVEIRA">
-  <option value="ESMERALDA ALIMENTOS LTDA">
-  <option value="FERNANDO LIMA &amp; CIA LTDA">
-  <option value="FICTOR BETIM ALIMENTOS LTDA">
-  <option value="FIGUEIREDO SM INDUSTRIA DE PESCADOS LTDA">
-  <option value="FLAVIO RODRIGUES SOUSA TRISTAO LTDA">
-  <option value="FORNECEDOR REVENDA HOMOLOGAÇÃO">
-  <option value="FRANGOGEL DISTRIBUIDORA DE ALIMENTOS LTDA">
-  <option value="FREDINI ALIMENTOS LTDA">
-  <option value="FRIDEL FRIGORIFICO INDUSTRIAL DEL REY LTDA">
-  <option value="FRIGO DIAS ALIMENTOS LTDA">
-  <option value="FRIGO DIEGO LTDA">
-  <option value="FRIGO ELITE">
-  <option value="FRIGOBET FRIGORIFICO INDUSTRIAL BETIM LTDA">
-  <option value="FRIGOLIX COMERCIO DE ALIMENTOS LTDA">
-  <option value="FRIGOMYLLY DISTRIBUIDORA DE CARNES LTDA">
-  <option value="FRIGORIFICO ALVORADA LTDA">
-  <option value="FRIGORIFICO ATALAIA S/A">
-  <option value="FRIGORIFICO BR LTDA">
-  <option value="FRIGORIFICO CALAFATE LTDA">
-  <option value="FRIGORIFICO COSTA LTDA">
-  <option value="FRIGORIFICO CRUZEIRO DO SUL LTDA">
-  <option value="FRIGORIFICO DIPLOMATA LTDA">
-  <option value="FRIGORIFICO DOS VALES LTDA">
-  <option value="FRIGORIFICO EXTRA BOI ATACADISTA LTDA">
-  <option value="FRIGORIFICO FORMIGAO LTDA">
-  <option value="FRIGORIFICO HAG LTDA">
-  <option value="FRIGORIFICO INDUSTRIAL CIDADE DE PIRANGA LTDA">
-  <option value="FRIGORIFICO OLIVEIRA INDUSTRIA E COMERCIO LTDA">
-  <option value="FRIGORIFICO PONTENOVENSE SOCIEDADE UNIPESSOAL LTDA">
-  <option value="FRIGORIFICO SABOR DE MINAS LTDA">
-  <option value="FRIGORIFICO SERRADAO LTDA">
-  <option value="FRIGORIFICO TORINO COMERCIO DE CARNES LTDA">
-  <option value="FRIGORIFICO VEREDA INDUSTRIA E COMERCIO LTDA">
-  <option value="FRIGOVITOR LTDA">
-  <option value="FRIGOVITTA INDUSTRIA E COMERCIO DE ALIMENTOS LTDA">
-  <option value="FRIMATH ALIMENTOS LTDA">
-  <option value="FRIOLI FRIGORIFICO OLIVEIRA LTDA">
-  <option value="GRANJA BRASILIA AGROINDUSTRIAL AVICOLA SA">
-  <option value="GVA ALIMENTOS COMERCIO DE CARNES LTDA">
-  <option value="IG. ALIMENTOS LTDA">
-  <option value="IMPERIAL IMPORTACAO E EXPORTACAO LTDA">
-  <option value="IMPERIUM ALIMENTOS LTDA">
-  <option value="INDUSTRIA ALIMENTOS FERREIRA LTDA">
-  <option value="INDUSTRIA DE CARNES D'LAPA LTDA">
-  <option value="INDUSTRIA DE CARNES GRANDMINAS LTDA">
-  <option value="INDUSTRIA E COMERCIO DE ALIMENTOS SUPREMO LTDA">
-  <option value="IRMAOS SILVA S/A">
-  <option value="J A ALIMENTOS ARAXA LTDA">
-  <option value="JAC PNEUS LTDA">
-  <option value="JD COMERCIO DE CARNES LTDA">
-  <option value="JOSE HEBER DE ARAUJO EIRELI - ME">
-  <option value="KYAS COMERCIAL LTDA">
-  <option value="LATICINIOS ITA INDUSTRIA E COMERCIO DE ALIMENTOS LTDA">
-  <option value="LINCON INDUSTRIA E COMERCIO LTDA">
-  <option value="LUBI ALIMENTOS E TRANSPORTES LTDA">
-  <option value="LUCIANO CORREA PIRES">
-  <option value="MARBOI ALIMENTOS LTDA">
-  <option value="MARECHAL DISTRIBUIDORA DE CARNES DE JUIZ DE FORA LTDA">
-  <option value="MART MINAS DISTRIBUICAO LTDA">
-  <option value="MELLORE ALIMENTOS LTDA EM RECUPERACAO JUDICIAL">
-  <option value="MERCEARIA IRMAOS MOTA LTDA">
-  <option value="MERCEARIA PRATA LTDA">
-  <option value="MF AGRONEGOCIO LTDA">
-  <option value="MICATI RODAS E RODIZIOS LTDA">
-  <option value="MINEIRAO ATACADISTA LTDA">
-  <option value="MLA DISTRIBUIDORA DE CARNES E DERIVADOS LTDA">
-  <option value="MMS ARMAZENAGEM E LOGISTICA S/A">
-  <option value="NOROESTE ALIMENTOS LTDA">
-  <option value="NUTRILI ALIMENTOS LTDA">
-  <option value="OESA COMERCIO E REPRESENTACOES S/A">
-  <option value="ORGANIZACOES FRANCAP S/A">
-  <option value="OSMAR DA SILVA MIRANDA">
-  <option value="OURO VERMELHO INDUSTRIA COMERCIO LTDA">
-  <option value="PLENA ALIMENTOS LTDA">
-  <option value="PONTO DA CARNE LTDA">
-  <option value="PONTO DO BOI LTDA">
-  <option value="PORCINIO COMERCIO DE ALIMENTOS LTDA">
-  <option value="QS DISTRIBUICAO E COMERCIO DE CARNES LTDA">
-  <option value="R C CARNES COMERCIO E INDUSTRIA LTDA">
-  <option value="R.A.CAMBERELAS COMERCIO E TRANSPORTE LTDA">
-  <option value="REAL COMERCIO DE MIUDEZAS LTDA">
-  <option value="REFRISOL ARMAZENAGEM E LOGISTICA LTDA">
-  <option value="RIO BRANCO ALIMENTOS">
-  <option value="RJ FOODS LTDA">
-  <option value="RODONAVES TRANSPORTES E ENCOMENDAS LTDA">
-  <option value="SACOLA CHEIA LTDA">
-  <option value="SALSICHARIA DOIS IRMAOS LTDA">
-  <option value="SEALI FOOD INDUSTRIA E COMERCIO DE ALIMENTOS LTDA">
-  <option value="SEARA COMERCIO DE ALIMENTOS LTDA">
-  <option value="SK AUTOMOTIVE DISTRIBUIDORA DE AUTOPECAS LTDA">
-  <option value="SM PESCADOS LTDA">
-  <option value="SQF PRODUTOS E SOLUCOES LTDA">
-  <option value="SUINCO - COOPERATIVA DE SUINOCULTORES LTDA">
-  <option value="SUPERMERCADO BIAS FORTES BM LTDA">
-  <option value="SUPERMERCADO DEGRAU LTDA">
-  <option value="SUPERMERCADO REI DO ARROZ LTDA">
-  <option value="SUPERMERCADO SOUSA E TANNOUS LTDA">
-  <option value="SUPERMERCADOS BH COMERCIO DE ALIMENTOS S/A">
-  <option value="SUPERMERCADOS REX LTDA">
-  <option value="SUPREMO CARNES LTDA">
-  <option value="TG-TRANSPORTE E COMERCIO LTDA">
-  <option value="UAI PEIXES E FRUTOS DO MAR LTDA">
-  <option value="VENTURA ALIMENTOS DO BRASIL LTDA">
-  <option value="VIBRA AGROINDUSTRIAL S A">
-  <option value="WL DISTRIBUIDORA">
-</datalist>
-
-<script>
-  const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
-  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const FORNECEDORES = 6;
-  const SENHA = "419";
-  const PREFIXO_COTACAO = "BSM_COTACAO_";
-
-  let aprovacaoLiberada = false;
-  let proximoProdutoId = 1;
-
-  function formatarDataBR(dataISO){
-    if(!dataISO) return "-";
-    const p = dataISO.split("-");
-    if(p.length !== 3) return dataISO;
-    return `${p[2]}/${p[1]}/${p[0]}`;
-  }
-
-  function dataAtualISO(){
-    const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth()+1).padStart(2,"0");
-    const dia = String(hoje.getDate()).padStart(2,"0");
-    return `${ano}-${mes}-${dia}`;
-  }
-
-  function chaveDaData(){
-    const data = document.getElementById("dataReferencia").value;
-    return data ? PREFIXO_COTACAO + data : null;
-  }
-
-  function escapeHtml(texto){
-    return String(texto ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;");
-  }
-
-  function atualizarIndicadorAprovacao(){
-    const el = document.getElementById("indicAprov");
-    if(!el) return;
-    if(aprovacaoLiberada || sessionStorage.getItem("BSM_APROVACAO_LIBERADA")==="1"){
-      el.textContent = "🔓 Aprovação liberada";
-      el.style.background = "rgba(46,204,113,.18)";
-      el.style.color = "#2ecc71";
-    }else{
-      el.textContent = "🔒 Aprovação bloqueada";
-      el.style.background = "rgba(255,255,255,.10)";
-      el.style.color = "#fff";
-    }
-  }
-
-  function solicitarSenhaUmaVez(){
-    if(aprovacaoLiberada) return true;
-    if(sessionStorage.getItem("BSM_APROVACAO_LIBERADA")==="1"){
-      aprovacaoLiberada = true;
-      atualizarIndicadorAprovacao();
-      return true;
-    }
-    const s = prompt("Digite a senha para LIBERAR as aprovações (1x):");
-    if(s === SENHA){
-      aprovacaoLiberada = true;
-      sessionStorage.setItem("BSM_APROVACAO_LIBERADA","1");
-      atualizarIndicadorAprovacao();
-      return true;
-    }
-    alert("Senha incorreta.");
-    return false;
-  }
-
-  function bloquearAprovacao(){
-    aprovacaoLiberada = false;
-    sessionStorage.removeItem("BSM_APROVACAO_LIBERADA");
-    atualizarIndicadorAprovacao();
-  }
-
-  function mostrarStatusSalvo(msg){
-    const el = document.getElementById("statusSalvar");
-    if(!el) return;
-    el.innerText = "🟢 " + msg;
-    el.style.background = "#14532d";
-    setTimeout(() => {
-      el.innerText = "🟢 Salvo";
-      el.style.background = "#444";
-    }, 2000);
-  }
-
-  function marcarNaoSalvo(){
-    const el = document.getElementById("statusSalvar");
-    if(!el) return;
-    el.innerText = "🟡 Alterações não salvas";
-    el.style.background = "#92400e";
-  }
-
-  function salvarManual(){
-    marcarNaoSalvo();
-    salvarAutomatico(true);
-  }
-
-  function keyLock(produtoId){
-    const data = document.getElementById("dataReferencia").value || "sem_data";
-    return `LOCK_${data}_${produtoId}`;
-  }
-
-  function adicionarProduto(dados = null){
-    const produtoId = dados?.produtoId || proximoProdutoId++;
-    if(produtoId >= proximoProdutoId) proximoProdutoId = produtoId + 1;
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.id = `card_${produtoId}`;
-
-    let htmlFornecedores = "";
-    for(let f=1; f<=FORNECEDORES; f++){
-      const fornVal = dados?.fornecedores?.[f-1]?.nome || "";
-      const vuVal = dados?.fornecedores?.[f-1]?.valor || "";
-      const classVal = dados?.fornecedores?.[f-1]?.classificacao || "";
-      const aprovado = dados?.fornecedores?.[f-1]?.aprovado || false;
-
-      htmlFornecedores += `
-        <tr id="row_${produtoId}_${f}" class="${aprovado ? "aprovado" : ""}">
-          <td><input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}"></td>
-          <td><input type="number" step="0.0001" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
-          <td id="total_${produtoId}_${f}">0.00</td>
-          <td>
-            <select id="class_${produtoId}_${f}">
-              <option value="">Classificação</option>
-              <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
-              <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
-              <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
-            </select>
-          </td>
-          <td>
-            <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
-          </td>
-        </tr>`;
-    }
-
-    card.innerHTML = `
-      <h4>
-        Produto
-        <span class="lockBadge" id="lock_${produtoId}" style="display:none;">🔒 BLOQUEADO</span>
-        <button class="removeBtn" type="button" onclick="removerProduto(${produtoId})">🗑️</button>
-        <button class="unlockBtn" type="button" onclick="unlockProduto(${produtoId})">🔓</button>
-      </h4>
-
-      <div class="topo-produto">
-        <input type="text" placeholder="Nome do produto" id="prod_${produtoId}" value="${escapeHtml(dados?.nome || "")}">
-        <input type="number" placeholder="KG" id="kg_${produtoId}" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
+  <div class="container">
+    <div class="topbar">
+      <div class="box">
+        <label>Data</label>
+        <input type="date" id="dataReferencia">
       </div>
-
-      <table>
-        <tr><th>Fornecedor</th><th>V.Unit</th><th>Total</th><th>Classificação</th><th>OK</th></tr>
-        ${htmlFornecedores}
-      </table>
-
-      <div class="linha-acoes" style="margin-top:10px;">
-        <button class="action" type="button" onclick="lockProduto(${produtoId})">🔒 Bloquear Produto</button>
+      <div class="box">
+        <label>Responsável</label>
+        <input type="text" id="responsavel" placeholder="Nome do responsável">
       </div>
-    `;
+      <div class="box">
+        <label>Observação</label>
+        <input type="text" id="observacao" placeholder="Observação da cotação">
+      </div>
+      <div class="box">
+        <label>Aprovar fornecedor em lote</label>
+        <select id="fornecedorLote">
+          <option value="">Selecione o fornecedor</option>
+        </select>
+      </div>
+    </div>
 
-    document.getElementById("containerProdutos").appendChild(card);
+    <div class="acoes-topo">
+      <button class="btn-blue" onclick="adicionarProduto()">➕ Adicionar Produto</button>
+      <button class="btn-green" onclick="salvarManual()">💾 Salvar (OK)</button>
+      <button class="btn-yellow" onclick="aprovarFornecedorEmLote()">✅ Aprovar Lote</button>
+      <button class="btn" onclick="carregarDadosDaData()">🔄 Recarregar Data</button>
+      <button class="btn-red" onclick="limparDadosDaData()">🗑️ Limpar Data</button>
+      <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+      <span id="statusSalvar" class="status-save">🟢 Salvo</span>
+    </div>
 
-    for(let f=1; f<=FORNECEDORES; f++){
-      calcular(produtoId, f, false);
+    <div class="dashboard">
+      <div class="dash">Data<strong id="dashData">-</strong></div>
+      <div class="dash">Produtos<strong id="dashProdutos">0</strong></div>
+      <div class="dash">Aprovados<strong id="dashAprovados">0</strong></div>
+      <div class="dash">Total aprovado<strong id="dashTotal">0.00</strong></div>
+    </div>
+
+    <div class="grid-produtos" id="containerProdutos"></div>
+
+    <div class="box" style="margin-top:16px;">
+      <h3 style="margin-top:0;">📂 Cotações salvas na nuvem</h3>
+      <div class="lista-salvos" id="listaCotacoesSalvas"></div>
+    </div>
+  </div>
+
+  <datalist id="listaFornecedores">
+    <option value="3 B COMERCIAL LTDA">
+    <option value="A K QUALITY SERVICE COMERCIO, REPRE TRANSP LTDA">
+    <option value="ABATEDOURO DORENSE LTDA">
+    <option value="ADRIANO EUGENIO">
+    <option value="AGRO ALIMENTOS FERREIRA LTDA">
+    <option value="ALIMENTAR FOODS FRIGORIFICO LTDA">
+    <option value="ALIMENTOS ESMERALDA IND E COM LTDA">
+    <option value="ATACADAO S.A">
+    <option value="AVIVAR ALIMENTOS LTDA">
+    <option value="AVIVAR ALIMENTOS S/A">
+    <option value="BH FOODS COMERCIO E INDUSTRIA LTDA">
+    <option value="BRF S.A.">
+    <option value="CENTER FRIOS COMERCIO E INDUSTRIA LTDA">
+    <option value="CERRADO COMERCIO E DISTRIBUICAO DE CARNES LTDA">
+    <option value="COMERCIAL FRAGA LTDA">
+    <option value="DMA DISTRIBUIDORA S/A">
+    <option value="FRANGOGEL DISTRIBUIDORA DE ALIMENTOS LTDA">
+    <option value="FRIGO DIAS ALIMENTOS LTDA">
+    <option value="FRIGOBET FRIGORIFICO INDUSTRIAL BETIM LTDA">
+    <option value="FRIGOLIX COMERCIO DE ALIMENTOS LTDA">
+    <option value="FRIGORIFICO ALVORADA LTDA">
+    <option value="FRIGORIFICO ATALAIA S/A">
+    <option value="FRIGORIFICO CALAFATE LTDA">
+    <option value="FRIGORIFICO COSTA LTDA">
+    <option value="FRIGORIFICO SABOR DE MINAS LTDA">
+    <option value="GVA ALIMENTOS COMERCIO DE CARNES LTDA">
+    <option value="IMPERIUM ALIMENTOS LTDA">
+    <option value="MART MINAS DISTRIBUICAO LTDA">
+    <option value="MINEIRAO ATACADISTA LTDA">
+    <option value="PLENA ALIMENTOS LTDA">
+    <option value="QS DISTRIBUICAO E COMERCIO DE CARNES LTDA">
+    <option value="SEARA COMERCIO DE ALIMENTOS LTDA">
+    <option value="SUPERMERCADOS BH COMERCIO DE ALIMENTOS S/A">
+    <option value="SUPREMO CARNES LTDA">
+    <option value="VENTURA ALIMENTOS DO BRASIL LTDA">
+    <option value="WL DISTRIBUIDORA">
+  </datalist>
+
+  <script>
+    const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const FORNECEDORES = 6;
+    const PREFIXO_COTACAO = "BSM_COTACAO_";
+    let proximoProdutoId = 1;
+
+    function formatarDataBR(dataISO){
+      if(!dataISO) return "-";
+      const p = dataISO.split("-");
+      if(p.length !== 3) return dataISO;
+      return `${p[2]}/${p[1]}/${p[0]}`;
     }
 
-    if(dados?.locked){
-      aplicarLockVisual(produtoId, true);
+    function dataAtualISO(){
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth()+1).padStart(2,"0");
+      const dia = String(hoje.getDate()).padStart(2,"0");
+      return `${ano}-${mes}-${dia}`;
     }
 
-    ativarEventosInputs(card);
-    atualizarListaFornecedoresLote();
-    atualizarDashboard();
-  }
+    function chaveDaData(){
+      const data = document.getElementById("dataReferencia").value;
+      return data ? PREFIXO_COTACAO + data : null;
+    }
 
-  function removerProduto(produtoId){
-    if(!confirm("Deseja remover este produto?")) return;
-    const card = document.getElementById(`card_${produtoId}`);
-    if(card) card.remove();
-    localStorage.removeItem(keyLock(produtoId));
-    atualizarListaFornecedoresLote();
-    atualizarDashboard();
-    salvarAutomatico();
-  }
+    function escapeHtml(texto){
+      return String(texto ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
 
-  function aplicarLockVisual(produtoId, travado){
-    const card = document.getElementById(`card_${produtoId}`);
-    if(!card) return;
+    function mostrarStatusSalvo(msg){
+      const el = document.getElementById("statusSalvar");
+      el.innerText = "🟢 " + msg;
+      el.style.background = "#14532d";
+      setTimeout(() => {
+        el.innerText = "🟢 Salvo";
+        el.style.background = "#374151";
+      }, 2000);
+    }
 
-    const badge = document.getElementById(`lock_${produtoId}`);
+    function marcarNaoSalvo(){
+      const el = document.getElementById("statusSalvar");
+      el.innerText = "🟡 Alterações não salvas";
+      el.style.background = "#92400e";
+    }
 
-    if(travado){
-      card.classList.add("locked");
-      card.querySelectorAll("input, select").forEach(inp => inp.disabled = true);
-      card.querySelectorAll("button").forEach(btn => {
-        if(btn.classList.contains("unlockBtn")) return;
-        btn.disabled = true;
-        btn.style.opacity = "0.55";
-        btn.style.cursor = "not-allowed";
+    function atualizarDashboard(){
+      let total = 0;
+      let qtdProdutos = document.querySelectorAll("#containerProdutos .card").length;
+      let qtdAprovados = 0;
+
+      document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
+        const partes = r.id.split("_");
+        const produtoId = partes[1];
+        const fornecedorId = partes[2];
+        total += parseFloat(document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText || 0);
+        qtdAprovados++;
       });
-      if(badge) badge.style.display = "inline-flex";
-    }else{
-      card.classList.remove("locked");
-      card.querySelectorAll("input, select").forEach(inp => inp.disabled = false);
-      card.querySelectorAll("button").forEach(btn => {
-        btn.disabled = false;
-        btn.style.opacity = "";
-        btn.style.cursor = "";
+
+      document.getElementById("dashData").innerText = formatarDataBR(document.getElementById("dataReferencia").value);
+      document.getElementById("dashProdutos").innerText = qtdProdutos;
+      document.getElementById("dashAprovados").innerText = qtdAprovados;
+      document.getElementById("dashTotal").innerText = total.toFixed(2);
+    }
+
+    function atualizarListaFornecedoresLote(){
+      const select = document.getElementById("fornecedorLote");
+      const atual = select.value;
+      const fornecedores = new Set();
+
+      document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
+        const valor = (inp.value || "").trim().toUpperCase();
+        if(valor) fornecedores.add(valor);
       });
-      if(badge) badge.style.display = "none";
-    }
-  }
 
-  function lockProduto(produtoId){
-    localStorage.setItem(keyLock(produtoId), "1");
-    aplicarLockVisual(produtoId, true);
-    salvarAutomatico();
-  }
-
-  function unlockProduto(produtoId){
-    const senha = prompt("Digite a senha para DESBLOQUEAR:");
-    if(senha !== SENHA){
-      alert("Senha incorreta");
-      return;
-    }
-    localStorage.removeItem(keyLock(produtoId));
-    aplicarLockVisual(produtoId, false);
-    salvarAutomatico();
-  }
-
-  function aplicarBloqueiosSalvos(){
-    document.querySelectorAll("#containerProdutos .card").forEach(card => {
-      const produtoId = card.id.replace("card_","");
-      const travado = localStorage.getItem(keyLock(produtoId)) === "1";
-      aplicarLockVisual(produtoId, travado);
-    });
-  }
-
-  function calcular(produtoId, fornecedorId, salvar = true){
-    const kg = parseFloat(document.getElementById(`kg_${produtoId}`).value || 0);
-    const vu = parseFloat(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
-    document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = (kg * vu).toFixed(2);
-    destacarMenor(produtoId);
-    atualizarListaFornecedoresLote();
-    atualizarDashboard();
-    if (salvar) salvarAutomatico();
-  }
-
-  function recalcular(produtoId){
-    for(let f=1; f<=FORNECEDORES; f++){
-      calcular(produtoId, f, false);
-    }
-    salvarAutomatico();
-  }
-
-  function destacarMenor(produtoId){
-    let valores = [];
-    for(let i=1; i<=FORNECEDORES; i++){
-      const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
-      if(v > 0) valores.push(v);
-    }
-
-    const menor = valores.length ? Math.min(...valores) : 0;
-
-    for(let i=1; i<=FORNECEDORES; i++){
-      const row = document.getElementById(`row_${produtoId}_${i}`);
-      if(!row) continue;
-      row.classList.remove("menor");
-      const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
-      if(menor > 0 && v === menor){
-        row.classList.add("menor");
-      }
-    }
-  }
-
-  function toggleAprovacao(produtoId, fornecedorId){
-    if(!solicitarSenhaUmaVez()){
-      const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
-      if(chk) chk.checked = !chk.checked;
-      return;
-    }
-
-    const row = document.getElementById(`row_${produtoId}_${fornecedorId}`);
-    const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
-
-    if(row && chk){
-      if(chk.checked){
-        row.classList.add("aprovado");
-      }else{
-        row.classList.remove("aprovado");
-      }
-    }
-
-    atualizarDashboard();
-    salvarAutomatico();
-  }
-
-  function aprovarFornecedorEmLote(){
-    if(!solicitarSenhaUmaVez()) return;
-
-    const fornecedor = document.getElementById("fornecedorLote").value;
-    if(!fornecedor){
-      alert("Selecione um fornecedor para aprovação em lote.");
-      return;
-    }
-
-    let aprovados = 0;
-
-    document.querySelectorAll("#containerProdutos .card").forEach(card => {
-      const produtoId = card.id.replace("card_","");
-
-      for(let f=1; f<=FORNECEDORES; f++){
-        const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
-        const valor = parseFloat(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
-        const chk = document.getElementById(`ok_${produtoId}_${f}`);
-        const row = document.getElementById(`row_${produtoId}_${f}`);
-
-        if(forn === fornecedor.trim().toUpperCase() && valor > 0){
-          if(chk) chk.checked = true;
-          if(row) row.classList.add("aprovado");
-          aprovados++;
-        }
-      }
-    });
-
-    document.getElementById("qtdAprovadosLote").innerText = aprovados;
-    document.getElementById("fornecedorLoteExibido").innerText = fornecedor || "-";
-
-    atualizarDashboard();
-    salvarAutomatico();
-    alert(`Fornecedor aprovado em lote em ${aprovados} item(ns).`);
-  }
-
-  function atualizarListaFornecedoresLote(){
-    const select = document.getElementById("fornecedorLote");
-    const atual = select.value;
-    const fornecedores = new Set();
-
-    document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
-      const valor = (inp.value || "").trim().toUpperCase();
-      if(valor) fornecedores.add(valor);
-    });
-
-    select.innerHTML = `<option value="">Selecione o fornecedor</option>`;
-    [...fornecedores].sort().forEach(nome => {
-      const op = document.createElement("option");
-      op.value = nome;
-      op.textContent = nome;
-      select.appendChild(op);
-    });
-
-    if([...fornecedores].includes(atual)){
-      select.value = atual;
-    }
-  }
-
-  function atualizarDashboard(){
-    let total = 0;
-    let qtdProdutos = document.querySelectorAll("#containerProdutos .card").length;
-
-    document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
-      const partes = r.id.split("_");
-      const produtoId = partes[1];
-      const fornecedorId = partes[2];
-      total += parseFloat(document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText || 0);
-    });
-
-    document.getElementById("totalDia").innerText = total.toFixed(2);
-    document.getElementById("qtdProdutos").innerText = qtdProdutos;
-    document.getElementById("dataExibida").innerText = formatarDataBR(document.getElementById("dataReferencia").value);
-  }
-
-  function montarDadosTela(){
-    const produtos = [];
-
-    document.querySelectorAll("#containerProdutos .card").forEach(card => {
-      const produtoId = parseInt(card.id.replace("card_",""), 10);
-      const nome = document.getElementById(`prod_${produtoId}`)?.value || "";
-      const kg = document.getElementById(`kg_${produtoId}`)?.value || "";
-
-      let fornecedores = [];
-
-      for(let f=1; f<=FORNECEDORES; f++){
-        fornecedores.push({
-          nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
-          valor: document.getElementById(`vu_${produtoId}_${f}`)?.value || "",
-          classificacao: document.getElementById(`class_${produtoId}_${f}`)?.value || "",
-          aprovado: document.getElementById(`ok_${produtoId}_${f}`)?.checked || false
-        });
-      }
-
-      produtos.push({
-        produtoId,
-        nome,
-        kg,
-        fornecedores,
-        locked: localStorage.getItem(keyLock(produtoId)) === "1"
+      select.innerHTML = `<option value="">Selecione o fornecedor</option>`;
+      [...fornecedores].sort().forEach(nome => {
+        const op = document.createElement("option");
+        op.value = nome;
+        op.textContent = nome;
+        select.appendChild(op);
       });
-    });
 
-    return {
-      dataReferencia: document.getElementById("dataReferencia").value || "",
-      responsavel: document.getElementById("responsavel").value || "",
-      observacao: document.getElementById("observacao").value || "",
-      fornecedorLote: document.getElementById("fornecedorLote").value || "",
-      qtdAprovadosLote: document.getElementById("qtdAprovadosLote").innerText || "0",
-      fornecedorLoteExibido: document.getElementById("fornecedorLoteExibido").innerText || "-",
-      produtos
-    };
-  }
-
-  async function salvarNaNuvem(){
-    const data = document.getElementById("dataReferencia").value;
-    if (!data) return false;
-
-    const payload = montarDadosTela();
-
-    const registro = {
-      data_referencia: data,
-      responsavel: payload.responsavel || "",
-      observacao: payload.observacao || "",
-      fornecedor_lote: payload.fornecedorLote || "",
-      qtd_aprovados_lote: parseInt(payload.qtdAprovadosLote || 0, 10),
-      fornecedor_lote_exibido: payload.fornecedorLoteExibido || "",
-      dados: payload
-    };
-
-    const { error } = await supabaseClient
-      .from("cotacoes_bsm")
-      .upsert(registro, { onConflict: "data_referencia" });
-
-    if (error) {
-      console.error("Erro ao salvar na nuvem:", error);
-      return false;
+      if([...fornecedores].includes(atual)) select.value = atual;
     }
 
-    return true;
-  }
+    function destacarMenor(produtoId){
+      let valores = [];
+      for(let i=1; i<=FORNECEDORES; i++){
+        const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+        if(v > 0) valores.push(v);
+      }
 
-  async function carregarDaNuvemPorData(data){
-    const { data: registro, error } = await supabaseClient
-      .from("cotacoes_bsm")
-      .select("*")
-      .eq("data_referencia", data)
-      .maybeSingle();
+      const menor = valores.length ? Math.min(...valores) : 0;
 
-    if (error) {
-      console.error("Erro ao carregar da nuvem:", error);
-      return null;
-    }
-
-    return registro;
-  }
-
-  async function excluirDaNuvemPorData(data){
-    const { error } = await supabaseClient
-      .from("cotacoes_bsm")
-      .delete()
-      .eq("data_referencia", data);
-
-    if (error) {
-      console.error("Erro ao excluir da nuvem:", error);
-      return false;
-    }
-
-    return true;
-  }
-
-  async function listarCotacoesDaNuvem(){
-    const { data, error } = await supabaseClient
-      .from("cotacoes_bsm")
-      .select("data_referencia, responsavel, dados")
-      .order("data_referencia", { ascending: false });
-
-    if (error) {
-      console.error("Erro ao listar cotações:", error);
-      return [];
-    }
-
-    return data || [];
-  }
-
-  async function salvarAutomatico(manual = false){
-    const chave = chaveDaData();
-    if(!chave) return;
-
-    const dados = montarDadosTela();
-    localStorage.setItem(chave, JSON.stringify(dados));
-
-    const ok = await salvarNaNuvem();
-    if (ok) {
-      await atualizarListaCotacoesSalvasNuvem();
-      mostrarStatusSalvo(manual ? "Salvo com sucesso" : "Salvo automático");
-    }
-  }
-
-  function limparTela(){
-    document.getElementById("containerProdutos").innerHTML = "";
-    proximoProdutoId = 1;
-    document.getElementById("qtdAprovadosLote").innerText = "0";
-    document.getElementById("fornecedorLoteExibido").innerText = "-";
-    atualizarDashboard();
-  }
-
-  async function carregarDadosDaData(){
-    limparTela();
-
-    const data = document.getElementById("dataReferencia").value;
-    if(!data) return;
-
-    let dados = null;
-
-    const registroNuvem = await carregarDaNuvemPorData(data);
-    if (registroNuvem && registroNuvem.dados) {
-      dados = registroNuvem.dados;
-    } else {
-      const chave = chaveDaData();
-      const local = localStorage.getItem(chave);
-      if (local) {
-        try {
-          dados = JSON.parse(local);
-        } catch(e) {
-          console.error(e);
+      for(let i=1; i<=FORNECEDORES; i++){
+        const row = document.getElementById(`row_${produtoId}_${i}`);
+        if(!row) continue;
+        row.classList.remove("menor");
+        const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+        if(menor > 0 && v === menor){
+          row.classList.add("menor");
         }
       }
     }
 
-    if(!dados){
-      document.getElementById("responsavel").value = "";
-      document.getElementById("observacao").value = "";
-      document.getElementById("fornecedorLote").value = "";
-      adicionarProduto();
+    function calcular(produtoId, fornecedorId, salvar = true){
+      const kg = parseFloat(document.getElementById(`kg_${produtoId}`).value || 0);
+      const vu = parseFloat(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
+      document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = (kg * vu).toFixed(2);
+      destacarMenor(produtoId);
+      atualizarListaFornecedoresLote();
       atualizarDashboard();
-      mostrarStatusSalvo("Nova cotação carregada");
-      return;
+      if (salvar) salvarAutomatico();
     }
 
-    document.getElementById("responsavel").value = dados.responsavel || "";
-    document.getElementById("observacao").value = dados.observacao || "";
-
-    if(dados.produtos && dados.produtos.length){
-      dados.produtos.forEach(prod => adicionarProduto(prod));
-    }else{
-      adicionarProduto();
+    function recalcular(produtoId){
+      for(let f=1; f<=FORNECEDORES; f++){
+        calcular(produtoId, f, false);
+      }
+      salvarAutomatico();
     }
 
-    atualizarListaFornecedoresLote();
-
-    if(dados.fornecedorLote){
-      document.getElementById("fornecedorLote").value = dados.fornecedorLote;
+    function toggleAprovacao(produtoId, fornecedorId){
+      const row = document.getElementById(`row_${produtoId}_${fornecedorId}`);
+      const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
+      if(row && chk){
+        if(chk.checked) row.classList.add("aprovado");
+        else row.classList.remove("aprovado");
+      }
+      atualizarDashboard();
+      salvarAutomatico();
     }
 
-    document.getElementById("qtdAprovadosLote").innerText = dados.qtdAprovadosLote || "0";
-    document.getElementById("fornecedorLoteExibido").innerText = dados.fornecedorLoteExibido || "-";
-
-    aplicarBloqueiosSalvos();
-    atualizarDashboard();
-    mostrarStatusSalvo("Cotação carregada");
-  }
-
-  async function limparDadosDaData(){
-    const data = document.getElementById("dataReferencia").value;
-
-    if(!data){
-      alert("Selecione uma data primeiro.");
-      return;
-    }
-
-    if(confirm(`Deseja apagar a cotação da data ${formatarDataBR(data)}?`)){
-      const ok = await excluirDaNuvemPorData(data);
-      if (!ok) {
-        alert("Não foi possível excluir da nuvem.");
+    function aprovarFornecedorEmLote(){
+      const fornecedor = document.getElementById("fornecedorLote").value;
+      if(!fornecedor){
+        alert("Selecione um fornecedor.");
         return;
       }
 
-      localStorage.removeItem(PREFIXO_COTACAO + data);
-      await carregarDadosDaData();
-      await atualizarListaCotacoesSalvasNuvem();
-    }
-  }
+      let aprovados = 0;
 
-  async function excluirCotacao(data){
-    if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
+      document.querySelectorAll("#containerProdutos .card").forEach(card => {
+        const produtoId = card.id.replace("card_","");
+        for(let f=1; f<=FORNECEDORES; f++){
+          const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
+          const valor = parseFloat(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
+          const chk = document.getElementById(`ok_${produtoId}_${f}`);
+          const row = document.getElementById(`row_${produtoId}_${f}`);
 
-    const ok = await excluirDaNuvemPorData(data);
-    if (!ok) {
-      alert("Não foi possível excluir da nuvem.");
-      return;
-    }
-
-    localStorage.removeItem(PREFIXO_COTACAO + data);
-
-    if(document.getElementById("dataReferencia").value === data){
-      await carregarDadosDaData();
-    }
-    await atualizarListaCotacoesSalvasNuvem();
-  }
-
-  async function abrirCotacao(data){
-    document.getElementById("dataReferencia").value = data;
-    await carregarDadosDaData();
-    atualizarDashboard();
-  }
-
-  async function atualizarListaCotacoesSalvasNuvem(){
-    const alvo = document.getElementById("listaCotacoesSalvas");
-    alvo.innerHTML = "";
-
-    const registros = await listarCotacoesDaNuvem();
-
-    if(!registros.length){
-      alvo.innerHTML = `<div class="item-salvo">Nenhuma cotação salva ainda.</div>`;
-      return;
-    }
-
-    registros.forEach(registro => {
-      const data = registro.data_referencia;
-      const dados = registro.dados || {};
-      const responsavel = registro.responsavel || "";
-      const produtos = dados.produtos || [];
-
-      let total = 0;
-      produtos.forEach(prod => {
-        (prod.fornecedores || []).forEach(forn => {
-          if(forn.aprovado){
-            const kg = parseFloat(prod.kg || 0);
-            const vu = parseFloat(forn.valor || 0);
-            total += (kg * vu);
+          if(forn === fornecedor.trim().toUpperCase() && valor > 0){
+            if(chk) chk.checked = true;
+            if(row) row.classList.add("aprovado");
+            aprovados++;
           }
+        }
+      });
+
+      atualizarDashboard();
+      salvarAutomatico();
+      alert(`Fornecedor aprovado em ${aprovados} item(ns).`);
+    }
+
+    function adicionarProduto(dados = null){
+      const produtoId = dados?.produtoId || proximoProdutoId++;
+      if(produtoId >= proximoProdutoId) proximoProdutoId = produtoId + 1;
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.id = `card_${produtoId}`;
+
+      let htmlFornecedores = "";
+      for(let f=1; f<=FORNECEDORES; f++){
+        const fornVal = dados?.fornecedores?.[f-1]?.nome || "";
+        const vuVal = dados?.fornecedores?.[f-1]?.valor || "";
+        const classVal = dados?.fornecedores?.[f-1]?.classificacao || "";
+        const aprovado = dados?.fornecedores?.[f-1]?.aprovado || false;
+
+        htmlFornecedores += `
+          <tr id="row_${produtoId}_${f}" class="${aprovado ? "aprovado" : ""}">
+            <td><input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}"></td>
+            <td><input type="number" step="0.0001" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
+            <td id="total_${produtoId}_${f}">0.00</td>
+            <td>
+              <select id="class_${produtoId}_${f}">
+                <option value="">Classificação</option>
+                <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
+                <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
+                <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
+              </select>
+            </td>
+            <td><input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})"></td>
+          </tr>`;
+      }
+
+      card.innerHTML = `
+        <h3>
+          Produto
+          <button class="removeBtn" type="button" onclick="removerProduto(${produtoId})">🗑️</button>
+        </h3>
+
+        <div class="topo-produto">
+          <input type="text" placeholder="Nome do produto" id="prod_${produtoId}" value="${escapeHtml(dados?.nome || "")}">
+          <input type="number" placeholder="KG" id="kg_${produtoId}" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
+        </div>
+
+        <table>
+          <tr>
+            <th>Fornecedor</th>
+            <th>V.Unit</th>
+            <th>Total</th>
+            <th>Classificação</th>
+            <th>OK</th>
+          </tr>
+          ${htmlFornecedores}
+        </table>
+      `;
+
+      document.getElementById("containerProdutos").appendChild(card);
+
+      for(let f=1; f<=FORNECEDORES; f++){
+        calcular(produtoId, f, false);
+      }
+
+      ativarEventosInputs(card);
+      atualizarListaFornecedoresLote();
+      atualizarDashboard();
+    }
+
+    function removerProduto(produtoId){
+      if(!confirm("Deseja remover este produto?")) return;
+      const card = document.getElementById(`card_${produtoId}`);
+      if(card) card.remove();
+      atualizarListaFornecedoresLote();
+      atualizarDashboard();
+      salvarAutomatico();
+    }
+
+    function ativarEventosInputs(container){
+      container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
+        inp.addEventListener("blur", () => {
+          inp.value = (inp.value || "").trim().toUpperCase();
+          atualizarListaFornecedoresLote();
+          marcarNaoSalvo();
+          salvarAutomatico();
         });
       });
 
-      const div = document.createElement("div");
-      div.className = "item-salvo";
-      div.innerHTML = `
-        <strong>${formatarDataBR(data)}</strong>
-        <div>Responsável: ${escapeHtml(responsavel || "-")}</div>
-        <div>Produtos: ${produtos.length}</div>
-        <div>Total aprovado: R$ ${total.toFixed(2)}</div>
-        <button class="btn-abrir" onclick="abrirCotacao('${data}')">Abrir</button>
-        <button class="btn-excluir" onclick="excluirCotacao('${data}')">Excluir</button>
-      `;
-      alvo.appendChild(div);
-    });
-  }
+      container.querySelectorAll("input[type='text'], input[type='number'], select").forEach(inp => {
+        inp.addEventListener("input", () => {
+          marcarNaoSalvo();
+          salvarAutomatico();
+        });
+        inp.addEventListener("change", () => {
+          marcarNaoSalvo();
+          salvarAutomatico();
+        });
+      });
+    }
 
-  function enviarWhatsApp(){
-    const data = document.getElementById("dataReferencia").value;
-    const responsavel = document.getElementById("responsavel").value || "-";
-    const observacao = document.getElementById("observacao").value || "-";
+    function montarDadosTela(){
+      const produtos = [];
 
-    let texto = "*BSM - Cotação Aprovada*%0A";
-    texto += `Data: ${formatarDataBR(data)}%0A`;
-    texto += `Responsável: ${encodeURIComponent(responsavel)}%0A`;
-    texto += `Observação: ${encodeURIComponent(observacao)}%0A%0A`;
+      document.querySelectorAll("#containerProdutos .card").forEach(card => {
+        const produtoId = parseInt(card.id.replace("card_",""), 10);
+        const nome = document.getElementById(`prod_${produtoId}`)?.value || "";
+        const kg = document.getElementById(`kg_${produtoId}`)?.value || "";
 
-    document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
-      const p = r.id.split("_")[1];
-      const f = r.id.split("_")[2];
-      const nome = document.getElementById(`prod_${p}`)?.value || "";
-      const classe = document.getElementById(`class_${p}_${f}`)?.value || "";
-      const forn = document.getElementById(`forn_${p}_${f}`)?.value || "";
-      const total = document.getElementById(`total_${p}_${f}`)?.innerText || "0.00";
-      texto += `${encodeURIComponent(nome)} / ${encodeURIComponent(classe)} - ${encodeURIComponent(forn)} - R$ ${total}%0A`;
-    });
+        let fornecedores = [];
 
-    window.open("https://wa.me/?text=" + texto, "_blank");
-  }
+        for(let f=1; f<=FORNECEDORES; f++){
+          fornecedores.push({
+            nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
+            valor: document.getElementById(`vu_${produtoId}_${f}`)?.value || "",
+            classificacao: document.getElementById(`class_${produtoId}_${f}`)?.value || "",
+            aprovado: document.getElementById(`ok_${produtoId}_${f}`)?.checked || false
+          });
+        }
 
-  function enviarWhatsNaoAprovados(){
-    const data = document.getElementById("dataReferencia").value;
-    const responsavel = document.getElementById("responsavel").value || "-";
-    const observacao = document.getElementById("observacao").value || "-";
+        produtos.push({ produtoId, nome, kg, fornecedores });
+      });
 
-    let texto = "*BSM - Cotação Não Aprovada*%0A";
-    texto += `Data: ${formatarDataBR(data)}%0A`;
-    texto += `Responsável: ${encodeURIComponent(responsavel)}%0A`;
-    texto += `Observação: ${encodeURIComponent(observacao)}%0A%0A`;
+      return {
+        dataReferencia: document.getElementById("dataReferencia").value || "",
+        responsavel: document.getElementById("responsavel").value || "",
+        observacao: document.getElementById("observacao").value || "",
+        fornecedorLote: document.getElementById("fornecedorLote").value || "",
+        produtos
+      };
+    }
 
-    document.querySelectorAll("#containerProdutos tr").forEach(r => {
-      if(!r.classList.contains("aprovado") && r.id.startsWith("row_")){
+    async function salvarNaNuvem(){
+      const data = document.getElementById("dataReferencia").value;
+      if (!data) return false;
+
+      const payload = montarDadosTela();
+
+      const registro = {
+        data_referencia: data,
+        responsavel: payload.responsavel || "",
+        observacao: payload.observacao || "",
+        dados: payload
+      };
+
+      const { error } = await client
+        .from("cotacoes_bsm")
+        .upsert(registro, { onConflict: "data_referencia" });
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao salvar na nuvem: " + error.message);
+        return false;
+      }
+      return true;
+    }
+
+    async function carregarDaNuvemPorData(data){
+      const { data: registro, error } = await client
+        .from("cotacoes_bsm")
+        .select("*")
+        .eq("data_referencia", data)
+        .maybeSingle();
+
+      if (error) {
+        console.error(error);
+        return null;
+      }
+      return registro;
+    }
+
+    async function excluirDaNuvemPorData(data){
+      const { error } = await client
+        .from("cotacoes_bsm")
+        .delete()
+        .eq("data_referencia", data);
+
+      if (error) {
+        console.error(error);
+        alert("Erro ao excluir: " + error.message);
+        return false;
+      }
+      return true;
+    }
+
+    async function listarCotacoesDaNuvem(){
+      const { data, error } = await client
+        .from("cotacoes_bsm")
+        .select("data_referencia, responsavel, dados")
+        .order("data_referencia", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      return data || [];
+    }
+
+    async function salvarAutomatico(manual = false){
+      const chave = chaveDaData();
+      if(!chave) return;
+
+      const dados = montarDadosTela();
+      localStorage.setItem(chave, JSON.stringify(dados));
+
+      const ok = await salvarNaNuvem();
+      if (ok) {
+        await atualizarListaCotacoesSalvasNuvem();
+        mostrarStatusSalvo(manual ? "Salvo com sucesso" : "Salvo automático");
+      }
+    }
+
+    async function salvarManual(){
+      marcarNaoSalvo();
+      await salvarAutomatico(true);
+    }
+
+    function limparTela(){
+      document.getElementById("containerProdutos").innerHTML = "";
+      proximoProdutoId = 1;
+      atualizarDashboard();
+    }
+
+    async function carregarDadosDaData(){
+      limparTela();
+
+      const data = document.getElementById("dataReferencia").value;
+      if(!data) return;
+
+      let dados = null;
+
+      const registroNuvem = await carregarDaNuvemPorData(data);
+      if (registroNuvem && registroNuvem.dados) {
+        dados = registroNuvem.dados;
+      } else {
+        const chave = chaveDaData();
+        const local = localStorage.getItem(chave);
+        if (local) {
+          try { dados = JSON.parse(local); } catch(e) {}
+        }
+      }
+
+      if(!dados){
+        document.getElementById("responsavel").value = "";
+        document.getElementById("observacao").value = "";
+        document.getElementById("fornecedorLote").value = "";
+        adicionarProduto();
+        atualizarDashboard();
+        mostrarStatusSalvo("Nova cotação carregada");
+        return;
+      }
+
+      document.getElementById("responsavel").value = dados.responsavel || "";
+      document.getElementById("observacao").value = dados.observacao || "";
+
+      if(dados.produtos && dados.produtos.length){
+        dados.produtos.forEach(prod => adicionarProduto(prod));
+      } else {
+        adicionarProduto();
+      }
+
+      atualizarListaFornecedoresLote();
+
+      if(dados.fornecedorLote){
+        document.getElementById("fornecedorLote").value = dados.fornecedorLote;
+      }
+
+      atualizarDashboard();
+      mostrarStatusSalvo("Cotação carregada");
+    }
+
+    async function limparDadosDaData(){
+      const data = document.getElementById("dataReferencia").value;
+      if(!data){
+        alert("Selecione uma data.");
+        return;
+      }
+
+      if(confirm(`Deseja apagar a cotação da data ${formatarDataBR(data)}?`)){
+        const ok = await excluirDaNuvemPorData(data);
+        if (!ok) return;
+
+        localStorage.removeItem(PREFIXO_COTACAO + data);
+        await carregarDadosDaData();
+        await atualizarListaCotacoesSalvasNuvem();
+      }
+    }
+
+    async function excluirCotacao(data){
+      if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
+
+      const ok = await excluirDaNuvemPorData(data);
+      if (!ok) return;
+
+      localStorage.removeItem(PREFIXO_COTACAO + data);
+
+      if(document.getElementById("dataReferencia").value === data){
+        await carregarDadosDaData();
+      }
+      await atualizarListaCotacoesSalvasNuvem();
+    }
+
+    async function abrirCotacao(data){
+      document.getElementById("dataReferencia").value = data;
+      await carregarDadosDaData();
+      atualizarDashboard();
+    }
+
+    async function atualizarListaCotacoesSalvasNuvem(){
+      const alvo = document.getElementById("listaCotacoesSalvas");
+      alvo.innerHTML = "";
+
+      const registros = await listarCotacoesDaNuvem();
+
+      if(!registros.length){
+        alvo.innerHTML = `<div class="salvo">Nenhuma cotação salva ainda.</div>`;
+        return;
+      }
+
+      registros.forEach(registro => {
+        const data = registro.data_referencia;
+        const dados = registro.dados || {};
+        const responsavel = registro.responsavel || "";
+        const produtos = dados.produtos || [];
+
+        let total = 0;
+        produtos.forEach(prod => {
+          (prod.fornecedores || []).forEach(forn => {
+            if(forn.aprovado){
+              const kg = parseFloat(prod.kg || 0);
+              const vu = parseFloat(forn.valor || 0);
+              total += (kg * vu);
+            }
+          });
+        });
+
+        const div = document.createElement("div");
+        div.className = "salvo";
+        div.innerHTML = `
+          <strong>${formatarDataBR(data)}</strong>
+          <div>Responsável: ${escapeHtml(responsavel || "-")}</div>
+          <div>Produtos: ${produtos.length}</div>
+          <div>Total aprovado: R$ ${total.toFixed(2)}</div>
+          <button class="btn-abrir" onclick="abrirCotacao('${data}')">Abrir</button>
+          <button class="btn-excluir" onclick="excluirCotacao('${data}')">Excluir</button>
+        `;
+        alvo.appendChild(div);
+      });
+    }
+
+    function enviarWhatsApp(){
+      const data = document.getElementById("dataReferencia").value;
+      const responsavel = document.getElementById("responsavel").value || "-";
+      const observacao = document.getElementById("observacao").value || "-";
+
+      let texto = "*BSM - Cotação Aprovada*%0A";
+      texto += `Data: ${formatarDataBR(data)}%0A`;
+      texto += `Responsável: ${encodeURIComponent(responsavel)}%0A`;
+      texto += `Observação: ${encodeURIComponent(observacao)}%0A%0A`;
+
+      document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
         const p = r.id.split("_")[1];
         const f = r.id.split("_")[2];
         const nome = document.getElementById(`prod_${p}`)?.value || "";
         const classe = document.getElementById(`class_${p}_${f}`)?.value || "";
         const forn = document.getElementById(`forn_${p}_${f}`)?.value || "";
         const total = document.getElementById(`total_${p}_${f}`)?.innerText || "0.00";
-        if(parseFloat(total) > 0){
-          texto += `${encodeURIComponent(nome)} / ${encodeURIComponent(classe)} - ${encodeURIComponent(forn)} - R$ ${total}%0A`;
+        texto += `${encodeURIComponent(nome)} / ${encodeURIComponent(classe)} - ${encodeURIComponent(forn)} - R$ ${total}%0A`;
+      });
+
+      window.open("https://wa.me/?text=" + texto, "_blank");
+    }
+
+    function enviarWhatsNaoAprovados(){
+      const data = document.getElementById("dataReferencia").value;
+      const responsavel = document.getElementById("responsavel").value || "-";
+      const observacao = document.getElementById("observacao").value || "-";
+
+      let texto = "*BSM - Cotação Não Aprovada*%0A";
+      texto += `Data: ${formatarDataBR(data)}%0A`;
+      texto += `Responsável: ${encodeURIComponent(responsavel)}%0A`;
+      texto += `Observação: ${encodeURIComponent(observacao)}%0A%0A`;
+
+      document.querySelectorAll("#containerProdutos tr").forEach(r => {
+        if(!r.classList.contains("aprovado") && r.id.startsWith("row_")){
+          const p = r.id.split("_")[1];
+          const f = r.id.split("_")[2];
+          const nome = document.getElementById(`prod_${p}`)?.value || "";
+          const classe = document.getElementById(`class_${p}_${f}`)?.value || "";
+          const forn = document.getElementById(`forn_${p}_${f}`)?.value || "";
+          const total = document.getElementById(`total_${p}_${f}`)?.innerText || "0.00";
+          if(parseFloat(total) > 0){
+            texto += `${encodeURIComponent(nome)} / ${encodeURIComponent(classe)} - ${encodeURIComponent(forn)} - R$ ${total}%0A`;
+          }
         }
-      }
-    });
+      });
 
-    window.open("https://wa.me/?text=" + texto, "_blank");
-  }
+      window.open("https://wa.me/?text=" + texto, "_blank");
+    }
 
-  function printReport(){
-    window.print();
-  }
+    function ativarEventosGlobais(){
+      document.getElementById("dataReferencia").addEventListener("change", async () => {
+        marcarNaoSalvo();
+        await carregarDadosDaData();
+      });
 
-  function ativarEventosGlobais(){
-    document.getElementById("dataReferencia").addEventListener("change", async () => {
-      marcarNaoSalvo();
+      document.getElementById("responsavel").addEventListener("input", () => {
+        marcarNaoSalvo();
+        salvarAutomatico();
+      });
+
+      document.getElementById("observacao").addEventListener("input", () => {
+        marcarNaoSalvo();
+        salvarAutomatico();
+      });
+
+      document.getElementById("fornecedorLote").addEventListener("change", marcarNaoSalvo);
+    }
+
+    async function iniciarSistema(){
+      document.getElementById("dataReferencia").value = dataAtualISO();
       await carregarDadosDaData();
-    });
+      await atualizarListaCotacoesSalvasNuvem();
+      ativarEventosGlobais();
+    }
 
-    document.getElementById("responsavel").addEventListener("input", () => {
-      marcarNaoSalvo();
-      salvarAutomatico();
-    });
-
-    document.getElementById("observacao").addEventListener("input", () => {
-      marcarNaoSalvo();
-      salvarAutomatico();
-    });
-
-    document.getElementById("fornecedorLote").addEventListener("change", marcarNaoSalvo);
-  }
-
-  function ativarEventosInputs(container){
-    container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
-      inp.addEventListener("blur", () => {
-        inp.value = (inp.value || "").trim().toUpperCase();
-        atualizarListaFornecedoresLote();
-        marcarNaoSalvo();
-        salvarAutomatico();
-      });
-    });
-
-    container.querySelectorAll("input[type='text'], input[type='number'], select").forEach(inp => {
-      inp.addEventListener("input", () => {
-        marcarNaoSalvo();
-        salvarAutomatico();
-      });
-      inp.addEventListener("change", () => {
-        marcarNaoSalvo();
-        salvarAutomatico();
-      });
-    });
-  }
-
-  async function iniciarSistema(){
-    document.getElementById("dataReferencia").value = dataAtualISO();
-    atualizarIndicadorAprovacao();
-    await carregarDadosDaData();
-    await atualizarListaCotacoesSalvasNuvem();
-    ativarEventosGlobais();
-  }
-
-  iniciarSistema();
-</script>
-
+    iniciarSistema();
+  </script>
 </body>
 </html>
