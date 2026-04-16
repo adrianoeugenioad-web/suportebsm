@@ -1,209 +1,206 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BSM - Sistema de Cotação</title>
-<style>
-body{
-  font-family:Arial,sans-serif;
-  margin:0;
-  background:#0f2b4a;
-  color:#fff;
-}
-header{
-  background:#0c223a;
-  padding:16px;
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
-}
-.topbar{
-  padding:12px;
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  flex-wrap:wrap;
-  align-items:center;
-}
-.box-topo{
-  background:rgba(255,255,255,.08);
-  padding:10px 12px;
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-weight:bold;
-}
-.box-topo input, .box-topo select{
-  border:none;
-  border-radius:8px;
-  padding:8px;
-}
-button.action{
-  padding:9px 14px;
-  border-radius:20px;
-  border:none;
-  cursor:pointer;
-  font-weight:bold;
-}
-button.action:hover{filter:brightness(1.05)}
-.dashboard{
-  background:#0c223a;
-  padding:12px;
-  margin:10px;
-  border-radius:12px;
-  text-align:center;
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(420px,1fr));
-  gap:15px;
-  padding:15px;
-}
-.card{
-  background:#173a63;
-  border-radius:14px;
-  padding:12px;
-}
-.card h4{
-  margin-top:0;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  padding:4px;
-  text-align:center;
-}
-input[type="text"], input[type="number"], textarea, select{
-  width:100%;
-  padding:8px;
-  border-radius:8px;
-  border:none;
-  box-sizing:border-box;
-}
-textarea{
-  min-height:70px;
-  resize:vertical;
-}
-.aprovado td{
-  background:rgba(46,204,113,0.18);
-  color:#2ecc71 !important;
-  font-weight:900;
-  font-style:italic;
-}
-.menor{
-  background:#f1c40f;
-  color:#000;
-  font-weight:bold;
-}
-.card.locked{
-  outline:2px solid rgba(46,204,113,.55);
-  box-shadow:0 10px 24px rgba(0,0,0,.22);
-}
-.lockBadge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  font-size:11px;
-  font-weight:900;
-  padding:4px 10px;
-  border-radius:999px;
-  background:rgba(46,204,113,.18);
-  color:#2ecc71;
-  margin-left:8px;
-}
-.unlockBtn, .removeBtn{
-  float:right;
-  padding:6px 10px;
-  border-radius:10px;
-  border:none;
-  cursor:pointer;
-  font-weight:900;
-  margin-left:6px;
-}
-.unlockBtn{
-  background:rgba(255,255,255,.12);
-  color:#fff;
-}
-.removeBtn{
-  background:#b91c1c;
-  color:#fff;
-}
-.painel-salvos{
-  margin:10px;
-  background:#0c223a;
-  border-radius:12px;
-  padding:12px;
-}
-.painel-salvos h3{
-  margin-top:0;
-}
-.lista-salvos{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:10px;
-}
-.item-salvo{
-  background:#173a63;
-  border-radius:12px;
-  padding:10px;
-}
-.item-salvo strong{
-  display:block;
-  margin-bottom:6px;
-}
-.item-salvo button{
-  margin-top:8px;
-  margin-right:6px;
-  padding:7px 10px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-.btn-abrir{background:#f1c40f;color:#000}
-.btn-excluir{background:#b91c1c;color:#fff}
-.linha-acoes{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-.status-save{
-  font-weight:bold;
-  padding:10px 12px;
-  border-radius:12px;
-  background:#444;
-}
-.topo-produto{
-  display:grid;
-  grid-template-columns:1fr 140px;
-  gap:8px;
-  margin-bottom:10px;
-}
-.resumo-lote{
-  margin-top:8px;
-  font-size:14px;
-}
-.ok-check{
-  width:20px !important;
-  height:20px;
-  cursor:pointer;
-}
-@media(max-width:700px){
-  .topo-produto{
-    grid-template-columns:1fr;
-  }
-}
-@media print{
-  .topbar,.painel-salvos,.removeBtn,.unlockBtn,.linha-acoes{display:none !important;}
-  body{background:#fff;color:#000}
-  .card,.dashboard,header{background:#fff;color:#000;border:1px solid #ccc}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BSM - Sistema de Cotação</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body{
+      font-family:Arial,sans-serif;
+      margin:0;
+      background:#0f2b4a;
+      color:#fff;
+    }
+    header{
+      background:#0c223a;
+      padding:16px;
+      text-align:center;
+      font-size:22px;
+      font-weight:bold;
+    }
+    .topbar{
+      padding:12px;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .box-topo{
+      background:rgba(255,255,255,.08);
+      padding:10px 12px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:bold;
+    }
+    .box-topo input, .box-topo select{
+      border:none;
+      border-radius:8px;
+      padding:8px;
+    }
+    button.action{
+      padding:9px 14px;
+      border-radius:20px;
+      border:none;
+      cursor:pointer;
+      font-weight:bold;
+    }
+    button.action:hover{filter:brightness(1.05)}
+    .dashboard{
+      background:#0c223a;
+      padding:12px;
+      margin:10px;
+      border-radius:12px;
+      text-align:center;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(420px,1fr));
+      gap:15px;
+      padding:15px;
+    }
+    .card{
+      background:#173a63;
+      border-radius:14px;
+      padding:12px;
+    }
+    .card h4{
+      margin-top:0;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+    th,td{
+      padding:4px;
+      text-align:center;
+    }
+    input[type="text"], input[type="number"], textarea, select{
+      width:100%;
+      padding:8px;
+      border-radius:8px;
+      border:none;
+      box-sizing:border-box;
+    }
+    .aprovado td{
+      background:rgba(46,204,113,0.18);
+      color:#2ecc71 !important;
+      font-weight:900;
+      font-style:italic;
+    }
+    .menor{
+      background:#f1c40f;
+      color:#000;
+      font-weight:bold;
+    }
+    .card.locked{
+      outline:2px solid rgba(46,204,113,.55);
+      box-shadow:0 10px 24px rgba(0,0,0,.22);
+    }
+    .lockBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:11px;
+      font-weight:900;
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(46,204,113,.18);
+      color:#2ecc71;
+      margin-left:8px;
+    }
+    .unlockBtn, .removeBtn{
+      float:right;
+      padding:6px 10px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      margin-left:6px;
+    }
+    .unlockBtn{
+      background:rgba(255,255,255,.12);
+      color:#fff;
+    }
+    .removeBtn{
+      background:#b91c1c;
+      color:#fff;
+    }
+    .painel-salvos{
+      margin:10px;
+      background:#0c223a;
+      border-radius:12px;
+      padding:12px;
+    }
+    .painel-salvos h3{
+      margin-top:0;
+    }
+    .lista-salvos{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:10px;
+    }
+    .item-salvo{
+      background:#173a63;
+      border-radius:12px;
+      padding:10px;
+    }
+    .item-salvo strong{
+      display:block;
+      margin-bottom:6px;
+    }
+    .item-salvo button{
+      margin-top:8px;
+      margin-right:6px;
+      padding:7px 10px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+    .btn-abrir{background:#f1c40f;color:#000}
+    .btn-excluir{background:#b91c1c;color:#fff}
+    .linha-acoes{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .status-save{
+      font-weight:bold;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#444;
+    }
+    .topo-produto{
+      display:grid;
+      grid-template-columns:1fr 140px;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .resumo-lote{
+      margin-top:8px;
+      font-size:14px;
+    }
+    .ok-check{
+      width:20px !important;
+      height:20px;
+      cursor:pointer;
+    }
+    @media(max-width:700px){
+      .topo-produto{
+        grid-template-columns:1fr;
+      }
+    }
+    @media print{
+      .topbar,.painel-salvos,.removeBtn,.unlockBtn,.linha-acoes{display:none !important;}
+      body{background:#fff;color:#000}
+      .card,.dashboard,header{background:#fff;color:#000;border:1px solid #ccc}
+    }
+  </style>
 </head>
 <body>
 
@@ -423,453 +420,544 @@ textarea{
 </datalist>
 
 <script>
-const FORNECEDORES = 6;
-const SENHA = "419";
-const PREFIXO_COTACAO = "BSM_COTACAO_";
+  const SUPABASE_URL = "COLE_AQUI_SUA_URL_DO_SUPABASE";
+  const SUPABASE_ANON_KEY = "COLE_AQUI_SUA_CHAVE_ANON";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let aprovacaoLiberada = false;
-let proximoProdutoId = 1;
+  const FORNECEDORES = 6;
+  const SENHA = "419";
+  const PREFIXO_COTACAO = "BSM_COTACAO_";
 
-function formatarDataBR(dataISO){
-  if(!dataISO) return "-";
-  const p = dataISO.split("-");
-  if(p.length !== 3) return dataISO;
-  return `${p[2]}/${p[1]}/${p[0]}`;
-}
+  let aprovacaoLiberada = false;
+  let proximoProdutoId = 1;
 
-function dataAtualISO(){
-  const hoje = new Date();
-  const ano = hoje.getFullYear();
-  const mes = String(hoje.getMonth()+1).padStart(2,"0");
-  const dia = String(hoje.getDate()).padStart(2,"0");
-  return `${ano}-${mes}-${dia}`;
-}
-
-function chaveDaData(){
-  const data = document.getElementById("dataReferencia").value;
-  return data ? PREFIXO_COTACAO + data : null;
-}
-
-function escapeHtml(texto){
-  return String(texto ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-function atualizarIndicadorAprovacao(){
-  const el = document.getElementById("indicAprov");
-  if(!el) return;
-  if(aprovacaoLiberada || sessionStorage.getItem("BSM_APROVACAO_LIBERADA")==="1"){
-    el.textContent = "🔓 Aprovação liberada";
-    el.style.background = "rgba(46,204,113,.18)";
-    el.style.color = "#2ecc71";
-  }else{
-    el.textContent = "🔒 Aprovação bloqueada";
-    el.style.background = "rgba(255,255,255,.10)";
-    el.style.color = "#fff";
-  }
-}
-
-function solicitarSenhaUmaVez(){
-  if(aprovacaoLiberada) return true;
-  if(sessionStorage.getItem("BSM_APROVACAO_LIBERADA")==="1"){
-    aprovacaoLiberada = true;
-    atualizarIndicadorAprovacao();
-    return true;
-  }
-  const s = prompt("Digite a senha para LIBERAR as aprovações (1x):");
-  if(s === SENHA){
-    aprovacaoLiberada = true;
-    sessionStorage.setItem("BSM_APROVACAO_LIBERADA","1");
-    atualizarIndicadorAprovacao();
-    return true;
-  }
-  alert("Senha incorreta.");
-  return false;
-}
-
-function bloquearAprovacao(){
-  aprovacaoLiberada = false;
-  sessionStorage.removeItem("BSM_APROVACAO_LIBERADA");
-  atualizarIndicadorAprovacao();
-}
-
-function mostrarStatusSalvo(msg){
-  const el = document.getElementById("statusSalvar");
-  if(!el) return;
-  el.innerText = "🟢 " + msg;
-  el.style.background = "#14532d";
-  setTimeout(() => {
-    el.innerText = "🟢 Salvo";
-    el.style.background = "#444";
-  }, 2000);
-}
-
-function marcarNaoSalvo(){
-  const el = document.getElementById("statusSalvar");
-  if(!el) return;
-  el.innerText = "🟡 Alterações não salvas";
-  el.style.background = "#92400e";
-}
-
-function salvarManual(){
-  salvarAutomatico();
-  mostrarStatusSalvo("Salvo com sucesso");
-}
-
-function keyLock(produtoId){
-  const data = document.getElementById("dataReferencia").value || "sem_data";
-  return `LOCK_${data}_${produtoId}`;
-}
-
-function adicionarProduto(dados = null){
-  const produtoId = dados?.produtoId || proximoProdutoId++;
-  if(produtoId >= proximoProdutoId) proximoProdutoId = produtoId + 1;
-
-  const card = document.createElement("div");
-  card.className = "card";
-  card.id = `card_${produtoId}`;
-
-  let htmlFornecedores = "";
-  for(let f=1; f<=FORNECEDORES; f++){
-    const fornVal = dados?.fornecedores?.[f-1]?.nome || "";
-    const vuVal = dados?.fornecedores?.[f-1]?.valor || "";
-    const classVal = dados?.fornecedores?.[f-1]?.classificacao || "";
-    const aprovado = dados?.fornecedores?.[f-1]?.aprovado || false;
-
-    htmlFornecedores += `
-      <tr id="row_${produtoId}_${f}" class="${aprovado ? "aprovado" : ""}">
-        <td><input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}"></td>
-        <td><input type="number" step="0.0001" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
-        <td id="total_${produtoId}_${f}">0.00</td>
-        <td>
-          <select id="class_${produtoId}_${f}">
-            <option value="">Classificação</option>
-            <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
-            <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
-            <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
-          </select>
-        </td>
-        <td>
-          <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
-        </td>
-      </tr>`;
+  function formatarDataBR(dataISO){
+    if(!dataISO) return "-";
+    const p = dataISO.split("-");
+    if(p.length !== 3) return dataISO;
+    return `${p[2]}/${p[1]}/${p[0]}`;
   }
 
-  card.innerHTML = `
-    <h4>
-      Produto
-      <span class="lockBadge" id="lock_${produtoId}" style="display:none;">🔒 BLOQUEADO</span>
-      <button class="removeBtn" type="button" onclick="removerProduto(${produtoId})">🗑️</button>
-      <button class="unlockBtn" type="button" onclick="unlockProduto(${produtoId})">🔓</button>
-    </h4>
-
-    <div class="topo-produto">
-      <input type="text" placeholder="Nome do produto" id="prod_${produtoId}" value="${escapeHtml(dados?.nome || "")}">
-      <input type="number" placeholder="KG" id="kg_${produtoId}" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
-    </div>
-
-    <table>
-      <tr><th>Fornecedor</th><th>V.Unit</th><th>Total</th><th>Classificação</th><th>OK</th></tr>
-      ${htmlFornecedores}
-    </table>
-
-    <div class="linha-acoes" style="margin-top:10px;">
-      <button class="action" type="button" onclick="lockProduto(${produtoId})">🔒 Bloquear Produto</button>
-    </div>
-  `;
-
-  document.getElementById("containerProdutos").appendChild(card);
-
-  for(let f=1; f<=FORNECEDORES; f++){
-    calcular(produtoId, f);
+  function dataAtualISO(){
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth()+1).padStart(2,"0");
+    const dia = String(hoje.getDate()).padStart(2,"0");
+    return `${ano}-${mes}-${dia}`;
   }
 
-  if(dados?.locked){
-    aplicarLockVisual(produtoId, true);
+  function chaveDaData(){
+    const data = document.getElementById("dataReferencia").value;
+    return data ? PREFIXO_COTACAO + data : null;
   }
 
-  ativarEventosInputs(card);
-  atualizarListaFornecedoresLote();
-  atualizarDashboard();
-  salvarAutomatico();
-}
-
-function removerProduto(produtoId){
-  if(!confirm("Deseja remover este produto?")) return;
-  const card = document.getElementById(`card_${produtoId}`);
-  if(card) card.remove();
-  localStorage.removeItem(keyLock(produtoId));
-  atualizarListaFornecedoresLote();
-  atualizarDashboard();
-  salvarAutomatico();
-}
-
-function aplicarLockVisual(produtoId, travado){
-  const card = document.getElementById(`card_${produtoId}`);
-  if(!card) return;
-
-  const badge = document.getElementById(`lock_${produtoId}`);
-
-  if(travado){
-    card.classList.add("locked");
-    card.querySelectorAll("input, select").forEach(inp => inp.disabled = true);
-    card.querySelectorAll("button").forEach(btn => {
-      if(btn.classList.contains("unlockBtn")) return;
-      btn.disabled = true;
-      btn.style.opacity = "0.55";
-      btn.style.cursor = "not-allowed";
-    });
-    if(badge) badge.style.display = "inline-flex";
-  }else{
-    card.classList.remove("locked");
-    card.querySelectorAll("input, select").forEach(inp => inp.disabled = false);
-    card.querySelectorAll("button").forEach(btn => {
-      btn.disabled = false;
-      btn.style.opacity = "";
-      btn.style.cursor = "";
-    });
-    if(badge) badge.style.display = "none";
-  }
-}
-
-function lockProduto(produtoId){
-  localStorage.setItem(keyLock(produtoId), "1");
-  aplicarLockVisual(produtoId, true);
-  salvarAutomatico();
-}
-
-function unlockProduto(produtoId){
-  const senha = prompt("Digite a senha para DESBLOQUEAR:");
-  if(senha !== SENHA){
-    alert("Senha incorreta");
-    return;
-  }
-  localStorage.removeItem(keyLock(produtoId));
-  aplicarLockVisual(produtoId, false);
-  salvarAutomatico();
-}
-
-function aplicarBloqueiosSalvos(){
-  document.querySelectorAll("#containerProdutos .card").forEach(card => {
-    const produtoId = card.id.replace("card_","");
-    const travado = localStorage.getItem(keyLock(produtoId)) === "1";
-    aplicarLockVisual(produtoId, travado);
-  });
-}
-
-function calcular(produtoId, fornecedorId){
-  const kg = parseFloat(document.getElementById(`kg_${produtoId}`).value || 0);
-  const vu = parseFloat(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
-  document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = (kg * vu).toFixed(2);
-  destacarMenor(produtoId);
-  atualizarListaFornecedoresLote();
-  atualizarDashboard();
-  salvarAutomatico();
-}
-
-function recalcular(produtoId){
-  for(let f=1; f<=FORNECEDORES; f++){
-    calcular(produtoId, f);
-  }
-}
-
-function destacarMenor(produtoId){
-  let valores = [];
-  for(let i=1; i<=FORNECEDORES; i++){
-    const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
-    if(v > 0) valores.push(v);
+  function escapeHtml(texto){
+    return String(texto ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
   }
 
-  const menor = valores.length ? Math.min(...valores) : 0;
-
-  for(let i=1; i<=FORNECEDORES; i++){
-    const row = document.getElementById(`row_${produtoId}_${i}`);
-    if(!row) continue;
-    row.classList.remove("menor");
-    const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
-    if(menor > 0 && v === menor){
-      row.classList.add("menor");
-    }
-  }
-}
-
-function toggleAprovacao(produtoId, fornecedorId){
-  if(!solicitarSenhaUmaVez()){
-    const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
-    if(chk) chk.checked = !chk.checked;
-    return;
-  }
-
-  const row = document.getElementById(`row_${produtoId}_${fornecedorId}`);
-  const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
-
-  if(row && chk){
-    if(chk.checked){
-      row.classList.add("aprovado");
+  function atualizarIndicadorAprovacao(){
+    const el = document.getElementById("indicAprov");
+    if(!el) return;
+    if(aprovacaoLiberada || sessionStorage.getItem("BSM_APROVACAO_LIBERADA")==="1"){
+      el.textContent = "🔓 Aprovação liberada";
+      el.style.background = "rgba(46,204,113,.18)";
+      el.style.color = "#2ecc71";
     }else{
-      row.classList.remove("aprovado");
+      el.textContent = "🔒 Aprovação bloqueada";
+      el.style.background = "rgba(255,255,255,.10)";
+      el.style.color = "#fff";
     }
   }
 
-  atualizarDashboard();
-  salvarAutomatico();
-}
-
-function aprovarFornecedorEmLote(){
-  if(!solicitarSenhaUmaVez()) return;
-
-  const fornecedor = document.getElementById("fornecedorLote").value;
-  if(!fornecedor){
-    alert("Selecione um fornecedor para aprovação em lote.");
-    return;
+  function solicitarSenhaUmaVez(){
+    if(aprovacaoLiberada) return true;
+    if(sessionStorage.getItem("BSM_APROVACAO_LIBERADA")==="1"){
+      aprovacaoLiberada = true;
+      atualizarIndicadorAprovacao();
+      return true;
+    }
+    const s = prompt("Digite a senha para LIBERAR as aprovações (1x):");
+    if(s === SENHA){
+      aprovacaoLiberada = true;
+      sessionStorage.setItem("BSM_APROVACAO_LIBERADA","1");
+      atualizarIndicadorAprovacao();
+      return true;
+    }
+    alert("Senha incorreta.");
+    return false;
   }
 
-  let aprovados = 0;
+  function bloquearAprovacao(){
+    aprovacaoLiberada = false;
+    sessionStorage.removeItem("BSM_APROVACAO_LIBERADA");
+    atualizarIndicadorAprovacao();
+  }
 
-  document.querySelectorAll("#containerProdutos .card").forEach(card => {
-    const produtoId = card.id.replace("card_","");
+  function mostrarStatusSalvo(msg){
+    const el = document.getElementById("statusSalvar");
+    if(!el) return;
+    el.innerText = "🟢 " + msg;
+    el.style.background = "#14532d";
+    setTimeout(() => {
+      el.innerText = "🟢 Salvo";
+      el.style.background = "#444";
+    }, 2000);
+  }
+
+  function marcarNaoSalvo(){
+    const el = document.getElementById("statusSalvar");
+    if(!el) return;
+    el.innerText = "🟡 Alterações não salvas";
+    el.style.background = "#92400e";
+  }
+
+  function salvarManual(){
+    marcarNaoSalvo();
+    salvarAutomatico(true);
+  }
+
+  function keyLock(produtoId){
+    const data = document.getElementById("dataReferencia").value || "sem_data";
+    return `LOCK_${data}_${produtoId}`;
+  }
+
+  function adicionarProduto(dados = null){
+    const produtoId = dados?.produtoId || proximoProdutoId++;
+    if(produtoId >= proximoProdutoId) proximoProdutoId = produtoId + 1;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = `card_${produtoId}`;
+
+    let htmlFornecedores = "";
+    for(let f=1; f<=FORNECEDORES; f++){
+      const fornVal = dados?.fornecedores?.[f-1]?.nome || "";
+      const vuVal = dados?.fornecedores?.[f-1]?.valor || "";
+      const classVal = dados?.fornecedores?.[f-1]?.classificacao || "";
+      const aprovado = dados?.fornecedores?.[f-1]?.aprovado || false;
+
+      htmlFornecedores += `
+        <tr id="row_${produtoId}_${f}" class="${aprovado ? "aprovado" : ""}">
+          <td><input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}"></td>
+          <td><input type="number" step="0.0001" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
+          <td id="total_${produtoId}_${f}">0.00</td>
+          <td>
+            <select id="class_${produtoId}_${f}">
+              <option value="">Classificação</option>
+              <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
+              <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
+              <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
+            </select>
+          </td>
+          <td>
+            <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
+          </td>
+        </tr>`;
+    }
+
+    card.innerHTML = `
+      <h4>
+        Produto
+        <span class="lockBadge" id="lock_${produtoId}" style="display:none;">🔒 BLOQUEADO</span>
+        <button class="removeBtn" type="button" onclick="removerProduto(${produtoId})">🗑️</button>
+        <button class="unlockBtn" type="button" onclick="unlockProduto(${produtoId})">🔓</button>
+      </h4>
+
+      <div class="topo-produto">
+        <input type="text" placeholder="Nome do produto" id="prod_${produtoId}" value="${escapeHtml(dados?.nome || "")}">
+        <input type="number" placeholder="KG" id="kg_${produtoId}" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
+      </div>
+
+      <table>
+        <tr><th>Fornecedor</th><th>V.Unit</th><th>Total</th><th>Classificação</th><th>OK</th></tr>
+        ${htmlFornecedores}
+      </table>
+
+      <div class="linha-acoes" style="margin-top:10px;">
+        <button class="action" type="button" onclick="lockProduto(${produtoId})">🔒 Bloquear Produto</button>
+      </div>
+    `;
+
+    document.getElementById("containerProdutos").appendChild(card);
 
     for(let f=1; f<=FORNECEDORES; f++){
-      const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
-      const valor = parseFloat(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
-      const chk = document.getElementById(`ok_${produtoId}_${f}`);
-      const row = document.getElementById(`row_${produtoId}_${f}`);
+      calcular(produtoId, f, false);
+    }
 
-      if(forn === fornecedor.trim().toUpperCase() && valor > 0){
-        if(chk) chk.checked = true;
-        if(row) row.classList.add("aprovado");
-        aprovados++;
+    if(dados?.locked){
+      aplicarLockVisual(produtoId, true);
+    }
+
+    ativarEventosInputs(card);
+    atualizarListaFornecedoresLote();
+    atualizarDashboard();
+  }
+
+  function removerProduto(produtoId){
+    if(!confirm("Deseja remover este produto?")) return;
+    const card = document.getElementById(`card_${produtoId}`);
+    if(card) card.remove();
+    localStorage.removeItem(keyLock(produtoId));
+    atualizarListaFornecedoresLote();
+    atualizarDashboard();
+    salvarAutomatico();
+  }
+
+  function aplicarLockVisual(produtoId, travado){
+    const card = document.getElementById(`card_${produtoId}`);
+    if(!card) return;
+
+    const badge = document.getElementById(`lock_${produtoId}`);
+
+    if(travado){
+      card.classList.add("locked");
+      card.querySelectorAll("input, select").forEach(inp => inp.disabled = true);
+      card.querySelectorAll("button").forEach(btn => {
+        if(btn.classList.contains("unlockBtn")) return;
+        btn.disabled = true;
+        btn.style.opacity = "0.55";
+        btn.style.cursor = "not-allowed";
+      });
+      if(badge) badge.style.display = "inline-flex";
+    }else{
+      card.classList.remove("locked");
+      card.querySelectorAll("input, select").forEach(inp => inp.disabled = false);
+      card.querySelectorAll("button").forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = "";
+        btn.style.cursor = "";
+      });
+      if(badge) badge.style.display = "none";
+    }
+  }
+
+  function lockProduto(produtoId){
+    localStorage.setItem(keyLock(produtoId), "1");
+    aplicarLockVisual(produtoId, true);
+    salvarAutomatico();
+  }
+
+  function unlockProduto(produtoId){
+    const senha = prompt("Digite a senha para DESBLOQUEAR:");
+    if(senha !== SENHA){
+      alert("Senha incorreta");
+      return;
+    }
+    localStorage.removeItem(keyLock(produtoId));
+    aplicarLockVisual(produtoId, false);
+    salvarAutomatico();
+  }
+
+  function aplicarBloqueiosSalvos(){
+    document.querySelectorAll("#containerProdutos .card").forEach(card => {
+      const produtoId = card.id.replace("card_","");
+      const travado = localStorage.getItem(keyLock(produtoId)) === "1";
+      aplicarLockVisual(produtoId, travado);
+    });
+  }
+
+  function calcular(produtoId, fornecedorId, salvar = true){
+    const kg = parseFloat(document.getElementById(`kg_${produtoId}`).value || 0);
+    const vu = parseFloat(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
+    document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = (kg * vu).toFixed(2);
+    destacarMenor(produtoId);
+    atualizarListaFornecedoresLote();
+    atualizarDashboard();
+    if (salvar) salvarAutomatico();
+  }
+
+  function recalcular(produtoId){
+    for(let f=1; f<=FORNECEDORES; f++){
+      calcular(produtoId, f, false);
+    }
+    salvarAutomatico();
+  }
+
+  function destacarMenor(produtoId){
+    let valores = [];
+    for(let i=1; i<=FORNECEDORES; i++){
+      const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+      if(v > 0) valores.push(v);
+    }
+
+    const menor = valores.length ? Math.min(...valores) : 0;
+
+    for(let i=1; i<=FORNECEDORES; i++){
+      const row = document.getElementById(`row_${produtoId}_${i}`);
+      if(!row) continue;
+      row.classList.remove("menor");
+      const v = parseFloat(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+      if(menor > 0 && v === menor){
+        row.classList.add("menor");
       }
     }
-  });
-
-  document.getElementById("qtdAprovadosLote").innerText = aprovados;
-  document.getElementById("fornecedorLoteExibido").innerText = fornecedor || "-";
-
-  atualizarDashboard();
-  salvarAutomatico();
-  alert(`Fornecedor aprovado em lote em ${aprovados} item(ns).`);
-}
-
-function atualizarListaFornecedoresLote(){
-  const select = document.getElementById("fornecedorLote");
-  const atual = select.value;
-  const fornecedores = new Set();
-
-  document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
-    const valor = (inp.value || "").trim().toUpperCase();
-    if(valor) fornecedores.add(valor);
-  });
-
-  select.innerHTML = `<option value="">Selecione o fornecedor</option>`;
-  [...fornecedores].sort().forEach(nome => {
-    const op = document.createElement("option");
-    op.value = nome;
-    op.textContent = nome;
-    select.appendChild(op);
-  });
-
-  if([...fornecedores].includes(atual)){
-    select.value = atual;
   }
-}
 
-function atualizarDashboard(){
-  let total = 0;
-  let qtdProdutos = document.querySelectorAll("#containerProdutos .card").length;
-
-  document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
-    const partes = r.id.split("_");
-    const produtoId = partes[1];
-    const fornecedorId = partes[2];
-    total += parseFloat(document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText || 0);
-  });
-
-  document.getElementById("totalDia").innerText = total.toFixed(2);
-  document.getElementById("qtdProdutos").innerText = qtdProdutos;
-  document.getElementById("dataExibida").innerText = formatarDataBR(document.getElementById("dataReferencia").value);
-}
-
-function montarDadosTela(){
-  const produtos = [];
-
-  document.querySelectorAll("#containerProdutos .card").forEach(card => {
-    const produtoId = parseInt(card.id.replace("card_",""), 10);
-    const nome = document.getElementById(`prod_${produtoId}`)?.value || "";
-    const kg = document.getElementById(`kg_${produtoId}`)?.value || "";
-
-    let fornecedores = [];
-
-    for(let f=1; f<=FORNECEDORES; f++){
-      fornecedores.push({
-        nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
-        valor: document.getElementById(`vu_${produtoId}_${f}`)?.value || "",
-        classificacao: document.getElementById(`class_${produtoId}_${f}`)?.value || "",
-        aprovado: document.getElementById(`ok_${produtoId}_${f}`)?.checked || false
-      });
+  function toggleAprovacao(produtoId, fornecedorId){
+    if(!solicitarSenhaUmaVez()){
+      const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
+      if(chk) chk.checked = !chk.checked;
+      return;
     }
 
-    produtos.push({
-      produtoId,
-      nome,
-      kg,
-      fornecedores,
-      locked: localStorage.getItem(keyLock(produtoId)) === "1"
-    });
-  });
+    const row = document.getElementById(`row_${produtoId}_${fornecedorId}`);
+    const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
 
-  return {
-    dataReferencia: document.getElementById("dataReferencia").value || "",
-    responsavel: document.getElementById("responsavel").value || "",
-    observacao: document.getElementById("observacao").value || "",
-    fornecedorLote: document.getElementById("fornecedorLote").value || "",
-    qtdAprovadosLote: document.getElementById("qtdAprovadosLote").innerText || "0",
-    fornecedorLoteExibido: document.getElementById("fornecedorLoteExibido").innerText || "-",
-    produtos
-  };
-}
+    if(row && chk){
+      if(chk.checked){
+        row.classList.add("aprovado");
+      }else{
+        row.classList.remove("aprovado");
+      }
+    }
 
-function salvarAutomatico(){
-  const chave = chaveDaData();
-  if(!chave) return;
-  const dados = montarDadosTela();
-  localStorage.setItem(chave, JSON.stringify(dados));
-  atualizarListaCotacoesSalvas();
-  mostrarStatusSalvo("Salvo automático");
-}
-
-function limparTela(){
-  document.getElementById("containerProdutos").innerHTML = "";
-  proximoProdutoId = 1;
-  document.getElementById("qtdAprovadosLote").innerText = "0";
-  document.getElementById("fornecedorLoteExibido").innerText = "-";
-  atualizarDashboard();
-}
-
-function carregarDadosDaData(){
-  limparTela();
-
-  const chave = chaveDaData();
-  if(!chave) return;
-
-  const bruto = localStorage.getItem(chave);
-
-  if(!bruto){
-    document.getElementById("responsavel").value = "";
-    document.getElementById("observacao").value = "";
-    document.getElementById("fornecedorLote").value = "";
-    adicionarProduto();
     atualizarDashboard();
-    atualizarListaCotacoesSalvas();
-    mostrarStatusSalvo("Nova cotação carregada");
-    return;
+    salvarAutomatico();
   }
 
-  try{
-    const dados = JSON.parse(bruto);
+  function aprovarFornecedorEmLote(){
+    if(!solicitarSenhaUmaVez()) return;
+
+    const fornecedor = document.getElementById("fornecedorLote").value;
+    if(!fornecedor){
+      alert("Selecione um fornecedor para aprovação em lote.");
+      return;
+    }
+
+    let aprovados = 0;
+
+    document.querySelectorAll("#containerProdutos .card").forEach(card => {
+      const produtoId = card.id.replace("card_","");
+
+      for(let f=1; f<=FORNECEDORES; f++){
+        const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
+        const valor = parseFloat(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
+        const chk = document.getElementById(`ok_${produtoId}_${f}`);
+        const row = document.getElementById(`row_${produtoId}_${f}`);
+
+        if(forn === fornecedor.trim().toUpperCase() && valor > 0){
+          if(chk) chk.checked = true;
+          if(row) row.classList.add("aprovado");
+          aprovados++;
+        }
+      }
+    });
+
+    document.getElementById("qtdAprovadosLote").innerText = aprovados;
+    document.getElementById("fornecedorLoteExibido").innerText = fornecedor || "-";
+
+    atualizarDashboard();
+    salvarAutomatico();
+    alert(`Fornecedor aprovado em lote em ${aprovados} item(ns).`);
+  }
+
+  function atualizarListaFornecedoresLote(){
+    const select = document.getElementById("fornecedorLote");
+    const atual = select.value;
+    const fornecedores = new Set();
+
+    document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
+      const valor = (inp.value || "").trim().toUpperCase();
+      if(valor) fornecedores.add(valor);
+    });
+
+    select.innerHTML = `<option value="">Selecione o fornecedor</option>`;
+    [...fornecedores].sort().forEach(nome => {
+      const op = document.createElement("option");
+      op.value = nome;
+      op.textContent = nome;
+      select.appendChild(op);
+    });
+
+    if([...fornecedores].includes(atual)){
+      select.value = atual;
+    }
+  }
+
+  function atualizarDashboard(){
+    let total = 0;
+    let qtdProdutos = document.querySelectorAll("#containerProdutos .card").length;
+
+    document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
+      const partes = r.id.split("_");
+      const produtoId = partes[1];
+      const fornecedorId = partes[2];
+      total += parseFloat(document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText || 0);
+    });
+
+    document.getElementById("totalDia").innerText = total.toFixed(2);
+    document.getElementById("qtdProdutos").innerText = qtdProdutos;
+    document.getElementById("dataExibida").innerText = formatarDataBR(document.getElementById("dataReferencia").value);
+  }
+
+  function montarDadosTela(){
+    const produtos = [];
+
+    document.querySelectorAll("#containerProdutos .card").forEach(card => {
+      const produtoId = parseInt(card.id.replace("card_",""), 10);
+      const nome = document.getElementById(`prod_${produtoId}`)?.value || "";
+      const kg = document.getElementById(`kg_${produtoId}`)?.value || "";
+
+      let fornecedores = [];
+
+      for(let f=1; f<=FORNECEDORES; f++){
+        fornecedores.push({
+          nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
+          valor: document.getElementById(`vu_${produtoId}_${f}`)?.value || "",
+          classificacao: document.getElementById(`class_${produtoId}_${f}`)?.value || "",
+          aprovado: document.getElementById(`ok_${produtoId}_${f}`)?.checked || false
+        });
+      }
+
+      produtos.push({
+        produtoId,
+        nome,
+        kg,
+        fornecedores,
+        locked: localStorage.getItem(keyLock(produtoId)) === "1"
+      });
+    });
+
+    return {
+      dataReferencia: document.getElementById("dataReferencia").value || "",
+      responsavel: document.getElementById("responsavel").value || "",
+      observacao: document.getElementById("observacao").value || "",
+      fornecedorLote: document.getElementById("fornecedorLote").value || "",
+      qtdAprovadosLote: document.getElementById("qtdAprovadosLote").innerText || "0",
+      fornecedorLoteExibido: document.getElementById("fornecedorLoteExibido").innerText || "-",
+      produtos
+    };
+  }
+
+  async function salvarNaNuvem(){
+    const data = document.getElementById("dataReferencia").value;
+    if (!data) return false;
+
+    const payload = montarDadosTela();
+
+    const registro = {
+      data_referencia: data,
+      responsavel: payload.responsavel || "",
+      observacao: payload.observacao || "",
+      fornecedor_lote: payload.fornecedorLote || "",
+      qtd_aprovados_lote: parseInt(payload.qtdAprovadosLote || 0, 10),
+      fornecedor_lote_exibido: payload.fornecedorLoteExibido || "",
+      dados: payload
+    };
+
+    const { error } = await supabaseClient
+      .from("cotacoes_bsm")
+      .upsert(registro, { onConflict: "data_referencia" });
+
+    if (error) {
+      console.error("Erro ao salvar na nuvem:", error);
+      return false;
+    }
+
+    return true;
+  }
+
+  async function carregarDaNuvemPorData(data){
+    const { data: registro, error } = await supabaseClient
+      .from("cotacoes_bsm")
+      .select("*")
+      .eq("data_referencia", data)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erro ao carregar da nuvem:", error);
+      return null;
+    }
+
+    return registro;
+  }
+
+  async function excluirDaNuvemPorData(data){
+    const { error } = await supabaseClient
+      .from("cotacoes_bsm")
+      .delete()
+      .eq("data_referencia", data);
+
+    if (error) {
+      console.error("Erro ao excluir da nuvem:", error);
+      return false;
+    }
+
+    return true;
+  }
+
+  async function listarCotacoesDaNuvem(){
+    const { data, error } = await supabaseClient
+      .from("cotacoes_bsm")
+      .select("data_referencia, responsavel, dados")
+      .order("data_referencia", { ascending: false });
+
+    if (error) {
+      console.error("Erro ao listar cotações:", error);
+      return [];
+    }
+
+    return data || [];
+  }
+
+  async function salvarAutomatico(manual = false){
+    const chave = chaveDaData();
+    if(!chave) return;
+
+    const dados = montarDadosTela();
+    localStorage.setItem(chave, JSON.stringify(dados));
+
+    const ok = await salvarNaNuvem();
+    if (ok) {
+      await atualizarListaCotacoesSalvasNuvem();
+      mostrarStatusSalvo(manual ? "Salvo com sucesso" : "Salvo automático");
+    }
+  }
+
+  function limparTela(){
+    document.getElementById("containerProdutos").innerHTML = "";
+    proximoProdutoId = 1;
+    document.getElementById("qtdAprovadosLote").innerText = "0";
+    document.getElementById("fornecedorLoteExibido").innerText = "-";
+    atualizarDashboard();
+  }
+
+  async function carregarDadosDaData(){
+    limparTela();
+
+    const data = document.getElementById("dataReferencia").value;
+    if(!data) return;
+
+    let dados = null;
+
+    const registroNuvem = await carregarDaNuvemPorData(data);
+    if (registroNuvem && registroNuvem.dados) {
+      dados = registroNuvem.dados;
+    } else {
+      const chave = chaveDaData();
+      const local = localStorage.getItem(chave);
+      if (local) {
+        try {
+          dados = JSON.parse(local);
+        } catch(e) {
+          console.error(e);
+        }
+      }
+    }
+
+    if(!dados){
+      document.getElementById("responsavel").value = "";
+      document.getElementById("observacao").value = "";
+      document.getElementById("fornecedorLote").value = "";
+      adicionarProduto();
+      atualizarDashboard();
+      mostrarStatusSalvo("Nova cotação carregada");
+      return;
+    }
 
     document.getElementById("responsavel").value = dados.responsavel || "";
     document.getElementById("observacao").value = dados.observacao || "";
@@ -891,103 +979,72 @@ function carregarDadosDaData(){
 
     aplicarBloqueiosSalvos();
     atualizarDashboard();
-    atualizarListaCotacoesSalvas();
     mostrarStatusSalvo("Cotação carregada");
-  }catch(e){
-    console.error("Erro ao carregar dados da data:", e);
-    adicionarProduto();
-  }
-}
-
-function limparDadosDaData(){
-  const chave = chaveDaData();
-  const data = document.getElementById("dataReferencia").value;
-
-  if(!data){
-    alert("Selecione uma data primeiro.");
-    return;
   }
 
-  if(confirm(`Deseja apagar a cotação da data ${formatarDataBR(data)}?`)){
-    const bruto = localStorage.getItem(chave);
-    if(bruto){
-      try{
-        const dados = JSON.parse(bruto);
-        if(dados.produtos){
-          dados.produtos.forEach(prod => {
-            localStorage.removeItem(keyLock(prod.produtoId));
-          });
-        }
-      }catch(e){}
+  async function limparDadosDaData(){
+    const data = document.getElementById("dataReferencia").value;
+
+    if(!data){
+      alert("Selecione uma data primeiro.");
+      return;
     }
 
-    localStorage.removeItem(chave);
-    carregarDadosDaData();
-    atualizarListaCotacoesSalvas();
-  }
-}
-
-function excluirCotacao(data){
-  const chave = PREFIXO_COTACAO + data;
-  if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
-
-  const bruto = localStorage.getItem(chave);
-  if(bruto){
-    try{
-      const dados = JSON.parse(bruto);
-      if(dados.produtos){
-        dados.produtos.forEach(prod => {
-          localStorage.removeItem(`LOCK_${data}_${prod.produtoId}`);
-        });
+    if(confirm(`Deseja apagar a cotação da data ${formatarDataBR(data)}?`)){
+      const ok = await excluirDaNuvemPorData(data);
+      if (!ok) {
+        alert("Não foi possível excluir da nuvem.");
+        return;
       }
-    }catch(e){}
-  }
 
-  localStorage.removeItem(chave);
-
-  if(document.getElementById("dataReferencia").value === data){
-    carregarDadosDaData();
-  }
-  atualizarListaCotacoesSalvas();
-}
-
-function abrirCotacao(data){
-  document.getElementById("dataReferencia").value = data;
-  carregarDadosDaData();
-  atualizarDashboard();
-}
-
-function atualizarListaCotacoesSalvas(){
-  const alvo = document.getElementById("listaCotacoesSalvas");
-  alvo.innerHTML = "";
-
-  let chaves = [];
-  for(let i=0; i<localStorage.length; i++){
-    const k = localStorage.key(i);
-    if(k && k.startsWith(PREFIXO_COTACAO)){
-      chaves.push(k);
+      localStorage.removeItem(PREFIXO_COTACAO + data);
+      await carregarDadosDaData();
+      await atualizarListaCotacoesSalvasNuvem();
     }
   }
 
-  chaves.sort().reverse();
+  async function excluirCotacao(data){
+    if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
 
-  if(!chaves.length){
-    alvo.innerHTML = `<div class="item-salvo">Nenhuma cotação salva ainda.</div>`;
-    return;
+    const ok = await excluirDaNuvemPorData(data);
+    if (!ok) {
+      alert("Não foi possível excluir da nuvem.");
+      return;
+    }
+
+    localStorage.removeItem(PREFIXO_COTACAO + data);
+
+    if(document.getElementById("dataReferencia").value === data){
+      await carregarDadosDaData();
+    }
+    await atualizarListaCotacoesSalvasNuvem();
   }
 
-  chaves.forEach(chave => {
-    const data = chave.replace(PREFIXO_COTACAO, "");
-    let total = 0;
-    let qtd = 0;
-    let responsavel = "";
+  async function abrirCotacao(data){
+    document.getElementById("dataReferencia").value = data;
+    await carregarDadosDaData();
+    atualizarDashboard();
+  }
 
-    try{
-      const dados = JSON.parse(localStorage.getItem(chave));
-      responsavel = dados?.responsavel || "";
-      qtd = dados?.produtos?.length || 0;
+  async function atualizarListaCotacoesSalvasNuvem(){
+    const alvo = document.getElementById("listaCotacoesSalvas");
+    alvo.innerHTML = "";
 
-      (dados?.produtos || []).forEach(prod => {
+    const registros = await listarCotacoesDaNuvem();
+
+    if(!registros.length){
+      alvo.innerHTML = `<div class="item-salvo">Nenhuma cotação salva ainda.</div>`;
+      return;
+    }
+
+    registros.forEach(registro => {
+      const data = registro.data_referencia;
+      const dados = registro.dados || {};
+      const responsavel = registro.responsavel || "";
+      const produtos = dados.produtos || [];
+
+      let total = 0;
+      produtos.forEach(prod => {
         (prod.fornecedores || []).forEach(forn => {
           if(forn.aprovado){
             const kg = parseFloat(prod.kg || 0);
@@ -996,126 +1053,125 @@ function atualizarListaCotacoesSalvas(){
           }
         });
       });
-    }catch(e){}
 
-    const div = document.createElement("div");
-    div.className = "item-salvo";
-    div.innerHTML = `
-      <strong>${formatarDataBR(data)}</strong>
-      <div>Responsável: ${escapeHtml(responsavel || "-")}</div>
-      <div>Produtos: ${qtd}</div>
-      <div>Total aprovado: R$ ${total.toFixed(2)}</div>
-      <button class="btn-abrir" onclick="abrirCotacao('${data}')">Abrir</button>
-      <button class="btn-excluir" onclick="excluirCotacao('${data}')">Excluir</button>
-    `;
-    alvo.appendChild(div);
-  });
-}
+      const div = document.createElement("div");
+      div.className = "item-salvo";
+      div.innerHTML = `
+        <strong>${formatarDataBR(data)}</strong>
+        <div>Responsável: ${escapeHtml(responsavel || "-")}</div>
+        <div>Produtos: ${produtos.length}</div>
+        <div>Total aprovado: R$ ${total.toFixed(2)}</div>
+        <button class="btn-abrir" onclick="abrirCotacao('${data}')">Abrir</button>
+        <button class="btn-excluir" onclick="excluirCotacao('${data}')">Excluir</button>
+      `;
+      alvo.appendChild(div);
+    });
+  }
 
-function enviarWhatsApp(){
-  const data = document.getElementById("dataReferencia").value;
-  const responsavel = document.getElementById("responsavel").value || "-";
-  const observacao = document.getElementById("observacao").value || "-";
+  function enviarWhatsApp(){
+    const data = document.getElementById("dataReferencia").value;
+    const responsavel = document.getElementById("responsavel").value || "-";
+    const observacao = document.getElementById("observacao").value || "-";
 
-  let texto = "*BSM - Cotação Aprovada*%0A";
-  texto += `Data: ${formatarDataBR(data)}%0A`;
-  texto += `Responsável: ${encodeURIComponent(responsavel)}%0A`;
-  texto += `Observação: ${encodeURIComponent(observacao)}%0A%0A`;
+    let texto = "*BSM - Cotação Aprovada*%0A";
+    texto += `Data: ${formatarDataBR(data)}%0A`;
+    texto += `Responsável: ${encodeURIComponent(responsavel)}%0A`;
+    texto += `Observação: ${encodeURIComponent(observacao)}%0A%0A`;
 
-  document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
-    const p = r.id.split("_")[1];
-    const f = r.id.split("_")[2];
-    const nome = document.getElementById(`prod_${p}`)?.value || "";
-    const classe = document.getElementById(`class_${p}_${f}`)?.value || "";
-    const forn = document.getElementById(`forn_${p}_${f}`)?.value || "";
-    const total = document.getElementById(`total_${p}_${f}`)?.innerText || "0.00";
-    texto += `${encodeURIComponent(nome)} / ${encodeURIComponent(classe)} - ${encodeURIComponent(forn)} - R$ ${total}%0A`;
-  });
-
-  window.open("https://wa.me/?text=" + texto, "_blank");
-}
-
-function enviarWhatsNaoAprovados(){
-  const data = document.getElementById("dataReferencia").value;
-  const responsavel = document.getElementById("responsavel").value || "-";
-  const observacao = document.getElementById("observacao").value || "-";
-
-  let texto = "*BSM - Cotação Não Aprovada*%0A";
-  texto += `Data: ${formatarDataBR(data)}%0A`;
-  texto += `Responsável: ${encodeURIComponent(responsavel)}%0A`;
-  texto += `Observação: ${encodeURIComponent(observacao)}%0A%0A`;
-
-  document.querySelectorAll("#containerProdutos tr").forEach(r => {
-    if(!r.classList.contains("aprovado") && r.id.startsWith("row_")){
+    document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
       const p = r.id.split("_")[1];
       const f = r.id.split("_")[2];
       const nome = document.getElementById(`prod_${p}`)?.value || "";
       const classe = document.getElementById(`class_${p}_${f}`)?.value || "";
       const forn = document.getElementById(`forn_${p}_${f}`)?.value || "";
       const total = document.getElementById(`total_${p}_${f}`)?.innerText || "0.00";
-      if(parseFloat(total) > 0){
-        texto += `${encodeURIComponent(nome)} / ${encodeURIComponent(classe)} - ${encodeURIComponent(forn)} - R$ ${total}%0A`;
+      texto += `${encodeURIComponent(nome)} / ${encodeURIComponent(classe)} - ${encodeURIComponent(forn)} - R$ ${total}%0A`;
+    });
+
+    window.open("https://wa.me/?text=" + texto, "_blank");
+  }
+
+  function enviarWhatsNaoAprovados(){
+    const data = document.getElementById("dataReferencia").value;
+    const responsavel = document.getElementById("responsavel").value || "-";
+    const observacao = document.getElementById("observacao").value || "-";
+
+    let texto = "*BSM - Cotação Não Aprovada*%0A";
+    texto += `Data: ${formatarDataBR(data)}%0A`;
+    texto += `Responsável: ${encodeURIComponent(responsavel)}%0A`;
+    texto += `Observação: ${encodeURIComponent(observacao)}%0A%0A`;
+
+    document.querySelectorAll("#containerProdutos tr").forEach(r => {
+      if(!r.classList.contains("aprovado") && r.id.startsWith("row_")){
+        const p = r.id.split("_")[1];
+        const f = r.id.split("_")[2];
+        const nome = document.getElementById(`prod_${p}`)?.value || "";
+        const classe = document.getElementById(`class_${p}_${f}`)?.value || "";
+        const forn = document.getElementById(`forn_${p}_${f}`)?.value || "";
+        const total = document.getElementById(`total_${p}_${f}`)?.innerText || "0.00";
+        if(parseFloat(total) > 0){
+          texto += `${encodeURIComponent(nome)} / ${encodeURIComponent(classe)} - ${encodeURIComponent(forn)} - R$ ${total}%0A`;
+        }
       }
-    }
-  });
+    });
 
-  window.open("https://wa.me/?text=" + texto, "_blank");
-}
+    window.open("https://wa.me/?text=" + texto, "_blank");
+  }
 
-function printReport(){
-  window.print();
-}
+  function printReport(){
+    window.print();
+  }
 
-function ativarEventosGlobais(){
-  document.getElementById("dataReferencia").addEventListener("change", () => {
-    marcarNaoSalvo();
-    carregarDadosDaData();
-  });
+  function ativarEventosGlobais(){
+    document.getElementById("dataReferencia").addEventListener("change", async () => {
+      marcarNaoSalvo();
+      await carregarDadosDaData();
+    });
 
-  document.getElementById("responsavel").addEventListener("input", () => {
-    marcarNaoSalvo();
-    salvarAutomatico();
-  });
-
-  document.getElementById("observacao").addEventListener("input", () => {
-    marcarNaoSalvo();
-    salvarAutomatico();
-  });
-
-  document.getElementById("fornecedorLote").addEventListener("change", marcarNaoSalvo);
-}
-
-function ativarEventosInputs(container){
-  container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
-    inp.addEventListener("blur", () => {
-      inp.value = (inp.value || "").trim().toUpperCase();
-      atualizarListaFornecedoresLote();
+    document.getElementById("responsavel").addEventListener("input", () => {
       marcarNaoSalvo();
       salvarAutomatico();
     });
-  });
 
-  container.querySelectorAll("input[type='text'], input[type='number'], select").forEach(inp => {
-    inp.addEventListener("input", () => {
+    document.getElementById("observacao").addEventListener("input", () => {
       marcarNaoSalvo();
       salvarAutomatico();
     });
-    inp.addEventListener("change", () => {
-      marcarNaoSalvo();
-      salvarAutomatico();
+
+    document.getElementById("fornecedorLote").addEventListener("change", marcarNaoSalvo);
+  }
+
+  function ativarEventosInputs(container){
+    container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
+      inp.addEventListener("blur", () => {
+        inp.value = (inp.value || "").trim().toUpperCase();
+        atualizarListaFornecedoresLote();
+        marcarNaoSalvo();
+        salvarAutomatico();
+      });
     });
-  });
-}
 
-function iniciarSistema(){
-  document.getElementById("dataReferencia").value = dataAtualISO();
-  atualizarIndicadorAprovacao();
-  carregarDadosDaData();
-  atualizarListaCotacoesSalvas();
-  ativarEventosGlobais();
-}
+    container.querySelectorAll("input[type='text'], input[type='number'], select").forEach(inp => {
+      inp.addEventListener("input", () => {
+        marcarNaoSalvo();
+        salvarAutomatico();
+      });
+      inp.addEventListener("change", () => {
+        marcarNaoSalvo();
+        salvarAutomatico();
+      });
+    });
+  }
 
-iniciarSistema();
+  async function iniciarSistema(){
+    document.getElementById("dataReferencia").value = dataAtualISO();
+    atualizarIndicadorAprovacao();
+    await carregarDadosDaData();
+    await atualizarListaCotacoesSalvasNuvem();
+    ativarEventosGlobais();
+  }
+
+  iniciarSistema();
 </script>
 
 </body>
