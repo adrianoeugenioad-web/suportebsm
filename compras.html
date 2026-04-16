@@ -1,17 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>BSM SISTEMA 31 DIAS EMPRESA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSM - Sistema de Compras</title>
 <style>
 body{font-family:Arial;margin:0;background:#0f2b4a;color:#fff}
 header{background:#0c223a;padding:15px;text-align:center;font-size:20px;font-weight:bold}
-.tabs{display:flex;flex-wrap:wrap;gap:5px;padding:10px;justify-content:center;background:#08213a}
-.tabs button{padding:6px 10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
-.tabs button.active{background:#f1c40f;color:#000}
-.day{display:none}
-.day.active{display:block}
 .topbar{padding:10px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 button.action{padding:8px 14px;border-radius:20px;border:none;cursor:pointer;font-weight:bold}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:15px;padding:15px}
@@ -28,7 +23,6 @@ input{width:95%;padding:4px;border-radius:6px;border:none}
 .menor{background:#f1c40f;color:#000;font-weight:bold}
 .dashboard{background:#0c223a;padding:10px;margin:10px;border-radius:12px;text-align:center}
 
-/* ===== BLOQUEIO APÓS APROVAR (produto inteiro) ===== */
 .card.locked{outline:2px solid rgba(46,204,113,.55); box-shadow:0 10px 24px rgba(0,0,0,.22);}
 .lockBadge{
   display:inline-flex; align-items:center; gap:6px;
@@ -45,42 +39,55 @@ input{width:95%;padding:4px;border-radius:6px;border:none}
 }
 .unlockBtn:hover{filter:brightness(1.08);}
 
-
-.aprovado td{
-  background: rgba(46,204,113,0.18);
-  color:#2ecc71 !important;
-  font-weight:900;
-  font-style: italic;
+label.top-date{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:bold;
+  background:rgba(255,255,255,.08);
+  padding:8px 12px;
+  border-radius:12px;
+}
+label.top-date input{
+  width:auto;
+  min-width:160px;
+  padding:8px;
 }
 
+@media print{
+  .topbar, .unlockBtn { display:none !important; }
+  body{background:#fff;color:#000}
+  .card, .dashboard, header{background:#fff;color:#000;border:1px solid #ccc}
+}
 </style>
 </head>
 <body>
 
-<header>BSM SISTEMA 31 DIAS - EMPRESA</header>
+<header>BSM SISTEMA DE COMPRAS</header>
 
 <div class="topbar">
+  <label class="top-date">
+    📅 Data:
+    <input type="date" id="dataReferencia">
+  </label>
 
-<span id="indicAprov" style="padding:8px 12px;border-radius:999px;font-weight:900;font-size:12px;align-self:center;background:rgba(255,255,255,.10);">
-🔒 Aprovação bloqueada
-</span>
-<button class="action" onclick="bloquearAprovacao()">🔐 Bloquear</button>
+  <span id="indicAprov" style="padding:8px 12px;border-radius:999px;font-weight:900;font-size:12px;align-self:center;background:rgba(255,255,255,.10);">
+    🔒 Aprovação bloqueada
+  </span>
 
-<button class="action" onclick="exportJSON()">💾 Salvar na Rede (.json)</button>
-<input type="file" id="importFile" style="display:none" onchange="importJSON(event)">
-<button class="action" onclick="document.getElementById('importFile').click()">📂 Carregar Arquivo</button>
-<button class="action" onclick="printReport()">🖨️ Imprimir Orçamento</button>
-<button class="action" onclick="enviarWhatsApp()">📲 Enviar WhatsApp (Aprovados)</button>
-<button class="action" onclick="enviarWhatsNaoAprovados()">📩 Enviar WhatsApp (Não Aprovados)</button>
+  <button class="action" onclick="bloquearAprovacao()">🔐 Bloquear</button>
+  <button class="action" onclick="printReport()">🖨️ Imprimir Orçamento</button>
+  <button class="action" onclick="enviarWhatsApp()">📲 Enviar WhatsApp (Aprovados)</button>
+  <button class="action" onclick="enviarWhatsNaoAprovados()">📩 Enviar WhatsApp (Não Aprovados)</button>
+  <button class="action" onclick="limparDadosDaData()">🗑️ Limpar Dados da Data</button>
 </div>
-
-<div class="tabs" id="tabs"></div>
 
 <div class="dashboard">
-Total Aprovado no Dia: R$ <span id="totalDia">0.00</span>
+  Data selecionada: <span id="dataExibida">-</span><br><br>
+  Total Aprovado: R$ <span id="totalDia">0.00</span>
 </div>
 
-<div id="containerDias"></div>
+<div class="grid" id="containerProdutos"></div>
 
 <datalist id="listaFornecedores">
   <option value="3 B COMERCIAL LTDA">
@@ -179,7 +186,7 @@ Total Aprovado no Dia: R$ <span id="totalDia">0.00</span>
   <option value="IMPERIAL IMPORTACAO E EXPORTACAO LTDA">
   <option value="IMPERIUM ALIMENTOS LTDA">
   <option value="INDUSTRIA ALIMENTOS FERREIRA LTDA">
-  <option value="INDUSTRIA DE CARNES D&#x27;LAPA LTDA">
+  <option value="INDUSTRIA DE CARNES D'LAPA LTDA">
   <option value="INDUSTRIA DE CARNES GRANDMINAS LTDA">
   <option value="INDUSTRIA E COMERCIO DE ALIMENTOS SUPREMO LTDA">
   <option value="IRMAOS SILVA S/A">
@@ -244,13 +251,16 @@ Total Aprovado no Dia: R$ <span id="totalDia">0.00</span>
 </datalist>
 
 <script>
-const TOTAL_DIAS=31;
-const TOTAL_PRODUTOS=31;
-const FORNECEDORES=6;
-const SENHA="419";
+const TOTAL_PRODUTOS = 31;
+const FORNECEDORES = 6;
+const SENHA = "419";
 
-// ===== LIBERAR APROVAÇÃO (senha 1x por sessão) =====
 let aprovacaoLiberada = false;
+
+function chaveDaData() {
+  const data = document.getElementById("dataReferencia").value;
+  return data ? `BSM_COMPRAS_${data}` : null;
+}
 
 function solicitarSenhaUmaVez(){
   if(aprovacaoLiberada) return true;
@@ -283,285 +293,394 @@ function atualizarIndicadorAprovacao(){
     el.textContent = "🔓 Aprovação liberada";
     el.style.background = "rgba(46,204,113,.18)";
     el.style.color = "#2ecc71";
-  }else{
+  } else {
     el.textContent = "🔒 Aprovação bloqueada";
     el.style.background = "rgba(255,255,255,.10)";
     el.style.color = "#fff";
   }
 }
 
-
-
-function keyLock(d,p){ return `LOCK_${d}_${p}`; }
-
-function lockProduto(d,p){
-  const card=document.getElementById(`card_${d}_${p}`);
-  if(!card) return;
-  card.classList.add("locked");
-  card.querySelectorAll("input").forEach(inp=>{ inp.disabled=true; });
-  // desabilita botões OK, mas mantém desbloquear
-  card.querySelectorAll("button").forEach(btn=>{
-    if(btn.classList.contains("unlockBtn")) return;
-    btn.disabled=true;
-    btn.style.opacity="0.55";
-    btn.style.cursor="not-allowed";
-  });
-  const badge=document.getElementById(`lock_${d}_${p}`);
-  if(badge) badge.style.display="inline-flex";
-  localStorage.setItem(keyLock(d,p),"1");
+function keyLock(p){
+  const data = document.getElementById("dataReferencia").value || "sem_data";
+  return `LOCK_${data}_${p}`;
 }
 
-function unlockProduto(d,p){
-  const senha=prompt("Digite a senha para DESBLOQUEAR:");
-  if(senha!==SENHA){ alert("Senha incorreta"); return; }
-  const card=document.getElementById(`card_${d}_${p}`);
+function lockProduto(p){
+  const card = document.getElementById(`card_${p}`);
   if(!card) return;
-  card.classList.remove("locked");
-  card.querySelectorAll("input").forEach(inp=>{ inp.disabled=false; });
-  card.querySelectorAll("button").forEach(btn=>{
-    btn.disabled=false;
-    btn.style.opacity="";
-    btn.style.cursor="";
+
+  card.classList.add("locked");
+  card.querySelectorAll("input").forEach(inp => { inp.disabled = true; });
+  card.querySelectorAll("button").forEach(btn => {
+    if(btn.classList.contains("unlockBtn")) return;
+    btn.disabled = true;
+    btn.style.opacity = "0.55";
+    btn.style.cursor = "not-allowed";
   });
-  const badge=document.getElementById(`lock_${d}_${p}`);
-  if(badge) badge.style.display="none";
-  localStorage.removeItem(keyLock(d,p));
+
+  const badge = document.getElementById(`lock_${p}`);
+  if(badge) badge.style.display = "inline-flex";
+
+  localStorage.setItem(keyLock(p), "1");
+  salvarAutomatico();
+}
+
+function unlockProduto(p){
+  const senha = prompt("Digite a senha para DESBLOQUEAR:");
+  if(senha !== SENHA){
+    alert("Senha incorreta");
+    return;
+  }
+
+  const card = document.getElementById(`card_${p}`);
+  if(!card) return;
+
+  card.classList.remove("locked");
+  card.querySelectorAll("input").forEach(inp => { inp.disabled = false; });
+  card.querySelectorAll("button").forEach(btn => {
+    btn.disabled = false;
+    btn.style.opacity = "";
+    btn.style.cursor = "";
+  });
+
+  const badge = document.getElementById(`lock_${p}`);
+  if(badge) badge.style.display = "none";
+
+  localStorage.removeItem(keyLock(p));
+  salvarAutomatico();
 }
 
 function aplicarBloqueiosSalvos(){
-  for(let d=1; d<=TOTAL_DIAS; d++){
-    for(let p=1; p<=TOTAL_PRODUTOS; p++){
-      if(localStorage.getItem(keyLock(d,p))==="1"){
-        lockProduto(d,p);
-      }
+  for(let p=1; p<=TOTAL_PRODUTOS; p++){
+    const card = document.getElementById(`card_${p}`);
+    if(!card) continue;
+
+    if(localStorage.getItem(keyLock(p)) === "1"){
+      card.classList.add("locked");
+      card.querySelectorAll("input").forEach(inp => { inp.disabled = true; });
+      card.querySelectorAll("button").forEach(btn => {
+        if(btn.classList.contains("unlockBtn")) return;
+        btn.disabled = true;
+        btn.style.opacity = "0.55";
+        btn.style.cursor = "not-allowed";
+      });
+      const badge = document.getElementById(`lock_${p}`);
+      if(badge) badge.style.display = "inline-flex";
+    } else {
+      card.classList.remove("locked");
+      card.querySelectorAll("input").forEach(inp => { inp.disabled = false; });
+      card.querySelectorAll("button").forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = "";
+        btn.style.cursor = "";
+      });
+      const badge = document.getElementById(`lock_${p}`);
+      if(badge) badge.style.display = "none";
     }
   }
 }
 
-
 function criarSistema(){
- const tabs=document.getElementById("tabs");
- const container=document.getElementById("containerDias");
-
- for(let d=1;d<=TOTAL_DIAS;d++){
-   const btn=document.createElement("button");
-   btn.innerText="Dia "+d;
-   btn.onclick=()=>abrirDia(d);
-   if(d===1) btn.classList.add("active");
-   tabs.appendChild(btn);
-
-   const div=document.createElement("div");
-   div.className="day";
-   div.id="dia_"+d;
-   if(d===1) div.classList.add("active");
-
-   div.innerHTML=`<div class="grid">${gerarProdutos(d)}</div>`;
-   container.appendChild(div);
- }
+  const container = document.getElementById("containerProdutos");
+  let html = "";
+  for(let p=1; p<=TOTAL_PRODUTOS; p++){
+    html += `
+    <div class="card" id="card_${p}">
+      <h4>
+        Produto ${p}
+        <span class="lockBadge" id="lock_${p}" style="display:none;">🔒 BLOQUEADO</span>
+        <button class="unlockBtn" type="button" onclick="unlockProduto(${p})" title="Desbloquear (senha)">🔓</button>
+      </h4>
+      <input placeholder="Nome produto" id="prod_${p}"><br><br>
+      <input placeholder="KG" type="number" id="kg_${p}" oninput="recalcular(${p})"><br><br>
+      <table>
+        <tr><th>Fornecedor</th><th>V.Unit</th><th>Total</th><th>OK</th></tr>
+        ${gerarFornecedores(p)}
+      </table>
+    </div>`;
+  }
+  container.innerHTML = html;
 }
 
-function gerarProdutos(d){
- let html="";
- for(let p=1;p<=TOTAL_PRODUTOS;p++){
-   html+=`
-   <div class="card" id="card_${d}_${p}">
-   <h4>Produto ${p} <span class="lockBadge" id="lock_${d}_${p}" style="display:none;">🔒 BLOQUEADO</span><button class="unlockBtn" type="button" onclick="unlockProduto(${d},${p})" title="Desbloquear (senha)">🔓</button></h4>
-   <input placeholder="Nome produto" id="prod_${d}_${p}"><br><br>
-   <input placeholder="KG" type="number" id="kg_${d}_${p}" oninput="recalcular(${d},${p})"><br><br>
-   <table>
-   <tr><th>Fornecedor</th><th>V.Unit</th><th>Total</th><th>OK</th></tr>
-   ${gerarFornecedores(d,p)}
-   </table>
-   </div>`;
- }
- return html;
+function gerarFornecedores(p){
+  let html = "";
+  for(let f=1; f<=FORNECEDORES; f++){
+    html += `
+    <tr id="row_${p}_${f}">
+      <td><input list="listaFornecedores" id="forn_${p}_${f}"></td>
+      <td><input type="number" step="0.0001" id="vu_${p}_${f}" oninput="calcular(${p},${f})"></td>
+      <td id="total_${p}_${f}">0</td>
+      <td><button type="button" onclick="aprovar(${p},${f})">OK</button></td>
+    </tr>`;
+  }
+  return html;
 }
 
-function gerarFornecedores(d,p){
- let html="";
- for(let f=1;f<=FORNECEDORES;f++){
-   html+=`
-   <tr id="row_${d}_${p}_${f}">
-   <td><input list="listaFornecedores" id="forn_${d}_${p}_${f}"></td>
-   <td><input type="number" step="0.0001" id="vu_${d}_${p}_${f}" oninput="calcular(${d},${p},${f})"></td>
-   <td id="total_${d}_${p}_${f}">0</td>
-   <td><button onclick="aprovar(${d},${p},${f})">OK</button></td>
-   </tr>`;
- }
- return html;
+function calcular(p,f){
+  const kg = parseFloat(document.getElementById(`kg_${p}`).value || 0);
+  const vu = parseFloat(document.getElementById(`vu_${p}_${f}`).value || 0);
+  document.getElementById(`total_${p}_${f}`).innerText = (kg * vu).toFixed(2);
+  destacarMenor(p);
+  salvarAutomatico();
 }
 
-function abrirDia(d){
- document.querySelectorAll(".day").forEach(e=>e.classList.remove("active"));
- document.querySelectorAll(".tabs button").forEach(e=>e.classList.remove("active"));
- document.getElementById("dia_"+d).classList.add("active");
- document.querySelectorAll(".tabs button")[d-1].classList.add("active");
- atualizarDashboard(d);
+function recalcular(p){
+  for(let f=1; f<=FORNECEDORES; f++){
+    calcular(p,f);
+  }
 }
 
-function calcular(d,p,f){
- const kg=parseFloat(document.getElementById("kg_"+d+"_"+p).value||0);
- const vu=parseFloat(document.getElementById("vu_"+d+"_"+p+"_"+f).value||0);
- document.getElementById("total_"+d+"_"+p+"_"+f).innerText=(kg*vu).toFixed(2);
- destacarMenor(d,p);
+function destacarMenor(p){
+  let vals = [];
+  for(let i=1; i<=FORNECEDORES; i++){
+    const v = parseFloat(document.getElementById(`total_${p}_${i}`).innerText || 0);
+    if(v > 0) vals.push(v);
+  }
+
+  const menor = vals.length ? Math.min(...vals) : 0;
+
+  for(let i=1; i<=FORNECEDORES; i++){
+    const row = document.getElementById(`row_${p}_${i}`);
+    row.classList.remove("menor");
+    const v = parseFloat(document.getElementById(`total_${p}_${i}`).innerText || 0);
+    if(menor > 0 && v === menor) row.classList.add("menor");
+  }
 }
 
+function aprovar(p,f){
+  if(!solicitarSenhaUmaVez()) return;
 
-function destacarMenor(d,p){
- let vals=[];
- for(let i=1;i<=FORNECEDORES;i++){
-   const v=parseFloat(document.getElementById("total_"+d+"_"+p+"_"+i).innerText||0);
-   if(v>0) vals.push(v);
- }
- const menor = vals.length ? Math.min(...vals) : 0;
- for(let i=1;i<=FORNECEDORES;i++){
-   const row=document.getElementById("row_"+d+"_"+p+"_"+i);
-   row.classList.remove("menor");
-   const v=parseFloat(document.getElementById("total_"+d+"_"+p+"_"+i).innerText||0);
-   if(menor>0 && v===menor) row.classList.add("menor");
- }
+  for(let i=1; i<=FORNECEDORES; i++){
+    document.getElementById(`row_${p}_${i}`).classList.remove("aprovado");
+  }
+
+  document.getElementById(`row_${p}_${f}`).classList.add("aprovado");
+  atualizarDashboard();
+  salvarAutomatico();
 }
 
-function recalcular(d,p){
- for(let f=1;f<=FORNECEDORES;f++) calcular(d,p,f);
+function atualizarDashboard(){
+  let total = 0;
+
+  for(let p=1; p<=TOTAL_PRODUTOS; p++){
+    for(let f=1; f<=FORNECEDORES; f++){
+      if(document.getElementById(`row_${p}_${f}`).classList.contains("aprovado")){
+        total += parseFloat(document.getElementById(`total_${p}_${f}`).innerText || 0);
+      }
+    }
+  }
+
+  document.getElementById("totalDia").innerText = total.toFixed(2);
+  atualizarDataExibida();
 }
 
-function aprovar(d,p,f){
- if(!solicitarSenhaUmaVez()) return;
- for(let i=1;i<=FORNECEDORES;i++)
-   document.getElementById("row_"+d+"_"+p+"_"+i).classList.remove("aprovado");
- document.getElementById("row_"+d+"_"+p+"_"+f).classList.add("aprovado");
- atualizarDashboard(d);
+function formatarDataBR(dataISO){
+  if(!dataISO) return "-";
+  const partes = dataISO.split("-");
+  if(partes.length !== 3) return dataISO;
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
-function atualizarDashboard(d){
- let total=0;
- for(let p=1;p<=TOTAL_PRODUTOS;p++){
-   for(let f=1;f<=FORNECEDORES;f++){
-     if(document.getElementById("row_"+d+"_"+p+"_"+f).classList.contains("aprovado"))
-       total+=parseFloat(document.getElementById("total_"+d+"_"+p+"_"+f).innerText||0);
-   }
- }
- document.getElementById("totalDia").innerText=total.toFixed(2);
+function atualizarDataExibida(){
+  const dataEl = document.getElementById("dataReferencia");
+  const out = document.getElementById("dataExibida");
+  if(out){
+    out.innerText = dataEl && dataEl.value ? formatarDataBR(dataEl.value) : "-";
+  }
 }
 
-function exportJSON(){
- let dados={};
- document.querySelectorAll("input").forEach(i=>dados[i.id]=i.value);
- document.querySelectorAll(".aprovado").forEach(r=>dados[r.id+"_aprovado"]=true);
- const blob=new Blob([JSON.stringify(dados)],{type:"application/json"});
- const link=document.createElement("a");
- link.href=URL.createObjectURL(blob);
- link.download="BSM_backup.json";
- link.click();
+function montarDadosTela(){
+  const dados = {
+    inputs: {},
+    aprovados: [],
+    dataReferencia: document.getElementById("dataReferencia").value || ""
+  };
+
+  document.querySelectorAll("#containerProdutos input").forEach(inp => {
+    if(inp.id) dados.inputs[inp.id] = inp.value;
+  });
+
+  document.querySelectorAll("#containerProdutos tr.aprovado").forEach(tr => {
+    dados.aprovados.push(tr.id);
+  });
+
+  return dados;
 }
 
-function importJSON(event){
- const file=event.target.files[0];
- if(!file) return;
- const reader=new FileReader();
- reader.onload=function(e){
-   const dados=JSON.parse(e.target.result);
+function limparTela(){
+  document.querySelectorAll("#containerProdutos input").forEach(inp => inp.value = "");
+  document.querySelectorAll(".aprovado").forEach(r => r.classList.remove("aprovado"));
 
-   // 1) preencher inputs
-   for(let id in dados){
-     const el=document.getElementById(id);
-     if(el && el.tagName==="INPUT"){
-       el.value = dados[id];
-     }
-   }
+  for(let p=1; p<=TOTAL_PRODUTOS; p++){
+    for(let f=1; f<=FORNECEDORES; f++){
+      document.getElementById(`total_${p}_${f}`).innerText = "0";
+    }
+    destacarMenor(p);
+  }
 
-   // 2) limpar aprovações atuais
-   document.querySelectorAll(".aprovado").forEach(r=>r.classList.remove("aprovado"));
-
-   // 3) restaurar aprovações
-   for(let id in dados){
-     if(id.endsWith("_aprovado") && dados[id]){
-       const real=id.replace("_aprovado","");
-       const row=document.getElementById(real);
-       if(row) row.classList.add("aprovado");
-     }
-   }
-
-   // 4) recalcular TODOS os totais (KG × V.Unit) e menor preço
-   for(let d=1; d<=TOTAL_DIAS; d++){
-     for(let p=1; p<=TOTAL_PRODUTOS; p++){
-       if(typeof recalcular==="function"){
-         recalcular(d,p);
-       }
-     }
-   }
-
-   // 5) atualizar dashboard do dia ativo
-   const activeBtn=document.querySelector(".tabs button.active");
-   let diaAtual=1;
-   if(activeBtn){
-     const n=parseInt((activeBtn.innerText||"").replace(/\D+/g,"") || "1", 10);
-     diaAtual=Math.max(1, Math.min(TOTAL_DIAS, n));
-   }
-   atualizarDashboard(diaAtual);
-
-   // 6) reaplicar bloqueios salvos (se existir)
-   if(typeof aplicarBloqueiosSalvos==="function"){
-     setTimeout(aplicarBloqueiosSalvos, 50);
-   }
-
-   alert("Arquivo carregado e totais recalculados!");
- };
- reader.readAsText(file);
- // permite carregar o mesmo arquivo novamente
- event.target.value="";
+  atualizarDashboard();
 }
 
-function printReport(){ window.print(); }
+function salvarAutomatico(){
+  const chave = chaveDaData();
+  if(!chave) return;
+  const dados = montarDadosTela();
+  localStorage.setItem(chave, JSON.stringify(dados));
+}
+
+function carregarDadosDaData(){
+  limparTela();
+
+  const chave = chaveDaData();
+  if(!chave) return;
+
+  const bruto = localStorage.getItem(chave);
+  if(!bruto){
+    aplicarBloqueiosSalvos();
+    atualizarDashboard();
+    return;
+  }
+
+  try{
+    const dados = JSON.parse(bruto);
+
+    if(dados.inputs){
+      for(const id in dados.inputs){
+        const el = document.getElementById(id);
+        if(el) el.value = dados.inputs[id];
+      }
+    }
+
+    if(dados.aprovados){
+      dados.aprovados.forEach(id => {
+        const row = document.getElementById(id);
+        if(row) row.classList.add("aprovado");
+      });
+    }
+
+    for(let p=1; p<=TOTAL_PRODUTOS; p++){
+      for(let f=1; f<=FORNECEDORES; f++){
+        const kg = parseFloat(document.getElementById(`kg_${p}`).value || 0);
+        const vu = parseFloat(document.getElementById(`vu_${p}_${f}`).value || 0);
+        document.getElementById(`total_${p}_${f}`).innerText = (kg * vu).toFixed(2);
+      }
+      destacarMenor(p);
+    }
+
+    aplicarBloqueiosSalvos();
+    atualizarDashboard();
+  } catch(e){
+    console.error("Erro ao carregar dados da data:", e);
+  }
+}
+
+function limparDadosDaData(){
+  const chave = chaveDaData();
+  const data = document.getElementById("dataReferencia").value;
+
+  if(!data){
+    alert("Selecione uma data primeiro.");
+    return;
+  }
+
+  if(confirm(`Deseja apagar os dados salvos da data ${formatarDataBR(data)}?`)){
+    localStorage.removeItem(chave);
+
+    for(let p=1; p<=TOTAL_PRODUTOS; p++){
+      localStorage.removeItem(keyLock(p));
+    }
+
+    limparTela();
+    aplicarBloqueiosSalvos();
+    atualizarDashboard();
+  }
+}
+
+function definirDataHojeSeVazia(){
+  const dataEl = document.getElementById("dataReferencia");
+  if(dataEl && !dataEl.value){
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+    dataEl.value = `${ano}-${mes}-${dia}`;
+  }
+  atualizarDataExibida();
+}
+
+function printReport(){
+  window.print();
+}
 
 function enviarWhatsApp(){
- let texto="*BSM - Orçamento Aprovado*%0A";
- document.querySelectorAll(".aprovado").forEach(r=>{
-   const parts=r.id.split("_");
-   const d=parts[1], p=parts[2], f=parts[3];
-   const nome=document.getElementById("prod_"+d+"_"+p).value;
-   const forn=document.getElementById("forn_"+d+"_"+p+"_"+f).value;
-   const total=document.getElementById("total_"+d+"_"+p+"_"+f).innerText;
-   texto+=`Dia ${d} - ${nome} - ${forn} - R$ ${total}%0A`;
- });
- window.open("https://wa.me/?text="+texto,"_blank");
-}
+  let texto = "*BSM - Orçamento Aprovado*%0A";
+  const data = document.getElementById("dataReferencia").value;
+  texto += `Data: ${formatarDataBR(data)}%0A%0A`;
 
+  document.querySelectorAll(".aprovado").forEach(r => {
+    const parts = r.id.split("_");
+    const p = parts[1], f = parts[2];
+    const nome = document.getElementById(`prod_${p}`).value;
+    const forn = document.getElementById(`forn_${p}_${f}`).value;
+    const total = document.getElementById(`total_${p}_${f}`).innerText;
+    texto += `${nome} - ${forn} - R$ ${total}%0A`;
+  });
+
+  window.open("https://wa.me/?text=" + texto, "_blank");
+}
 
 function enviarWhatsNaoAprovados(){
- let texto="*BSM - Orçamento NÃO Aprovado*%0A";
- document.querySelectorAll("tr").forEach(r=>{
-   if(!r.classList.contains("aprovado") && r.id && r.id.startsWith("row_")){
-     const parts=r.id.split("_");
-     const d=parts[1], p=parts[2], f=parts[3];
-     const nome=document.getElementById("prod_"+d+"_"+p)?.value||"Produto "+p;
-     const forn=document.getElementById("forn_"+d+"_"+p+"_"+f)?.value||"Fornecedor "+f;
-     const total=document.getElementById("total_"+d+"_"+p+"_"+f)?.innerText||"0";
-     if(parseFloat(total)>0){
-       texto+=`Dia ${d} - ${nome} - ${forn} - R$ ${total}%0A`;
-     }
-   }
- });
- window.open("https://wa.me/?text="+texto,"_blank");
+  let texto = "*BSM - Orçamento NÃO Aprovado*%0A";
+  const data = document.getElementById("dataReferencia").value;
+  texto += `Data: ${formatarDataBR(data)}%0A%0A`;
+
+  document.querySelectorAll("tr").forEach(r => {
+    if(!r.classList.contains("aprovado") && r.id && r.id.startsWith("row_")){
+      const parts = r.id.split("_");
+      const p = parts[1], f = parts[2];
+      const nome = document.getElementById(`prod_${p}`)?.value || "Produto " + p;
+      const forn = document.getElementById(`forn_${p}_${f}`)?.value || "Fornecedor " + f;
+      const total = document.getElementById(`total_${p}_${f}`)?.innerText || "0";
+      if(parseFloat(total) > 0){
+        texto += `${nome} - ${forn} - R$ ${total}%0A`;
+      }
+    }
+  });
+
+  window.open("https://wa.me/?text=" + texto, "_blank");
 }
 
-
-// ===== Melhorias fornecedor (autocomplete da lista + padronização) =====
 function normalizarFornecedorInputs(){
-  document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp=>{
-    inp.addEventListener('blur', ()=>{
-      inp.value = (inp.value||"").trim().toUpperCase();
+  document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
+    inp.addEventListener("blur", () => {
+      inp.value = (inp.value || "").trim().toUpperCase();
+      salvarAutomatico();
     });
   });
 }
 
+function ativarEventos(){
+  document.querySelectorAll("#containerProdutos input").forEach(inp => {
+    inp.addEventListener("input", salvarAutomatico);
+    inp.addEventListener("change", salvarAutomatico);
+  });
+
+  const dataEl = document.getElementById("dataReferencia");
+  dataEl.addEventListener("change", () => {
+    atualizarDataExibida();
+    carregarDadosDaData();
+  });
+  dataEl.addEventListener("input", () => {
+    atualizarDataExibida();
+  });
+}
+
 criarSistema();
-setTimeout(atualizarIndicadorAprovacao, 80);
-
-setTimeout(normalizarFornecedorInputs, 150);
-
-setTimeout(aplicarBloqueiosSalvos, 50);
+definirDataHojeSeVazia();
+carregarDadosDaData();
+atualizarIndicadorAprovacao();
+normalizarFornecedorInputs();
+ativarEventos();
 </script>
 
 </body>
