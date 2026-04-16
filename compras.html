@@ -7,12 +7,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: #0f2b4a;
       color: #fff;
     }
+
     .topo {
       background: #0c223a;
       padding: 18px;
@@ -20,11 +22,13 @@
       font-size: 24px;
       font-weight: bold;
     }
+
     .container {
-      max-width: 1550px;
+      max-width: 1600px;
       margin: 0 auto;
       padding: 16px;
     }
+
     .hidden { display: none !important; }
 
     .card {
@@ -68,7 +72,10 @@
       margin-top: 4px;
     }
 
-    textarea { min-height: 80px; resize: vertical; }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
 
     .acoes-topo {
       display: flex;
@@ -148,12 +155,16 @@
       border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    th { background: rgba(0,0,0,0.18); }
+    th {
+      background: rgba(0,0,0,0.18);
+    }
 
     .aprovado td {
-      background: rgba(46,204,113,0.18);
-      color: #7CFFAE;
-      font-weight: bold;
+      background: #08294d !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      border-top: 1px solid #1d4ed8;
+      border-bottom: 1px solid #1d4ed8;
     }
 
     .menor td {
@@ -198,8 +209,8 @@
     }
 
     .aprovada-geral {
-      border: 2px solid #22c55e;
-      box-shadow: 0 0 0 2px rgba(34,197,94,.18);
+      border: 2px solid #1d4ed8;
+      box-shadow: 0 0 0 2px rgba(29,78,216,.18);
     }
 
     .chip {
@@ -217,8 +228,8 @@
     }
 
     .chip-aprovada {
-      background: #dcfce7;
-      color: #166534;
+      background: #dbeafe;
+      color: #1e40af;
     }
 
     .valor-total {
@@ -227,15 +238,38 @@
     }
 
     @media (max-width: 900px) {
-      .topo-produto { grid-template-columns: 1fr; }
-      .grid-produtos { grid-template-columns: 1fr; }
+      .topo-produto {
+        grid-template-columns: 1fr;
+      }
+      .grid-produtos {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media print {
-      .acoes-topo, .lista-salvos, .nao-imprimir { display: none !important; }
-      body { background: white; color: black; }
-      .card, .box, .dash { background: white; color: black; border: 1px solid #ccc; box-shadow: none; }
-      .topo { background: white; color: black; border-bottom: 1px solid #ccc; }
+      .acoes-topo, .lista-salvos, .nao-imprimir {
+        display: none !important;
+      }
+      body {
+        background: white;
+        color: black;
+      }
+      .card, .box, .dash {
+        background: white;
+        color: black;
+        border: 1px solid #ccc;
+        box-shadow: none;
+      }
+      .topo {
+        background: white;
+        color: black;
+        border-bottom: 1px solid #ccc;
+      }
+      .aprovado td {
+        background: #dbeafe !important;
+        color: #000 !important;
+        font-weight: 700 !important;
+      }
     }
   </style>
 </head>
@@ -265,6 +299,8 @@
       <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
       <button class="btn-green hidden" id="btnAprovarCotacao" onclick="aprovarCotacaoAdmin()">✅ Aprovar Cotação</button>
       <button class="btn-gray hidden" id="btnRelatorioAprovados" onclick="abrirRelatorioAprovados()">📄 Relatório Aprovados</button>
+      <button class="btn-gray hidden" id="btnUsuarios" onclick="togglePainelUsuarios()">👥 Usuários</button>
+      <button class="btn-green" onclick="enviarRelatorioAtualParaComprador()">📲 Enviar ao Comprador</button>
       <span id="statusSalvar" class="status-save">🟢 Salvo</span>
     </div>
 
@@ -276,6 +312,10 @@
       <div class="box">
         <label>Comprador</label>
         <input type="text" id="compradorNome" readonly>
+      </div>
+      <div class="box">
+        <label>WhatsApp do comprador</label>
+        <input type="text" id="compradorWhatsapp" placeholder="Ex.: 5531999999999">
       </div>
       <div class="box">
         <label>Responsável interno</label>
@@ -324,6 +364,43 @@
     <div class="box hidden" id="painelRelatorio" style="margin-top:16px;">
       <h3 style="margin-top:0;">📄 Relatório de aprovados</h3>
       <div id="conteudoRelatorioAprovados"></div>
+    </div>
+
+    <div class="box hidden" id="painelUsuarios" style="margin-top:16px;">
+      <h3 style="margin-top:0;">👥 Cadastro de usuários</h3>
+
+      <div class="topbar">
+        <div class="box">
+          <label>Usuário</label>
+          <input type="text" id="novoUsuario" placeholder="login do usuário">
+        </div>
+
+        <div class="box">
+          <label>Senha</label>
+          <input type="text" id="novaSenha" placeholder="senha">
+        </div>
+
+        <div class="box">
+          <label>Nome</label>
+          <input type="text" id="novoNome" placeholder="nome completo">
+        </div>
+
+        <div class="box">
+          <label>Perfil</label>
+          <select id="novoPerfil">
+            <option value="usuario">Usuário</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="acoes-topo">
+        <button class="btn-blue" onclick="salvarUsuario()">💾 Salvar Usuário</button>
+        <button class="btn" onclick="limparFormularioUsuario()">🧹 Limpar</button>
+      </div>
+
+      <div id="msgUsuarios" class="msg"></div>
+      <div class="lista-salvos" id="listaUsuarios"></div>
     </div>
   </div>
 
@@ -422,14 +499,34 @@
         .replaceAll('"', "&quot;");
     }
 
+    function limparNumeroWhatsapp(numero){
+      return String(numero || "").replace(/\D/g, "");
+    }
+
     function mostrarMsgLogin(texto, cor = "red"){
       const el = document.getElementById("msgLogin");
       el.innerText = texto;
       el.style.color = cor;
     }
 
+    function mostrarStatusSalvo(msg){
+      const el = document.getElementById("statusSalvar");
+      el.innerText = "🟢 " + msg;
+      el.style.background = "#14532d";
+      setTimeout(() => {
+        el.innerText = "🟢 Salvo";
+        el.style.background = "#374151";
+      }, 2000);
+    }
+
+    function marcarNaoSalvo(){
+      const el = document.getElementById("statusSalvar");
+      el.innerText = "🟡 Alterações não salvas";
+      el.style.background = "#92400e";
+    }
+
     async function fazerLogin(){
-      const usuario = document.getElementById("loginUsuario").value.trim();
+      const usuario = document.getElementById("loginUsuario").value.trim().toLowerCase();
       const senha = document.getElementById("loginSenha").value.trim();
 
       if(!usuario || !senha){
@@ -456,6 +553,11 @@
 
       usuarioSessao = data[0];
 
+      if(usuarioSessao.ativo === false){
+        mostrarMsgLogin("Usuário inativo. Procure o administrador.");
+        return;
+      }
+
       document.getElementById("telaLogin").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
 
@@ -466,8 +568,10 @@
       if(usuarioSessao.perfil === "admin"){
         document.getElementById("btnAprovarCotacao").classList.remove("hidden");
         document.getElementById("btnRelatorioAprovados").classList.remove("hidden");
+        document.getElementById("btnUsuarios").classList.remove("hidden");
         document.getElementById("boxFiltroComprador").classList.remove("hidden");
         await carregarCompradoresParaAdmin();
+        await carregarUsuarios();
       }
 
       document.getElementById("dataReferencia").value = dataAtualISO();
@@ -478,22 +582,6 @@
 
     function logout(){
       location.reload();
-    }
-
-    function mostrarStatusSalvo(msg){
-      const el = document.getElementById("statusSalvar");
-      el.innerText = "🟢 " + msg;
-      el.style.background = "#14532d";
-      setTimeout(() => {
-        el.innerText = "🟢 Salvo";
-        el.style.background = "#374151";
-      }, 2000);
-    }
-
-    function marcarNaoSalvo(){
-      const el = document.getElementById("statusSalvar");
-      el.innerText = "🟡 Alterações não salvas";
-      el.style.background = "#92400e";
     }
 
     function atualizarDashboard(){
@@ -545,7 +633,9 @@
         select.appendChild(op);
       });
 
-      if([...fornecedores].includes(atual)) select.value = atual;
+      if([...fornecedores].includes(atual)) {
+        select.value = atual;
+      }
     }
 
     function destacarMenor(produtoId){
@@ -581,6 +671,7 @@
       destacarMenor(produtoId);
       atualizarListaFornecedoresLote();
       atualizarDashboard();
+
       if (salvar) salvarAutomatico();
     }
 
@@ -627,6 +718,7 @@
 
       document.querySelectorAll("#containerProdutos .card").forEach(card => {
         const produtoId = card.id.replace("card_","");
+
         for(let f=1; f<=FORNECEDORES; f++){
           const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
           const valor = parseNumeroBR(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
@@ -726,28 +818,6 @@
       salvarAutomatico();
     }
 
-    function ativarEventosInputs(container){
-      container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
-        inp.addEventListener("blur", () => {
-          inp.value = (inp.value || "").trim().toUpperCase();
-          atualizarListaFornecedoresLote();
-          marcarNaoSalvo();
-          salvarAutomatico();
-        });
-      });
-
-      container.querySelectorAll("input[type='text'], select").forEach(inp => {
-        inp.addEventListener("input", () => {
-          marcarNaoSalvo();
-          salvarAutomatico();
-        });
-        inp.addEventListener("change", () => {
-          marcarNaoSalvo();
-          salvarAutomatico();
-        });
-      });
-    }
-
     function montarDadosTela(){
       const produtos = [];
 
@@ -767,12 +837,18 @@
           });
         }
 
-        produtos.push({ produtoId, nome, kg, fornecedores });
+        produtos.push({
+          produtoId,
+          nome,
+          kg,
+          fornecedores
+        });
       });
 
       return {
         dataReferencia: document.getElementById("dataReferencia").value || "",
         compradorNome: document.getElementById("compradorNome").value || "",
+        compradorWhatsapp: document.getElementById("compradorWhatsapp").value || "",
         responsavel: document.getElementById("responsavel").value || "",
         observacao: document.getElementById("observacao").value || "",
         fornecedorLote: document.getElementById("fornecedorLote").value || "",
@@ -798,6 +874,7 @@
         data_referencia: data,
         comprador_usuario: compradorUsuario,
         comprador_nome: compradorNome,
+        comprador_whatsapp: payload.compradorWhatsapp || "",
         responsavel: payload.responsavel || "",
         observacao: payload.observacao || "",
         status_aprovacao: cotacaoAtual?.status_aprovacao || "PENDENTE",
@@ -923,6 +1000,7 @@
       if(!registro){
         document.getElementById("responsavel").value = "";
         document.getElementById("observacao").value = "";
+        document.getElementById("compradorWhatsapp").value = "";
         if(usuarioSessao.perfil !== "admin"){
           document.getElementById("compradorNome").value = usuarioSessao.nome;
         }
@@ -938,6 +1016,8 @@
       document.getElementById("compradorNome").value = registro.comprador_nome || usuarioSessao.nome || "";
       document.getElementById("responsavel").value = registro.responsavel || "";
       document.getElementById("observacao").value = registro.observacao || "";
+      document.getElementById("compradorWhatsapp").value =
+        registro.comprador_whatsapp || dados.compradorWhatsapp || "";
 
       if(dados.produtos && dados.produtos.length){
         dados.produtos.forEach(prod => adicionarProduto(prod));
@@ -1060,6 +1140,7 @@
           data_referencia: data,
           comprador_usuario: compradorUsuario,
           comprador_nome: document.getElementById("compradorNome").value || "",
+          comprador_whatsapp: document.getElementById("compradorWhatsapp").value || "",
           responsavel: payload.responsavel || "",
           observacao: payload.observacao || "",
           status_aprovacao: "APROVADA",
@@ -1077,6 +1158,10 @@
 
       cotacaoAtual = registro;
 
+      document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
+        r.classList.add("aprovado");
+      });
+
       document.querySelectorAll("#containerProdutos .card").forEach(c => c.classList.add("aprovada-geral"));
 
       atualizarDashboard();
@@ -1090,6 +1175,7 @@
         .from("usuarios_cotacao")
         .select("*")
         .eq("perfil", "usuario")
+        .eq("ativo", true)
         .order("nome", { ascending: true });
 
       if(error) return;
@@ -1129,7 +1215,7 @@
       const alvo = document.getElementById("conteudoRelatorioAprovados");
 
       painel.classList.remove("hidden");
-      alvo.innerHTML = "Carregando...";
+      alvo.innerHTML = "Carregando relatório...";
 
       let query = client
         .from("cotacoes_bsm")
@@ -1144,12 +1230,12 @@
       const { data, error } = await query;
 
       if(error){
-        alvo.innerHTML = "Erro ao carregar relatório: " + error.message;
+        alvo.innerHTML = `<div style="color:#ffb4b4;font-weight:bold;">Erro ao carregar relatório: ${error.message}</div>`;
         return;
       }
 
       if(!data || !data.length){
-        alvo.innerHTML = "Nenhuma cotação aprovada encontrada.";
+        alvo.innerHTML = `<div>Nenhuma cotação aprovada encontrada.</div>`;
         return;
       }
 
@@ -1158,6 +1244,37 @@
       data.forEach(reg => {
         const produtos = reg.dados?.produtos || [];
         let totalGeral = 0;
+        let linhas = "";
+
+        produtos.forEach(prod => {
+          (prod.fornecedores || []).forEach(f => {
+            if(f.aprovado){
+              const kg = parseNumeroBR(prod.kg || 0);
+              const vu = parseNumeroBR(f.valor || 0);
+              const total = kg * vu;
+              totalGeral += total;
+
+              linhas += `
+                <tr>
+                  <td>${escapeHtml(prod.nome || "")}</td>
+                  <td>${formatarMoedaBR(kg)}</td>
+                  <td>${escapeHtml(f.nome || "")}</td>
+                  <td>${escapeHtml(f.classificacao || "")}</td>
+                  <td>${formatarMoedaBR(vu)}</td>
+                  <td>${formatarMoedaBR(total)}</td>
+                </tr>
+              `;
+            }
+          });
+        });
+
+        if(!linhas){
+          linhas = `
+            <tr>
+              <td colspan="6">Nenhum fornecedor aprovado nesta cotação.</td>
+            </tr>
+          `;
+        }
 
         html += `
           <div class="card" style="margin-bottom:12px;">
@@ -1175,31 +1292,7 @@
                 <th>Valor Unitário</th>
                 <th>Total</th>
               </tr>
-        `;
-
-        produtos.forEach(prod => {
-          (prod.fornecedores || []).forEach(f => {
-            if(f.aprovado){
-              const kg = parseNumeroBR(prod.kg || 0);
-              const vu = parseNumeroBR(f.valor || 0);
-              const total = kg * vu;
-              totalGeral += total;
-
-              html += `
-                <tr>
-                  <td>${escapeHtml(prod.nome || "")}</td>
-                  <td>${formatarMoedaBR(kg)}</td>
-                  <td>${escapeHtml(f.nome || "")}</td>
-                  <td>${escapeHtml(f.classificacao || "")}</td>
-                  <td>${formatarMoedaBR(vu)}</td>
-                  <td>${formatarMoedaBR(total)}</td>
-                </tr>
-              `;
-            }
-          });
-        });
-
-        html += `
+              ${linhas}
               <tr>
                 <td colspan="5" style="text-align:right;"><strong>Total Geral Aprovado</strong></td>
                 <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
@@ -1261,6 +1354,181 @@
       window.open("https://web.whatsapp.com/send?text=" + texto, "_blank");
     }
 
+    async function enviarRelatorioAtualParaComprador(){
+      if(!cotacaoAtual){
+        alert("Nenhuma cotação carregada.");
+        return;
+      }
+
+      const numero = limparNumeroWhatsapp(
+        document.getElementById("compradorWhatsapp").value || cotacaoAtual.comprador_whatsapp || ""
+      );
+
+      if(!numero){
+        alert("Informe o WhatsApp do comprador.");
+        return;
+      }
+
+      const produtos = cotacaoAtual.dados?.produtos || [];
+      let texto = `*RELATÓRIO DE APROVADOS - BSM*%0A`;
+      texto += `Data: ${formatarDataBR(cotacaoAtual.data_referencia)}%0A`;
+      texto += `Comprador: ${encodeURIComponent(cotacaoAtual.comprador_nome || "-")}%0A`;
+      texto += `Aprovado por: ${encodeURIComponent(cotacaoAtual.aprovado_por || "-")}%0A`;
+      texto += `Aprovado em: ${encodeURIComponent(formatarDataHoraBR(cotacaoAtual.aprovado_em))}%0A%0A`;
+
+      let totalGeral = 0;
+
+      produtos.forEach(prod => {
+        (prod.fornecedores || []).forEach(f => {
+          if(f.aprovado){
+            const kg = parseNumeroBR(prod.kg || 0);
+            const vu = parseNumeroBR(f.valor || 0);
+            const total = kg * vu;
+            totalGeral += total;
+
+            texto += `Produto: ${encodeURIComponent(prod.nome || "")}%0A`;
+            texto += `Fornecedor: ${encodeURIComponent(f.nome || "")}%0A`;
+            texto += `Classificação: ${encodeURIComponent(f.classificacao || "")}%0A`;
+            texto += `KG: ${encodeURIComponent(formatarMoedaBR(kg))}%0A`;
+            texto += `Valor Unitário: R$ ${encodeURIComponent(formatarMoedaBR(vu))}%0A`;
+            texto += `Total: R$ ${encodeURIComponent(formatarMoedaBR(total))}%0A%0A`;
+          }
+        });
+      });
+
+      texto += `*TOTAL GERAL: R$ ${encodeURIComponent(formatarMoedaBR(totalGeral))}*`;
+
+      window.open(`https://web.whatsapp.com/send?phone=${numero}&text=${texto}`, "_blank");
+    }
+
+    function togglePainelUsuarios(){
+      const painel = document.getElementById("painelUsuarios");
+      painel.classList.toggle("hidden");
+      if(!painel.classList.contains("hidden")){
+        carregarUsuarios();
+      }
+    }
+
+    function limparFormularioUsuario(){
+      document.getElementById("novoUsuario").value = "";
+      document.getElementById("novaSenha").value = "";
+      document.getElementById("novoNome").value = "";
+      document.getElementById("novoPerfil").value = "usuario";
+      document.getElementById("msgUsuarios").innerText = "";
+    }
+
+    async function salvarUsuario(){
+      if(usuarioSessao?.perfil !== "admin"){
+        alert("Somente o administrador pode cadastrar usuários.");
+        return;
+      }
+
+      const usuario = document.getElementById("novoUsuario").value.trim().toLowerCase();
+      const senha = document.getElementById("novaSenha").value.trim();
+      const nome = document.getElementById("novoNome").value.trim();
+      const perfil = document.getElementById("novoPerfil").value;
+
+      if(!usuario || !senha || !nome){
+        document.getElementById("msgUsuarios").innerText = "Preencha usuário, senha e nome.";
+        document.getElementById("msgUsuarios").style.color = "#ffd6a5";
+        return;
+      }
+
+      const { error } = await client
+        .from("usuarios_cotacao")
+        .upsert({
+          usuario,
+          senha,
+          nome,
+          perfil,
+          ativo: true
+        }, { onConflict: "usuario" });
+
+      if(error){
+        document.getElementById("msgUsuarios").innerText = "Erro ao salvar usuário: " + error.message;
+        document.getElementById("msgUsuarios").style.color = "#ffb4b4";
+        return;
+      }
+
+      document.getElementById("msgUsuarios").innerText = "Usuário salvo com sucesso.";
+      document.getElementById("msgUsuarios").style.color = "#b7f7c8";
+
+      limparFormularioUsuario();
+      await carregarUsuarios();
+      await carregarCompradoresParaAdmin();
+    }
+
+    async function carregarUsuarios(){
+      if(usuarioSessao?.perfil !== "admin") return;
+
+      const alvo = document.getElementById("listaUsuarios");
+      alvo.innerHTML = "Carregando...";
+
+      const { data, error } = await client
+        .from("usuarios_cotacao")
+        .select("*")
+        .order("nome", { ascending: true });
+
+      if(error){
+        alvo.innerHTML = `<div class="salvo">Erro ao carregar usuários: ${error.message}</div>`;
+        return;
+      }
+
+      if(!data || !data.length){
+        alvo.innerHTML = `<div class="salvo">Nenhum usuário cadastrado.</div>`;
+        return;
+      }
+
+      alvo.innerHTML = "";
+
+      data.forEach(u => {
+        const div = document.createElement("div");
+        div.className = "salvo";
+        div.innerHTML = `
+          <strong>${escapeHtml(u.nome || "")}</strong>
+          <div>Usuário: ${escapeHtml(u.usuario || "")}</div>
+          <div>Perfil: ${escapeHtml(u.perfil || "")}</div>
+          <div>Status: ${u.ativo === false ? "Inativo" : "Ativo"}</div>
+          <div style="margin-top:10px;">
+            <button class="btn-blue" onclick="editarUsuario('${escapeHtml(u.usuario)}', '${escapeHtml(u.nome)}', '${escapeHtml(u.senha)}', '${escapeHtml(u.perfil)}')">Editar</button>
+            <button class="btn-red" onclick="toggleUsuarioAtivo('${escapeHtml(u.usuario)}', ${u.ativo === false ? 'true' : 'false'})">
+              ${u.ativo === false ? 'Ativar' : 'Desativar'}
+            </button>
+          </div>
+        `;
+        alvo.appendChild(div);
+      });
+    }
+
+    function editarUsuario(usuario, nome, senha, perfil){
+      document.getElementById("novoUsuario").value = usuario;
+      document.getElementById("novoNome").value = nome;
+      document.getElementById("novaSenha").value = senha;
+      document.getElementById("novoPerfil").value = perfil || "usuario";
+      document.getElementById("painelUsuarios").classList.remove("hidden");
+      window.scrollTo({ top: document.getElementById("painelUsuarios").offsetTop - 20, behavior: "smooth" });
+    }
+
+    async function toggleUsuarioAtivo(usuario, ativar){
+      if(usuarioSessao?.perfil !== "admin"){
+        alert("Somente o administrador pode alterar usuários.");
+        return;
+      }
+
+      const { error } = await client
+        .from("usuarios_cotacao")
+        .update({ ativo: ativar })
+        .eq("usuario", usuario);
+
+      if(error){
+        alert("Erro ao alterar usuário: " + error.message);
+        return;
+      }
+
+      await carregarUsuarios();
+      await carregarCompradoresParaAdmin();
+    }
+
     function ativarEventosInputs(container){
       container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
         inp.addEventListener("blur", () => {
@@ -1295,6 +1563,11 @@
       });
 
       document.getElementById("observacao").addEventListener("input", () => {
+        marcarNaoSalvo();
+        salvarAutomatico();
+      });
+
+      document.getElementById("compradorWhatsapp").addEventListener("input", () => {
         marcarNaoSalvo();
         salvarAutomatico();
       });
