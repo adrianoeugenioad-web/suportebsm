@@ -1,0 +1,568 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>BSM SISTEMA 31 DIAS EMPRESA</title>
+<style>
+body{font-family:Arial;margin:0;background:#0f2b4a;color:#fff}
+header{background:#0c223a;padding:15px;text-align:center;font-size:20px;font-weight:bold}
+.tabs{display:flex;flex-wrap:wrap;gap:5px;padding:10px;justify-content:center;background:#08213a}
+.tabs button{padding:6px 10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+.tabs button.active{background:#f1c40f;color:#000}
+.day{display:none}
+.day.active{display:block}
+.topbar{padding:10px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+button.action{padding:8px 14px;border-radius:20px;border:none;cursor:pointer;font-weight:bold}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:15px;padding:15px}
+.card{background:#173a63;border-radius:14px;padding:10px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:4px;text-align:center}
+input{width:95%;padding:4px;border-radius:6px;border:none}
+.aprovado td{
+  background: rgba(46,204,113,0.18);
+  color:#2ecc71 !important;
+  font-weight:900;
+  font-style: italic;
+}
+.menor{background:#f1c40f;color:#000;font-weight:bold}
+.dashboard{background:#0c223a;padding:10px;margin:10px;border-radius:12px;text-align:center}
+
+/* ===== BLOQUEIO APÓS APROVAR (produto inteiro) ===== */
+.card.locked{outline:2px solid rgba(46,204,113,.55); box-shadow:0 10px 24px rgba(0,0,0,.22);}
+.lockBadge{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:11px; font-weight:900;
+  padding:4px 10px; border-radius:999px;
+  background:rgba(46,204,113,.18); color:#2ecc71;
+  margin-left:8px;
+}
+.unlockBtn{
+  float:right;
+  padding:6px 10px; border-radius:10px; border:none;
+  cursor:pointer; font-weight:900;
+  background:rgba(255,255,255,.12); color:#fff;
+}
+.unlockBtn:hover{filter:brightness(1.08);}
+
+
+.aprovado td{
+  background: rgba(46,204,113,0.18);
+  color:#2ecc71 !important;
+  font-weight:900;
+  font-style: italic;
+}
+
+</style>
+</head>
+<body>
+
+<header>BSM SISTEMA 31 DIAS - EMPRESA</header>
+
+<div class="topbar">
+
+<span id="indicAprov" style="padding:8px 12px;border-radius:999px;font-weight:900;font-size:12px;align-self:center;background:rgba(255,255,255,.10);">
+🔒 Aprovação bloqueada
+</span>
+<button class="action" onclick="bloquearAprovacao()">🔐 Bloquear</button>
+
+<button class="action" onclick="exportJSON()">💾 Salvar na Rede (.json)</button>
+<input type="file" id="importFile" style="display:none" onchange="importJSON(event)">
+<button class="action" onclick="document.getElementById('importFile').click()">📂 Carregar Arquivo</button>
+<button class="action" onclick="printReport()">🖨️ Imprimir Orçamento</button>
+<button class="action" onclick="enviarWhatsApp()">📲 Enviar WhatsApp (Aprovados)</button>
+<button class="action" onclick="enviarWhatsNaoAprovados()">📩 Enviar WhatsApp (Não Aprovados)</button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="dashboard">
+Total Aprovado no Dia: R$ <span id="totalDia">0.00</span>
+</div>
+
+<div id="containerDias"></div>
+
+<datalist id="listaFornecedores">
+  <option value="3 B COMERCIAL LTDA">
+  <option value="A K QUALITY SERVICE COMERCIO, REPRE TRANSP LTDA">
+  <option value="ABATEDOURO DORENSE LTDA">
+  <option value="ADRIANO EUGENIO">
+  <option value="AGRO ALIMENTOS FERREIRA LTDA">
+  <option value="ALIMENTAR FOODS FRIGORIFICO LTDA">
+  <option value="ALIMENTOS ESMERALDA IND E COM LTDA">
+  <option value="ANDREA DA SILVA VIANA NASCIMENTO">
+  <option value="ARMAZEM DO MAR LTDA">
+  <option value="ATACADAO S.A">
+  <option value="AVIVAR ALIMENTOS LTDA">
+  <option value="AVIVAR ALIMENTOS S/A">
+  <option value="BALANÇO">
+  <option value="BARBOSA &amp; CIA LTDA">
+  <option value="BH FOODS COMERCIO E INDUSTRIA LTDA">
+  <option value="BMG FOODS IMPORTACAO E EXPORTACAO LTDA">
+  <option value="BRF S.A.">
+  <option value="C S DISTRIBUIDORA DE CARNES LTDA">
+  <option value="CAMPESCA - INDUSTRIA E COMERCIO DE PESCADO LTDA">
+  <option value="CARAMUJO">
+  <option value="CARNES BADALO LTDA">
+  <option value="CARNES NELORE IMPORTACAO EXPORTACAO EIRELI">
+  <option value="CASA DE CARNES INDUSTRIAL LTDA.">
+  <option value="CASSIO OLEGARIO DE SA">
+  <option value="CATIA APARECIDA DE AZEVEDO DE FREITAS">
+  <option value="CEMA CENTRAL MINEIRA ATACADISTA LTDA">
+  <option value="CENTER FRIOS COMERCIO E INDUSTRIA LTDA">
+  <option value="CERRADO COMERCIO E DISTRIBUICAO DE CARNES LTDA">
+  <option value="CICLO ALIMENTOS LTDA">
+  <option value="COMERCIAL DE ALIMENTOS PEDRA BRANCA">
+  <option value="COMERCIAL FRAGA LTDA">
+  <option value="COMERCIAL GALA LTDA">
+  <option value="COMERCIAL IRMAOS SARAIVA LTDA">
+  <option value="COMERCIO E INDUSTRIA DE CARNES FRIGO REI LTDA">
+  <option value="COOPERATIVA DOS GRANJEIROS DO OESTE DE MINAS LTDA">
+  <option value="D C A ALIMENTOS LTDA">
+  <option value="DEFUMADOS MORETO LTDA">
+  <option value="DELL COMPUTADORES DO BRASIL">
+  <option value="DHF PRODUTOS ALIMENTICIOS LTDA">
+  <option value="DIAMANTE ALIMENTOS LTDA">
+  <option value="DIEGO JUNIOR FELIX">
+  <option value="DISEP- DISTRIBUIDORA DE ALIMENTOS E RACAO LTDA">
+  <option value="DISTRIBUIDORA DE CARNES DRF LTDA">
+  <option value="DISTRIBUIDORA DE CARNES SABARA LTDA">
+  <option value="DISTRIBUIDORA LORENZO LTDA">
+  <option value="DISTRIBUIDORA RGD LTDA">
+  <option value="DISTRIBUIDORA SSB LTDA">
+  <option value="DISTRIBUIDORA XAVIER LTDA">
+  <option value="DMA DISTRIBUIDORA S/A">
+  <option value="E-PORK INDUSTRIA E COMERCIO DE CARNES LTDA">
+  <option value="ELFRIG - FRIGORIFICO ELDORADO LTDA">
+  <option value="EQUIFLEX DISTRIBUIDORA">
+  <option value="ERLI APARECIDA DE OLIVEIRA">
+  <option value="ESMERALDA ALIMENTOS LTDA">
+  <option value="FERNANDO LIMA &amp; CIA LTDA">
+  <option value="FICTOR BETIM ALIMENTOS LTDA">
+  <option value="FIGUEIREDO SM INDUSTRIA DE PESCADOS LTDA">
+  <option value="FLAVIO RODRIGUES SOUSA TRISTAO LTDA">
+  <option value="FORNECEDOR REVENDA HOMOLOGAÇÃO">
+  <option value="FRANGOGEL DISTRIBUIDORA DE ALIMENTOS LTDA">
+  <option value="FREDINI ALIMENTOS LTDA">
+  <option value="FRIDEL FRIGORIFICO INDUSTRIAL DEL REY LTDA">
+  <option value="FRIGO DIAS ALIMENTOS LTDA">
+  <option value="FRIGO DIEGO LTDA">
+  <option value="FRIGO ELITE">
+  <option value="FRIGOBET FRIGORIFICO INDUSTRIAL BETIM LTDA">
+  <option value="FRIGOLIX COMERCIO DE ALIMENTOS LTDA">
+  <option value="FRIGOMYLLY DISTRIBUIDORA DE CARNES LTDA">
+  <option value="FRIGORIFICO ALVORADA LTDA">
+  <option value="FRIGORIFICO ATALAIA S/A">
+  <option value="FRIGORIFICO BR LTDA">
+  <option value="FRIGORIFICO CALAFATE LTDA">
+  <option value="FRIGORIFICO COSTA LTDA">
+  <option value="FRIGORIFICO CRUZEIRO DO SUL LTDA">
+  <option value="FRIGORIFICO DIPLOMATA LTDA">
+  <option value="FRIGORIFICO DOS VALES LTDA">
+  <option value="FRIGORIFICO EXTRA BOI ATACADISTA LTDA">
+  <option value="FRIGORIFICO FORMIGAO LTDA">
+  <option value="FRIGORIFICO HAG LTDA">
+  <option value="FRIGORIFICO INDUSTRIAL CIDADE DE PIRANGA LTDA">
+  <option value="FRIGORIFICO OLIVEIRA INDUSTRIA E COMERCIO LTDA">
+  <option value="FRIGORIFICO PONTENOVENSE SOCIEDADE UNIPESSOAL LTDA">
+  <option value="FRIGORIFICO SABOR DE MINAS LTDA">
+  <option value="FRIGORIFICO SERRADAO LTDA">
+  <option value="FRIGORIFICO TORINO COMERCIO DE CARNES LTDA">
+  <option value="FRIGORIFICO VEREDA INDUSTRIA E COMERCIO LTDA">
+  <option value="FRIGOVITOR LTDA">
+  <option value="FRIGOVITTA INDUSTRIA E COMERCIO DE ALIMENTOS LTDA">
+  <option value="FRIMATH ALIMENTOS LTDA">
+  <option value="FRIOLI FRIGORIFICO OLIVEIRA LTDA">
+  <option value="GRANJA BRASILIA AGROINDUSTRIAL AVICOLA SA">
+  <option value="GVA ALIMENTOS COMERCIO DE CARNES LTDA">
+  <option value="IG. ALIMENTOS LTDA">
+  <option value="IMPERIAL IMPORTACAO E EXPORTACAO LTDA">
+  <option value="IMPERIUM ALIMENTOS LTDA">
+  <option value="INDUSTRIA ALIMENTOS FERREIRA LTDA">
+  <option value="INDUSTRIA DE CARNES D&#x27;LAPA LTDA">
+  <option value="INDUSTRIA DE CARNES GRANDMINAS LTDA">
+  <option value="INDUSTRIA E COMERCIO DE ALIMENTOS SUPREMO LTDA">
+  <option value="IRMAOS SILVA S/A">
+  <option value="J A ALIMENTOS ARAXA LTDA">
+  <option value="JAC PNEUS LTDA">
+  <option value="JD COMERCIO DE CARNES LTDA">
+  <option value="JOSE HEBER DE ARAUJO EIRELI - ME">
+  <option value="KYAS COMERCIAL LTDA">
+  <option value="LATICINIOS ITA INDUSTRIA E COMERCIO DE ALIMENTOS LTDA">
+  <option value="LINCON INDUSTRIA E COMERCIO LTDA">
+  <option value="LUBI ALIMENTOS E TRANSPORTES LTDA">
+  <option value="LUCIANO CORREA PIRES">
+  <option value="MARBOI ALIMENTOS LTDA">
+  <option value="MARECHAL DISTRIBUIDORA DE CARNES DE JUIZ DE FORA LTDA">
+  <option value="MART MINAS DISTRIBUICAO LTDA">
+  <option value="MELLORE ALIMENTOS LTDA EM RECUPERACAO JUDICIAL">
+  <option value="MERCEARIA IRMAOS MOTA LTDA">
+  <option value="MERCEARIA PRATA LTDA">
+  <option value="MF AGRONEGOCIO LTDA">
+  <option value="MICATI RODAS E RODIZIOS LTDA">
+  <option value="MINEIRAO ATACADISTA LTDA">
+  <option value="MLA DISTRIBUIDORA DE CARNES E DERIVADOS LTDA">
+  <option value="MMS ARMAZENAGEM E LOGISTICA S/A">
+  <option value="NOROESTE ALIMENTOS LTDA">
+  <option value="NUTRILI ALIMENTOS LTDA">
+  <option value="OESA COMERCIO E REPRESENTACOES S/A">
+  <option value="ORGANIZACOES FRANCAP S/A">
+  <option value="OSMAR DA SILVA MIRANDA">
+  <option value="OURO VERMELHO INDUSTRIA COMERCIO LTDA">
+  <option value="PLENA ALIMENTOS LTDA">
+  <option value="PONTO DA CARNE LTDA">
+  <option value="PONTO DO BOI LTDA">
+  <option value="PORCINIO COMERCIO DE ALIMENTOS LTDA">
+  <option value="QS DISTRIBUICAO E COMERCIO DE CARNES LTDA">
+  <option value="R C CARNES COMERCIO E INDUSTRIA LTDA">
+  <option value="R.A.CAMBERELAS COMERCIO E TRANSPORTE LTDA">
+  <option value="REAL COMERCIO DE MIUDEZAS LTDA">
+  <option value="REFRISOL ARMAZENAGEM E LOGISTICA LTDA">
+  <option value="RIO BRANCO ALIMENTOS">
+  <option value="RJ FOODS LTDA">
+  <option value="RODONAVES TRANSPORTES E ENCOMENDAS LTDA">
+  <option value="SACOLA CHEIA LTDA">
+  <option value="SALSICHARIA DOIS IRMAOS LTDA">
+  <option value="SEALI FOOD INDUSTRIA E COMERCIO DE ALIMENTOS LTDA">
+  <option value="SEARA COMERCIO DE ALIMENTOS LTDA">
+  <option value="SK AUTOMOTIVE DISTRIBUIDORA DE AUTOPECAS LTDA">
+  <option value="SM PESCADOS LTDA">
+  <option value="SQF PRODUTOS E SOLUCOES LTDA">
+  <option value="SUINCO - COOPERATIVA DE SUINOCULTORES LTDA">
+  <option value="SUPERMERCADO BIAS FORTES BM LTDA">
+  <option value="SUPERMERCADO DEGRAU LTDA">
+  <option value="SUPERMERCADO REI DO ARROZ LTDA">
+  <option value="SUPERMERCADO SOUSA E TANNOUS LTDA">
+  <option value="SUPERMERCADOS BH COMERCIO DE ALIMENTOS S/A">
+  <option value="SUPERMERCADOS REX LTDA">
+  <option value="SUPREMO CARNES LTDA">
+  <option value="TG-TRANSPORTE E COMERCIO LTDA">
+  <option value="UAI PEIXES E FRUTOS DO MAR LTDA">
+  <option value="VENTURA ALIMENTOS DO BRASIL LTDA">
+  <option value="VIBRA AGROINDUSTRIAL S A">
+  <option value="WL DISTRIBUIDORA">
+</datalist>
+
+<script>
+const TOTAL_DIAS=31;
+const TOTAL_PRODUTOS=31;
+const FORNECEDORES=6;
+const SENHA="419";
+
+// ===== LIBERAR APROVAÇÃO (senha 1x por sessão) =====
+let aprovacaoLiberada = false;
+
+function solicitarSenhaUmaVez(){
+  if(aprovacaoLiberada) return true;
+  if(sessionStorage.getItem("BSM_APROVACAO_LIBERADA")==="1"){
+    aprovacaoLiberada = true;
+    atualizarIndicadorAprovacao();
+    return true;
+  }
+  const s = prompt("Digite a senha para LIBERAR as aprovações (1x):");
+  if(s === SENHA){
+    aprovacaoLiberada = true;
+    sessionStorage.setItem("BSM_APROVACAO_LIBERADA","1");
+    atualizarIndicadorAprovacao();
+    return true;
+  }
+  alert("Senha incorreta.");
+  return false;
+}
+
+function bloquearAprovacao(){
+  aprovacaoLiberada = false;
+  sessionStorage.removeItem("BSM_APROVACAO_LIBERADA");
+  atualizarIndicadorAprovacao();
+}
+
+function atualizarIndicadorAprovacao(){
+  const el = document.getElementById("indicAprov");
+  if(!el) return;
+  if(aprovacaoLiberada || sessionStorage.getItem("BSM_APROVACAO_LIBERADA")==="1"){
+    el.textContent = "🔓 Aprovação liberada";
+    el.style.background = "rgba(46,204,113,.18)";
+    el.style.color = "#2ecc71";
+  }else{
+    el.textContent = "🔒 Aprovação bloqueada";
+    el.style.background = "rgba(255,255,255,.10)";
+    el.style.color = "#fff";
+  }
+}
+
+
+
+function keyLock(d,p){ return `LOCK_${d}_${p}`; }
+
+function lockProduto(d,p){
+  const card=document.getElementById(`card_${d}_${p}`);
+  if(!card) return;
+  card.classList.add("locked");
+  card.querySelectorAll("input").forEach(inp=>{ inp.disabled=true; });
+  // desabilita botões OK, mas mantém desbloquear
+  card.querySelectorAll("button").forEach(btn=>{
+    if(btn.classList.contains("unlockBtn")) return;
+    btn.disabled=true;
+    btn.style.opacity="0.55";
+    btn.style.cursor="not-allowed";
+  });
+  const badge=document.getElementById(`lock_${d}_${p}`);
+  if(badge) badge.style.display="inline-flex";
+  localStorage.setItem(keyLock(d,p),"1");
+}
+
+function unlockProduto(d,p){
+  const senha=prompt("Digite a senha para DESBLOQUEAR:");
+  if(senha!==SENHA){ alert("Senha incorreta"); return; }
+  const card=document.getElementById(`card_${d}_${p}`);
+  if(!card) return;
+  card.classList.remove("locked");
+  card.querySelectorAll("input").forEach(inp=>{ inp.disabled=false; });
+  card.querySelectorAll("button").forEach(btn=>{
+    btn.disabled=false;
+    btn.style.opacity="";
+    btn.style.cursor="";
+  });
+  const badge=document.getElementById(`lock_${d}_${p}`);
+  if(badge) badge.style.display="none";
+  localStorage.removeItem(keyLock(d,p));
+}
+
+function aplicarBloqueiosSalvos(){
+  for(let d=1; d<=TOTAL_DIAS; d++){
+    for(let p=1; p<=TOTAL_PRODUTOS; p++){
+      if(localStorage.getItem(keyLock(d,p))==="1"){
+        lockProduto(d,p);
+      }
+    }
+  }
+}
+
+
+function criarSistema(){
+ const tabs=document.getElementById("tabs");
+ const container=document.getElementById("containerDias");
+
+ for(let d=1;d<=TOTAL_DIAS;d++){
+   const btn=document.createElement("button");
+   btn.innerText="Dia "+d;
+   btn.onclick=()=>abrirDia(d);
+   if(d===1) btn.classList.add("active");
+   tabs.appendChild(btn);
+
+   const div=document.createElement("div");
+   div.className="day";
+   div.id="dia_"+d;
+   if(d===1) div.classList.add("active");
+
+   div.innerHTML=`<div class="grid">${gerarProdutos(d)}</div>`;
+   container.appendChild(div);
+ }
+}
+
+function gerarProdutos(d){
+ let html="";
+ for(let p=1;p<=TOTAL_PRODUTOS;p++){
+   html+=`
+   <div class="card" id="card_${d}_${p}">
+   <h4>Produto ${p} <span class="lockBadge" id="lock_${d}_${p}" style="display:none;">🔒 BLOQUEADO</span><button class="unlockBtn" type="button" onclick="unlockProduto(${d},${p})" title="Desbloquear (senha)">🔓</button></h4>
+   <input placeholder="Nome produto" id="prod_${d}_${p}"><br><br>
+   <input placeholder="KG" type="number" id="kg_${d}_${p}" oninput="recalcular(${d},${p})"><br><br>
+   <table>
+   <tr><th>Fornecedor</th><th>V.Unit</th><th>Total</th><th>OK</th></tr>
+   ${gerarFornecedores(d,p)}
+   </table>
+   </div>`;
+ }
+ return html;
+}
+
+function gerarFornecedores(d,p){
+ let html="";
+ for(let f=1;f<=FORNECEDORES;f++){
+   html+=`
+   <tr id="row_${d}_${p}_${f}">
+   <td><input list="listaFornecedores" id="forn_${d}_${p}_${f}"></td>
+   <td><input type="number" step="0.0001" id="vu_${d}_${p}_${f}" oninput="calcular(${d},${p},${f})"></td>
+   <td id="total_${d}_${p}_${f}">0</td>
+   <td><button onclick="aprovar(${d},${p},${f})">OK</button></td>
+   </tr>`;
+ }
+ return html;
+}
+
+function abrirDia(d){
+ document.querySelectorAll(".day").forEach(e=>e.classList.remove("active"));
+ document.querySelectorAll(".tabs button").forEach(e=>e.classList.remove("active"));
+ document.getElementById("dia_"+d).classList.add("active");
+ document.querySelectorAll(".tabs button")[d-1].classList.add("active");
+ atualizarDashboard(d);
+}
+
+function calcular(d,p,f){
+ const kg=parseFloat(document.getElementById("kg_"+d+"_"+p).value||0);
+ const vu=parseFloat(document.getElementById("vu_"+d+"_"+p+"_"+f).value||0);
+ document.getElementById("total_"+d+"_"+p+"_"+f).innerText=(kg*vu).toFixed(2);
+ destacarMenor(d,p);
+}
+
+
+function destacarMenor(d,p){
+ let vals=[];
+ for(let i=1;i<=FORNECEDORES;i++){
+   const v=parseFloat(document.getElementById("total_"+d+"_"+p+"_"+i).innerText||0);
+   if(v>0) vals.push(v);
+ }
+ const menor = vals.length ? Math.min(...vals) : 0;
+ for(let i=1;i<=FORNECEDORES;i++){
+   const row=document.getElementById("row_"+d+"_"+p+"_"+i);
+   row.classList.remove("menor");
+   const v=parseFloat(document.getElementById("total_"+d+"_"+p+"_"+i).innerText||0);
+   if(menor>0 && v===menor) row.classList.add("menor");
+ }
+}
+
+function recalcular(d,p){
+ for(let f=1;f<=FORNECEDORES;f++) calcular(d,p,f);
+}
+
+function aprovar(d,p,f){
+ if(!solicitarSenhaUmaVez()) return;
+ for(let i=1;i<=FORNECEDORES;i++)
+   document.getElementById("row_"+d+"_"+p+"_"+i).classList.remove("aprovado");
+ document.getElementById("row_"+d+"_"+p+"_"+f).classList.add("aprovado");
+ atualizarDashboard(d);
+}
+
+function atualizarDashboard(d){
+ let total=0;
+ for(let p=1;p<=TOTAL_PRODUTOS;p++){
+   for(let f=1;f<=FORNECEDORES;f++){
+     if(document.getElementById("row_"+d+"_"+p+"_"+f).classList.contains("aprovado"))
+       total+=parseFloat(document.getElementById("total_"+d+"_"+p+"_"+f).innerText||0);
+   }
+ }
+ document.getElementById("totalDia").innerText=total.toFixed(2);
+}
+
+function exportJSON(){
+ let dados={};
+ document.querySelectorAll("input").forEach(i=>dados[i.id]=i.value);
+ document.querySelectorAll(".aprovado").forEach(r=>dados[r.id+"_aprovado"]=true);
+ const blob=new Blob([JSON.stringify(dados)],{type:"application/json"});
+ const link=document.createElement("a");
+ link.href=URL.createObjectURL(blob);
+ link.download="BSM_backup.json";
+ link.click();
+}
+
+function importJSON(event){
+ const file=event.target.files[0];
+ if(!file) return;
+ const reader=new FileReader();
+ reader.onload=function(e){
+   const dados=JSON.parse(e.target.result);
+
+   // 1) preencher inputs
+   for(let id in dados){
+     const el=document.getElementById(id);
+     if(el && el.tagName==="INPUT"){
+       el.value = dados[id];
+     }
+   }
+
+   // 2) limpar aprovações atuais
+   document.querySelectorAll(".aprovado").forEach(r=>r.classList.remove("aprovado"));
+
+   // 3) restaurar aprovações
+   for(let id in dados){
+     if(id.endsWith("_aprovado") && dados[id]){
+       const real=id.replace("_aprovado","");
+       const row=document.getElementById(real);
+       if(row) row.classList.add("aprovado");
+     }
+   }
+
+   // 4) recalcular TODOS os totais (KG × V.Unit) e menor preço
+   for(let d=1; d<=TOTAL_DIAS; d++){
+     for(let p=1; p<=TOTAL_PRODUTOS; p++){
+       if(typeof recalcular==="function"){
+         recalcular(d,p);
+       }
+     }
+   }
+
+   // 5) atualizar dashboard do dia ativo
+   const activeBtn=document.querySelector(".tabs button.active");
+   let diaAtual=1;
+   if(activeBtn){
+     const n=parseInt((activeBtn.innerText||"").replace(/\D+/g,"") || "1", 10);
+     diaAtual=Math.max(1, Math.min(TOTAL_DIAS, n));
+   }
+   atualizarDashboard(diaAtual);
+
+   // 6) reaplicar bloqueios salvos (se existir)
+   if(typeof aplicarBloqueiosSalvos==="function"){
+     setTimeout(aplicarBloqueiosSalvos, 50);
+   }
+
+   alert("Arquivo carregado e totais recalculados!");
+ };
+ reader.readAsText(file);
+ // permite carregar o mesmo arquivo novamente
+ event.target.value="";
+}
+
+function printReport(){ window.print(); }
+
+function enviarWhatsApp(){
+ let texto="*BSM - Orçamento Aprovado*%0A";
+ document.querySelectorAll(".aprovado").forEach(r=>{
+   const parts=r.id.split("_");
+   const d=parts[1], p=parts[2], f=parts[3];
+   const nome=document.getElementById("prod_"+d+"_"+p).value;
+   const forn=document.getElementById("forn_"+d+"_"+p+"_"+f).value;
+   const total=document.getElementById("total_"+d+"_"+p+"_"+f).innerText;
+   texto+=`Dia ${d} - ${nome} - ${forn} - R$ ${total}%0A`;
+ });
+ window.open("https://wa.me/?text="+texto,"_blank");
+}
+
+
+function enviarWhatsNaoAprovados(){
+ let texto="*BSM - Orçamento NÃO Aprovado*%0A";
+ document.querySelectorAll("tr").forEach(r=>{
+   if(!r.classList.contains("aprovado") && r.id && r.id.startsWith("row_")){
+     const parts=r.id.split("_");
+     const d=parts[1], p=parts[2], f=parts[3];
+     const nome=document.getElementById("prod_"+d+"_"+p)?.value||"Produto "+p;
+     const forn=document.getElementById("forn_"+d+"_"+p+"_"+f)?.value||"Fornecedor "+f;
+     const total=document.getElementById("total_"+d+"_"+p+"_"+f)?.innerText||"0";
+     if(parseFloat(total)>0){
+       texto+=`Dia ${d} - ${nome} - ${forn} - R$ ${total}%0A`;
+     }
+   }
+ });
+ window.open("https://wa.me/?text="+texto,"_blank");
+}
+
+
+// ===== Melhorias fornecedor (autocomplete da lista + padronização) =====
+function normalizarFornecedorInputs(){
+  document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp=>{
+    inp.addEventListener('blur', ()=>{
+      inp.value = (inp.value||"").trim().toUpperCase();
+    });
+  });
+}
+
+criarSistema();
+setTimeout(atualizarIndicadorAprovacao, 80);
+
+setTimeout(normalizarFornecedorInputs, 150);
+
+setTimeout(aplicarBloqueiosSalvos, 50);
+</script>
+
+</body>
+</html>
