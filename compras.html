@@ -2,270 +2,219 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
-  />
-  <title>BSM Cotação Mobile</title>
-  <meta name="theme-color" content="#0c223a" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BSM Cotação</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    :root{
-      --bg:#0f2b4a;
-      --bg2:#0c223a;
-      --card:#173a63;
-      --card2:#123250;
-      --text:#ffffff;
-      --muted:#dbeafe;
-      --blue:#1d4ed8;
-      --green:#15803d;
-      --red:#b91c1c;
-      --yellow:#b45309;
-      --gray:#374151;
-      --border:rgba(255,255,255,.10);
-      --shadow:0 10px 28px rgba(0,0,0,.22);
-      --radius:18px;
-    }
-
-    html, body {
+    * { box-sizing: border-box; }
+    body {
       margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
-      overflow-x: hidden;
+      background: #0f2b4a;
+      color: #fff;
     }
-
-    body { min-height: 100vh; }
-
     .topo {
       position: sticky;
       top: 0;
-      z-index: 50;
-      background: linear-gradient(180deg, #0c223a 0%, #102944 100%);
-      padding: 16px 14px;
+      z-index: 20;
+      background: #0c223a;
+      padding: 14px;
       text-align: center;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
-      box-shadow: 0 4px 20px rgba(0,0,0,.22);
+      box-shadow: 0 2px 10px rgba(0,0,0,.25);
     }
-
     .container {
       max-width: 1700px;
       margin: 0 auto;
       padding: 14px;
-      padding-bottom: 36px;
-      overflow-x: hidden;
     }
-
     .hidden { display: none !important; }
-
-    .card, .box, .dash, .salvo {
-      background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+    .box, .card, .dash, .salvo {
+      background: linear-gradient(180deg, #173a63 0%, #123250 100%);
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,.16);
     }
-
-    .card, .box, .dash, .salvo { padding: 14px; }
-
     .login-wrap {
-      max-width: 430px;
+      max-width: 420px;
       margin: 30px auto;
     }
+    .login-wrap h2 { margin-top: 0; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #dbeafe;
+    }
+    input, select {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 15px;
+      margin-top: 4px;
+      background: #fff;
+      color: #111827;
+    }
+    input[readonly] { background: #e5eefc; }
 
-    .login-wrap h2 {
-      margin-top: 0;
-      margin-bottom: 16px;
-      font-size: 24px;
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      background: #102944;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #2563eb;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+    }
+    .btn-blue { background: #2563eb; }
+    .btn-green { background: #15803d; }
+    .btn-red { background: #b91c1c; }
+    .btn-yellow { background: #b45309; }
+    .btn-gray { background: #374151; }
+    .btn-black { background: #111827; }
+
+    .status-save {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #374151;
+      min-height: 44px;
+      font-weight: 700;
     }
 
     .topbar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .box label {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 6px;
-      font-weight: 700;
-      color: var(--muted);
-    }
-
-    input, select, textarea {
-      width: 100%;
-      border: none;
-      outline: none;
-      border-radius: 14px;
-      padding: 12px 12px;
-      font-size: 15px;
-      background: rgba(255,255,255,.98);
-      color: #111827;
-      margin-top: 4px;
-      min-width: 0;
-    }
-
-    input[readonly] { background: #e5eefc; }
-
-    .acoes-topo {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    button {
-      border: none;
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      min-height: 50px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.18);
-    }
-
-    .btn { background: #111827; color: #fff; }
-    .btn-green { background: var(--green); color: #fff; }
-    .btn-blue { background: var(--blue); color: #fff; }
-    .btn-red { background: var(--red); color: #fff; }
-    .btn-yellow { background: var(--yellow); color: #fff; }
-    .btn-gray { background: var(--gray); color: #fff; }
-
-    .status-save {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 14px 16px;
-      border-radius: 14px;
-      background: var(--gray);
-      font-weight: 700;
-      min-height: 50px;
+      margin-bottom: 14px;
     }
 
     .dashboard {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
-
     .dash { text-align: center; }
-
     .dash span {
       display: block;
       font-size: 12px;
-      color: var(--muted);
+      color: #dbeafe;
       margin-bottom: 8px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .4px;
     }
-
     .dash strong {
       display: block;
       font-size: 24px;
     }
 
-    /* 3 CARDS FIXOS POR LINHA */
+    .chip {
+      display: inline-block;
+      margin-top: 8px;
+      margin-right: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .chip-pendente { background: #fef3c7; color: #92400e; }
+    .chip-aprovada { background: #dbeafe; color: #1e40af; }
+    .chip-tipo { background: #bfdbfe; color: #1e3a8a; }
+
     .grid-produtos {
       display: grid;
-      grid-template-columns: repeat(3, minmax(380px, 1fr));
-      gap: 18px;
-      align-items: start;
-      justify-content: center;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
     }
-
-    .card.produto-card {
+    .produto-card {
       min-width: 0;
-      width: 100%;
-      min-height: 560px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
     }
-
-    .card h3 {
-      margin-top: 0;
-      margin-bottom: 14px;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .topo-produto {
+    .produto-topo {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 120px;
+      grid-template-columns: 1fr 120px;
       gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
+    }
+    .card h3 {
+      margin: 0 0 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
     }
 
     .table-wrap {
-      width: 100%;
       overflow-x: auto;
-      overflow-y: hidden;
-      border-radius: 14px;
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,.08);
-      -webkit-overflow-scrolling: touch;
-      flex: 1;
     }
-
     table {
       width: 100%;
-      min-width: 0;
+      min-width: 720px;
       border-collapse: collapse;
-      background: rgba(255,255,255,0.03);
       table-layout: fixed;
+      background: rgba(255,255,255,.03);
     }
-
     th, td {
+      border-bottom: 1px solid rgba(255,255,255,.08);
       padding: 8px 6px;
-      text-align: center;
       font-size: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
       vertical-align: middle;
       word-break: break-word;
     }
+    th { background: rgba(0,0,0,.18); }
 
-    th {
-      background: rgba(0,0,0,0.18);
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
+    .col-forn { width: 28%; }
+    .col-vu { width: 12%; }
+    .col-total { width: 14%; }
+    .col-class { width: 16%; }
+    .col-nota { width: 16%; }
+    .col-ok { width: 8%; }
 
-    th.col-forn, td.col-forn { width: 28%; }
-    th.col-vu, td.col-vu { width: 12%; }
-    th.col-total, td.col-total { width: 14%; }
-    th.col-class, td.col-class { width: 16%; }
-    th.col-nota, td.col-nota { width: 16%; }
-    th.col-ok, td.col-ok { width: 8%; }
-
-    td.col-forn input,
-    td.col-vu input,
-    td.col-class select,
-    td.col-nota select {
-      width: 100%;
-      min-width: 0;
+    td input, td select {
+      padding: 8px;
       font-size: 12px;
-      padding: 10px 8px;
       border-radius: 10px;
     }
 
     .aprovado td {
       background: #08294d !important;
-      color: #ffffff !important;
-      font-weight: 700 !important;
-      border-top: 1px solid #1d4ed8;
-      border-bottom: 1px solid #1d4ed8;
+      color: #fff !important;
+      font-weight: 700;
     }
 
     .menor td {
@@ -275,192 +224,72 @@
     .ok-check {
       width: 22px !important;
       height: 22px;
-      cursor: pointer;
     }
+
+    .salvo { margin-bottom: 10px; }
+    .salvo strong { display: block; margin-bottom: 6px; }
 
     .msg {
       margin-top: 10px;
       font-weight: 700;
-      line-height: 1.4;
     }
 
-    .aprovada-geral {
-      border: 2px solid #1d4ed8;
-      box-shadow: 0 0 0 2px rgba(29,78,216,.18);
-    }
-
-    .chip {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      margin-top: 8px;
-    }
-
-    .chip-pendente {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .chip-aprovada {
-      background: #dbeafe;
-      color: #1e40af;
-    }
-
-    .salvo strong {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 16px;
-    }
-
-    .salvo > div {
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .salvo button {
-      margin-top: 8px;
-      margin-right: 6px;
-    }
-
-    .lista-xml {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .xml-item {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 14px;
-      padding: 12px;
-    }
-
-    .xml-item strong {
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .nao-imprimir { margin-top: 16px; }
-
-    /* 2 COLUNAS */
     @media (max-width: 1450px) {
       .grid-produtos {
-        grid-template-columns: repeat(2, minmax(360px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    /* 1 COLUNA */
-    @media (max-width: 950px) {
+    @media (max-width: 900px) {
       .grid-produtos {
         grid-template-columns: 1fr;
       }
-
-      .card.produto-card {
-        min-height: auto;
+      .produto-topo {
+        grid-template-columns: 1fr;
       }
-
-      table {
-        min-width: 760px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container { padding: 10px; }
-      .topo { font-size: 18px; padding: 14px 10px; }
-      .topbar { grid-template-columns: 1fr; }
-      .dashboard { grid-template-columns: repeat(2, 1fr); }
-      .topo-produto { grid-template-columns: 1fr; }
-
-      .acoes-topo {
-        position: sticky;
-        top: 60px;
-        z-index: 40;
-        background: rgba(15,43,74,.96);
-        backdrop-filter: blur(8px);
-        padding: 8px 0 10px;
-        margin-bottom: 12px;
-      }
-
-      .acoes-topo button,
-      .acoes-topo .status-save {
+      .acoes button, .acoes .status-save {
         flex: 1 1 calc(50% - 10px);
       }
-
-      table {
-        min-width: 740px;
-      }
     }
 
-    @media (max-width: 480px) {
-      .dashboard { grid-template-columns: 1fr 1fr; }
-      .acoes-topo button,
-      .acoes-topo .status-save { flex: 1 1 100%; }
-      .card h3 { font-size: 17px; }
-
-      table {
-        min-width: 700px;
-      }
-    }
-
-    @media print {
-      .acoes-topo, .lista-salvos, .nao-imprimir, #painelUsuarios { display: none !important; }
-      body { background: white; color: black; }
-      .card, .box, .dash, .salvo {
-        background: white;
-        color: black;
-        border: 1px solid #ccc;
-        box-shadow: none;
-      }
-      .topo {
-        position: static;
-        background: white;
-        color: black;
-        border-bottom: 1px solid #ccc;
-        box-shadow: none;
-      }
-      .aprovado td {
-        background: #dbeafe !important;
-        color: #000 !important;
-        font-weight: 700 !important;
-      }
-      input, select {
-        background: white !important;
-        color: black !important;
-        border: 1px solid #ccc !important;
+    @media (max-width: 520px) {
+      .acoes button, .acoes .status-save {
+        flex: 1 1 100%;
       }
     }
   </style>
 </head>
 <body>
-  <div class="topo">BSM SISTEMA DE COTAÇÃO DE PREÇOS - MOBILE TOP</div>
+  <div class="topo">BSM SISTEMA DE COTAÇÃO</div>
 
   <div id="telaLogin" class="container">
     <div class="card login-wrap">
       <h2>Login do sistema</h2>
       <label>Usuário</label>
-      <input type="text" id="loginUsuario" placeholder="Usuário" />
+      <input type="text" id="loginUsuario" placeholder="Usuário">
       <label>Senha</label>
-      <input type="password" id="loginSenha" placeholder="Senha" />
+      <input type="password" id="loginSenha" placeholder="Senha">
       <button class="btn-blue" onclick="fazerLogin()">Entrar</button>
       <div class="msg" id="msgLogin"></div>
     </div>
   </div>
 
   <div id="app" class="container hidden">
-    <div class="acoes-topo">
+    <div class="tabs">
+      <button id="tabMP" class="tab-btn active" onclick="trocarTipoCotacao('MP')">🥩 Matéria-Prima</button>
+      <button id="tabCD" class="tab-btn" onclick="trocarTipoCotacao('CD')">🛒 Compras Diversas</button>
+    </div>
+
+    <div class="acoes">
       <button class="btn-gray" onclick="logout()">Sair</button>
       <button class="btn-blue" onclick="adicionarProduto()">➕ Adicionar Produto</button>
-      <button class="btn-green" onclick="salvarManual()">💾 Salvar (OK)</button>
+      <button class="btn-green" onclick="salvarManual()">💾 Salvar</button>
       <button class="btn-yellow" onclick="aprovarFornecedorEmLote()">✅ Aprovar Lote</button>
-      <button class="btn" onclick="carregarDadosDaData()">🔄 Recarregar Data</button>
+      <button class="btn-black" onclick="carregarDadosDaData()">🔄 Recarregar</button>
       <button class="btn-red" onclick="limparDadosDaData()">🗑️ Limpar Data</button>
-      <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
       <button class="btn-green hidden" id="btnAprovarCotacao" onclick="aprovarCotacaoAdmin()">✅ Aprovar Cotação</button>
-      <button class="btn-gray hidden" id="btnRelatorioAprovados" onclick="abrirRelatorioAprovados()">📄 Relatório Aprovados</button>
+      <button class="btn-gray hidden" id="btnRelatorioAprovados" onclick="abrirRelatorioAprovados()">📄 Relatório</button>
       <button class="btn-gray hidden" id="btnUsuarios" onclick="togglePainelUsuarios()">👥 Usuários</button>
-      <button class="btn-green" onclick="enviarRelatorioAtualParaComprador()">📲 Enviar ao Comprador</button>
       <span id="statusSalvar" class="status-save">🟢 Salvo</span>
     </div>
 
@@ -469,34 +298,28 @@
         <label>Data</label>
         <input type="date" id="dataReferencia">
       </div>
-
       <div class="box">
         <label>Comprador</label>
         <input type="text" id="compradorNome" readonly>
       </div>
-
       <div class="box">
         <label>WhatsApp do comprador</label>
         <input type="text" id="compradorWhatsapp" placeholder="Ex.: 5531999999999">
       </div>
-
       <div class="box">
         <label>Responsável interno</label>
         <input type="text" id="responsavel" placeholder="Responsável">
       </div>
-
       <div class="box">
         <label>Observação</label>
-        <input type="text" id="observacao" placeholder="Observação da cotação">
+        <input type="text" id="observacao" placeholder="Observação">
       </div>
-
       <div class="box">
         <label>Aprovar fornecedor em lote</label>
         <select id="fornecedorLote">
           <option value="">Selecione o fornecedor</option>
         </select>
       </div>
-
       <div class="box hidden" id="boxFiltroComprador">
         <label>Filtrar comprador</label>
         <select id="filtroComprador" onchange="carregarCotacaoDoCompradorAdmin()">
@@ -506,6 +329,7 @@
     </div>
 
     <div class="dashboard">
+      <div class="dash"><span>Tipo</span><strong id="dashTipo">MP</strong></div>
       <div class="dash"><span>Data</span><strong id="dashData">-</strong></div>
       <div class="dash"><span>Produtos</span><strong id="dashProdutos">0</strong></div>
       <div class="dash"><span>Aprovados</span><strong id="dashAprovados">0</strong></div>
@@ -513,59 +337,41 @@
       <div class="dash"><span>Status</span><strong id="dashStatus">PENDENTE</strong></div>
     </div>
 
-    <div class="card" style="margin-bottom:16px;">
+    <div class="card" style="margin-bottom:14px;">
       <div><strong>Usuário logado:</strong> <span id="usuarioLogadoInfo">-</span></div>
       <div><strong>Perfil:</strong> <span id="perfilLogadoInfo">-</span></div>
       <div><strong>Última aprovação:</strong> <span id="infoAprovacao">-</span></div>
       <div id="chipStatusCotacao" class="chip chip-pendente">PENDENTE</div>
-    </div>
-
-    <div class="box nao-imprimir" style="margin-bottom:16px;">
-      <h3 style="margin-top:0;">📎 XML da nota</h3>
-      <div class="topbar">
-        <div class="box">
-          <label>Selecionar XML</label>
-          <input type="file" id="xmlFileInput" accept=".xml,text/xml,application/xml">
-        </div>
-      </div>
-      <div class="acoes-topo">
-        <button class="btn-blue" onclick="uploadXmlNota()">📤 Anexar XML</button>
-      </div>
-      <div id="msgXml" class="msg"></div>
-      <div id="listaXmls" class="lista-xml"></div>
+      <div id="chipTipoCotacao" class="chip chip-tipo">MATÉRIA-PRIMA</div>
     </div>
 
     <div class="grid-produtos" id="containerProdutos"></div>
 
-    <div class="box nao-imprimir">
+    <div class="box">
       <h3 style="margin-top:0;">📂 Cotações salvas</h3>
-      <div class="lista-salvos" id="listaCotacoesSalvas"></div>
+      <div id="listaCotacoesSalvas"></div>
     </div>
 
-    <div class="box hidden nao-imprimir" id="painelRelatorio">
+    <div class="box hidden" id="painelRelatorio" style="margin-top:14px;">
       <h3 style="margin-top:0;">📄 Relatório de aprovados</h3>
       <div id="conteudoRelatorioAprovados"></div>
     </div>
 
-    <div class="box hidden nao-imprimir" id="painelUsuarios">
+    <div class="box hidden" id="painelUsuarios" style="margin-top:14px;">
       <h3 style="margin-top:0;">👥 Cadastro de usuários</h3>
-
       <div class="topbar">
         <div class="box">
           <label>Usuário</label>
-          <input type="text" id="novoUsuario" placeholder="login do usuário">
+          <input type="text" id="novoUsuario" placeholder="login">
         </div>
-
         <div class="box">
           <label>Senha</label>
           <input type="text" id="novaSenha" placeholder="senha">
         </div>
-
         <div class="box">
           <label>Nome</label>
           <input type="text" id="novoNome" placeholder="nome completo">
         </div>
-
         <div class="box">
           <label>Perfil</label>
           <select id="novoPerfil">
@@ -574,14 +380,12 @@
           </select>
         </div>
       </div>
-
-      <div class="acoes-topo">
+      <div class="acoes">
         <button class="btn-blue" onclick="salvarUsuario()">💾 Salvar Usuário</button>
-        <button class="btn" onclick="limparFormularioUsuario()">🧹 Limpar</button>
+        <button class="btn-black" onclick="limparFormularioUsuario()">🧹 Limpar</button>
       </div>
-
       <div id="msgUsuarios" class="msg"></div>
-      <div class="lista-salvos" id="listaUsuarios"></div>
+      <div id="listaUsuarios"></div>
     </div>
   </div>
 
@@ -589,34 +393,22 @@
     <option value="3 B COMERCIAL LTDA">
     <option value="A K QUALITY SERVICE COMERCIO, REPRE TRANSP LTDA">
     <option value="ABATEDOURO DORENSE LTDA">
-    <option value="ADRIANO EUGENIO">
     <option value="AGRO ALIMENTOS FERREIRA LTDA">
     <option value="ALIMENTAR FOODS FRIGORIFICO LTDA">
-    <option value="ALIMENTOS ESMERALDA IND E COM LTDA">
     <option value="ATACADAO S.A">
     <option value="AVIVAR ALIMENTOS LTDA">
-    <option value="AVIVAR ALIMENTOS S/A">
     <option value="BH FOODS COMERCIO E INDUSTRIA LTDA">
     <option value="BRF S.A.">
     <option value="CENTER FRIOS COMERCIO E INDUSTRIA LTDA">
-    <option value="CERRADO COMERCIO E DISTRIBUICAO DE CARNES LTDA">
     <option value="COMERCIAL FRAGA LTDA">
     <option value="DMA DISTRIBUIDORA S/A">
-    <option value="FRANGOGEL DISTRIBUIDORA DE ALIMENTOS LTDA">
     <option value="FRIGO DIAS ALIMENTOS LTDA">
-    <option value="FRIGOBET FRIGORIFICO INDUSTRIAL BETIM LTDA">
-    <option value="FRIGOLIX COMERCIO DE ALIMENTOS LTDA">
-    <option value="FRIGORIFICO ALVORADA LTDA">
-    <option value="FRIGORIFICO ATALAIA S/A">
     <option value="FRIGORIFICO CALAFATE LTDA">
-    <option value="FRIGORIFICO COSTA LTDA">
-    <option value="FRIGORIFICO SABOR DE MINAS LTDA">
     <option value="GVA ALIMENTOS COMERCIO DE CARNES LTDA">
     <option value="IMPERIUM ALIMENTOS LTDA">
     <option value="MART MINAS DISTRIBUIDORA LTDA">
     <option value="MINEIRAO ATACADISTA LTDA">
     <option value="PLENA ALIMENTOS LTDA">
-    <option value="QS DISTRIBUIDAO E COMERCIO DE CARNES LTDA">
     <option value="SEARA COMERCIO DE ALIMENTOS LTDA">
     <option value="SUPERMERCADOS BH COMERCIO DE ALIMENTOS S/A">
     <option value="SUPREMO CARNES LTDA">
@@ -633,20 +425,23 @@
     let proximoProdutoId = 1;
     let usuarioSessao = null;
     let cotacaoAtual = null;
+    let tipoCotacaoAtual = "MP";
+
+    function nomeTipoCotacao(tipo){
+      return tipo === "CD" ? "COMPRAS DIVERSAS" : "MATÉRIA-PRIMA";
+    }
 
     function parseNumeroBR(valor){
-      if(valor === null || valor === undefined) return 0;
+      if (valor === null || valor === undefined) return 0;
       let v = String(valor).trim();
-      if(!v) return 0;
-      v = v.replace(/\./g, "");
-      v = v.replace(",", ".");
+      if (!v) return 0;
+      v = v.replace(/\./g, "").replace(",", ".");
       const n = parseFloat(v);
       return isNaN(n) ? 0 : n;
     }
 
     function formatarMoedaBR(valor){
-      const n = Number(valor || 0);
-      return n.toLocaleString("pt-BR", {
+      return Number(valor || 0).toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
@@ -655,8 +450,7 @@
     function formatarDataBR(dataISO){
       if(!dataISO) return "-";
       const p = dataISO.split("-");
-      if(p.length !== 3) return dataISO;
-      return `${p[2]}/${p[1]}/${p[0]}`;
+      return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : dataISO;
     }
 
     function formatarDataHoraBR(dataISO){
@@ -665,11 +459,8 @@
     }
 
     function dataAtualISO(){
-      const hoje = new Date();
-      const ano = hoje.getFullYear();
-      const mes = String(hoje.getMonth()+1).padStart(2,"0");
-      const dia = String(hoje.getDate()).padStart(2,"0");
-      return `${ano}-${mes}-${dia}`;
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     }
 
     function escapeHtml(texto){
@@ -678,10 +469,6 @@
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;");
-    }
-
-    function limparNumeroWhatsapp(numero){
-      return String(numero || "").replace(/\D/g, "");
     }
 
     function mostrarMsgLogin(texto, cor = "red"){
@@ -706,10 +493,19 @@
       el.style.background = "#92400e";
     }
 
-    function mostrarMsgXml(texto, cor = "#b7f7c8"){
-      const el = document.getElementById("msgXml");
-      el.innerText = texto;
-      el.style.color = cor;
+    function atualizarVisualAbas(){
+      document.getElementById("tabMP").classList.toggle("active", tipoCotacaoAtual === "MP");
+      document.getElementById("tabCD").classList.toggle("active", tipoCotacaoAtual === "CD");
+      document.getElementById("dashTipo").innerText = tipoCotacaoAtual;
+      document.getElementById("chipTipoCotacao").innerText = nomeTipoCotacao(tipoCotacaoAtual);
+    }
+
+    async function trocarTipoCotacao(tipo){
+      if(tipoCotacaoAtual === tipo) return;
+      tipoCotacaoAtual = tipo;
+      atualizarVisualAbas();
+      await carregarDadosDaData();
+      await atualizarListaCotacoesSalvas();
     }
 
     async function fazerLogin(){
@@ -739,9 +535,8 @@
       }
 
       usuarioSessao = data[0];
-
       if(usuarioSessao.ativo === false){
-        mostrarMsgLogin("Usuário inativo. Procure o administrador.");
+        mostrarMsgLogin("Usuário inativo.");
         return;
       }
 
@@ -762,6 +557,7 @@
       }
 
       document.getElementById("dataReferencia").value = dataAtualISO();
+      atualizarVisualAbas();
       await carregarDadosDaData();
       await atualizarListaCotacoesSalvas();
       ativarEventosGlobais();
@@ -778,12 +574,11 @@
 
       document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
         const partes = r.id.split("_");
-        const produtoId = partes[1];
-        const fornecedorId = partes[2];
-        total += parseNumeroBR(document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText || 0);
+        total += parseNumeroBR(document.getElementById(`total_${partes[1]}_${partes[2]}`).innerText || 0);
         qtdAprovados++;
       });
 
+      document.getElementById("dashTipo").innerText = tipoCotacaoAtual;
       document.getElementById("dashData").innerText = formatarDataBR(document.getElementById("dataReferencia").value);
       document.getElementById("dashProdutos").innerText = qtdProdutos;
       document.getElementById("dashAprovados").innerText = qtdAprovados;
@@ -797,9 +592,7 @@
       chip.className = "chip " + (status === "APROVADA" ? "chip-aprovada" : "chip-pendente");
 
       document.getElementById("infoAprovacao").innerText =
-        cotacaoAtual?.aprovado_por
-          ? `${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}`
-          : "-";
+        cotacaoAtual?.aprovado_por ? `${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}` : "-";
     }
 
     function atualizarListaFornecedoresLote(){
@@ -808,8 +601,8 @@
       const fornecedores = new Set();
 
       document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
-        const valor = (inp.value || "").trim().toUpperCase();
-        if(valor) fornecedores.add(valor);
+        const v = (inp.value || "").trim().toUpperCase();
+        if(v) fornecedores.add(v);
       });
 
       select.innerHTML = `<option value="">Selecione o fornecedor</option>`;
@@ -829,7 +622,6 @@
         const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
         if(v > 0) valores.push(v);
       }
-
       const menor = valores.length ? Math.min(...valores) : 0;
 
       for(let i=1; i<=FORNECEDORES; i++){
@@ -837,29 +629,22 @@
         if(!row) continue;
         row.classList.remove("menor");
         const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
-        if(menor > 0 && v === menor){
-          row.classList.add("menor");
-        }
+        if(menor > 0 && v === menor) row.classList.add("menor");
       }
     }
 
     function calcular(produtoId, fornecedorId, salvar = true){
       const kg = parseNumeroBR(document.getElementById(`kg_${produtoId}`).value || 0);
       const vu = parseNumeroBR(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
-      const total = kg * vu;
-
-      document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = formatarMoedaBR(total);
-
+      document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = formatarMoedaBR(kg * vu);
       destacarMenor(produtoId);
       atualizarListaFornecedoresLote();
       atualizarDashboard();
-      if (salvar) salvarAutomatico();
+      if(salvar) salvarAutomatico();
     }
 
     function recalcular(produtoId){
-      for(let f=1; f<=FORNECEDORES; f++){
-        calcular(produtoId, f, false);
-      }
+      for(let i=1; i<=FORNECEDORES; i++) calcular(produtoId, i, false);
       salvarAutomatico();
     }
 
@@ -870,27 +655,20 @@
         alert("Somente o administrador pode aprovar.");
         return;
       }
-
       const row = document.getElementById(`row_${produtoId}_${fornecedorId}`);
       const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
-
-      if(row && chk){
-        if(chk.checked) row.classList.add("aprovado");
-        else row.classList.remove("aprovado");
-      }
-
+      if(chk.checked) row.classList.add("aprovado");
+      else row.classList.remove("aprovado");
       atualizarDashboard();
       salvarAutomatico();
     }
 
     function alterarNotaRecebida(produtoId, fornecedorId){
       if(usuarioSessao?.perfil !== "admin"){
-        const sel = document.getElementById(`nota_${produtoId}_${fornecedorId}`);
-        if(sel) sel.value = "";
-        alert("Somente o administrador pode informar se recebeu a nota.");
+        document.getElementById(`nota_${produtoId}_${fornecedorId}`).value = "";
+        alert("Somente o administrador pode informar a nota.");
         return;
       }
-
       salvarAutomatico();
     }
 
@@ -907,7 +685,6 @@
       }
 
       let aprovados = 0;
-
       document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
         const produtoId = card.id.replace("card_","");
         for(let f=1; f<=FORNECEDORES; f++){
@@ -915,10 +692,9 @@
           const valor = parseNumeroBR(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
           const chk = document.getElementById(`ok_${produtoId}_${f}`);
           const row = document.getElementById(`row_${produtoId}_${f}`);
-
           if(forn === fornecedor.trim().toUpperCase() && valor > 0){
-            if(chk) chk.checked = true;
-            if(row) row.classList.add("aprovado");
+            chk.checked = true;
+            row.classList.add("aprovado");
             aprovados++;
           }
         }
@@ -937,7 +713,7 @@
       card.className = "card produto-card";
       card.id = `card_${produtoId}`;
 
-      let htmlFornecedores = "";
+      let linhas = "";
       for(let f=1; f<=FORNECEDORES; f++){
         const fornVal = dados?.fornecedores?.[f-1]?.nome || "";
         const vuVal = dados?.fornecedores?.[f-1]?.valor || "";
@@ -945,7 +721,7 @@
         const notaVal = dados?.fornecedores?.[f-1]?.notaRecebida || "";
         const aprovado = dados?.fornecedores?.[f-1]?.aprovado || false;
 
-        htmlFornecedores += `
+        linhas += `
           <tr id="row_${produtoId}_${f}" class="${aprovado ? "aprovado" : ""}">
             <td class="col-forn"><input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}"></td>
             <td class="col-vu"><input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
@@ -966,20 +742,19 @@
               </select>
             </td>
             <td class="col-ok"><input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})"></td>
-          </tr>`;
+          </tr>
+        `;
       }
 
       card.innerHTML = `
         <h3>
           <span>Produto</span>
-          <button class="btn-red" type="button" onclick="removerProduto(${produtoId})">🗑️</button>
+          <button class="btn-red" onclick="removerProduto(${produtoId})">🗑️</button>
         </h3>
-
-        <div class="topo-produto">
-          <input type="text" placeholder="Nome do produto" id="prod_${produtoId}" value="${escapeHtml(dados?.nome || "")}">
-          <input type="text" placeholder="KG" id="kg_${produtoId}" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
+        <div class="produto-topo">
+          <input type="text" id="prod_${produtoId}" placeholder="Nome do produto" value="${escapeHtml(dados?.nome || "")}">
+          <input type="text" id="kg_${produtoId}" placeholder="KG/QTD" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
         </div>
-
         <div class="table-wrap">
           <table>
             <tr>
@@ -990,17 +765,14 @@
               <th class="col-nota">Nota Recebida</th>
               <th class="col-ok">OK</th>
             </tr>
-            ${htmlFornecedores}
+            ${linhas}
           </table>
         </div>
       `;
 
       document.getElementById("containerProdutos").appendChild(card);
 
-      for(let f=1; f<=FORNECEDORES; f++){
-        calcular(produtoId, f, false);
-      }
-
+      for(let f=1; f<=FORNECEDORES; f++) calcular(produtoId, f, false);
       ativarEventosInputs(card);
       atualizarListaFornecedoresLote();
       atualizarDashboard();
@@ -1008,13 +780,11 @@
 
     function removerProduto(produtoId){
       if(usuarioSessao?.perfil !== "admin" && cotacaoAtual?.status_aprovacao === "APROVADA"){
-        alert("Cotação aprovada não pode ser alterada pelo usuário.");
+        alert("Cotação aprovada não pode ser alterada.");
         return;
       }
-
       if(!confirm("Deseja remover este produto?")) return;
-      const card = document.getElementById(`card_${produtoId}`);
-      if(card) card.remove();
+      document.getElementById(`card_${produtoId}`)?.remove();
       atualizarListaFornecedoresLote();
       atualizarDashboard();
       salvarAutomatico();
@@ -1022,14 +792,12 @@
 
     function montarDadosTela(){
       const produtos = [];
-
       document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
         const produtoId = parseInt(card.id.replace("card_",""), 10);
-        const nome = document.getElementById(`prod_${produtoId}`)?.value || "";
-        const kg = document.getElementById(`kg_${produtoId}`)?.value || "";
+        const nome = document.getElementById(`prod_${produtoId}`).value || "";
+        const kg = document.getElementById(`kg_${produtoId}`).value || "";
 
-        let fornecedores = [];
-
+        const fornecedores = [];
         for(let f=1; f<=FORNECEDORES; f++){
           fornecedores.push({
             nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
@@ -1044,6 +812,7 @@
       });
 
       return {
+        tipoCotacao: tipoCotacaoAtual,
         dataReferencia: document.getElementById("dataReferencia").value || "",
         compradorNome: document.getElementById("compradorNome").value || "",
         compradorWhatsapp: document.getElementById("compradorWhatsapp").value || "",
@@ -1056,10 +825,9 @@
 
     async function salvarNaNuvem(){
       const data = document.getElementById("dataReferencia").value;
-      if (!data) return false;
+      if(!data) return false;
 
       const payload = montarDadosTela();
-
       const compradorUsuario = usuarioSessao.perfil === "admin"
         ? (document.getElementById("filtroComprador").value || usuarioSessao.usuario)
         : usuarioSessao.usuario;
@@ -1069,6 +837,7 @@
         : usuarioSessao.nome;
 
       const registro = {
+        tipo_cotacao: tipoCotacaoAtual,
         data_referencia: data,
         comprador_usuario: compradorUsuario,
         comprador_nome: compradorNome,
@@ -1083,13 +852,12 @@
 
       const { data: upsertData, error } = await client
         .from("cotacoes_bsm")
-        .upsert(registro, { onConflict: "data_referencia,comprador_usuario" })
+        .upsert(registro, { onConflict: "tipo_cotacao,data_referencia,comprador_usuario" })
         .select()
         .maybeSingle();
 
-      if (error) {
-        console.error(error);
-        alert("Erro ao salvar na nuvem: " + error.message);
+      if(error){
+        alert("Erro ao salvar: " + error.message);
         return false;
       }
 
@@ -1101,31 +869,7 @@
       let query = client
         .from("cotacoes_bsm")
         .select("*")
-        .eq("data_referencia", data);
-
-      if(usuarioSessao.perfil === "admin"){
-        if(compradorUsuario){
-          query = query.eq("comprador_usuario", compradorUsuario);
-        }
-      } else {
-        query = query.eq("comprador_usuario", usuarioSessao.usuario);
-      }
-
-      const { data: registros, error } = await query.order("created_at", { ascending: false });
-
-      if (error) {
-        console.error(error);
-        return null;
-      }
-
-      if(!registros || !registros.length) return null;
-      return registros[0];
-    }
-
-    async function excluirDaNuvemPorData(data, compradorUsuario){
-      let query = client
-        .from("cotacoes_bsm")
-        .delete()
+        .eq("tipo_cotacao", tipoCotacaoAtual)
         .eq("data_referencia", data);
 
       if(usuarioSessao.perfil === "admin"){
@@ -1134,20 +878,16 @@
         query = query.eq("comprador_usuario", usuarioSessao.usuario);
       }
 
-      const { error } = await query;
-
-      if (error) {
-        console.error(error);
-        alert("Erro ao excluir: " + error.message);
-        return false;
-      }
-      return true;
+      const { data: registros, error } = await query.order("created_at", { ascending: false });
+      if(error) return null;
+      return registros?.[0] || null;
     }
 
     async function listarCotacoesSalvas(){
       let query = client
         .from("cotacoes_bsm")
         .select("*")
+        .eq("tipo_cotacao", tipoCotacaoAtual)
         .order("data_referencia", { ascending: false });
 
       if(usuarioSessao.perfil !== "admin"){
@@ -1155,21 +895,14 @@
       }
 
       const { data, error } = await query;
-
-      if(error){
-        console.error(error);
-        return [];
-      }
+      if(error) return [];
       return data || [];
     }
 
     async function salvarAutomatico(manual = false){
       const ok = await salvarNaNuvem();
-      if (ok) {
+      if(ok){
         await atualizarListaCotacoesSalvas();
-        if (cotacaoAtual?.id) {
-          await carregarXmlsDaCotacao();
-        }
         mostrarStatusSalvo(manual ? "Salvo com sucesso" : "Salvo automático");
       }
     }
@@ -1181,8 +914,6 @@
 
     function limparTela(){
       document.getElementById("containerProdutos").innerHTML = "";
-      document.getElementById("listaXmls").innerHTML = "";
-      document.getElementById("msgXml").innerText = "";
       proximoProdutoId = 1;
       atualizarDashboard();
     }
@@ -1209,26 +940,23 @@
         }
         adicionarProduto();
         atualizarDashboard();
-        mostrarStatusSalvo("Nova cotação carregada");
         return;
       }
 
       cotacaoAtual = registro;
       const dados = registro.dados || {};
 
-      document.getElementById("compradorNome").value = registro.comprador_nome || usuarioSessao.nome || "";
+      document.getElementById("compradorNome").value = registro.comprador_nome || "";
       document.getElementById("responsavel").value = registro.responsavel || "";
       document.getElementById("observacao").value = registro.observacao || "";
-      document.getElementById("compradorWhatsapp").value =
-        registro.comprador_whatsapp || dados.compradorWhatsapp || "";
+      document.getElementById("compradorWhatsapp").value = registro.comprador_whatsapp || "";
 
-      if(dados.produtos && dados.produtos.length){
-        dados.produtos.forEach(prod => adicionarProduto(prod));
+      if(dados.produtos?.length){
+        dados.produtos.forEach(p => adicionarProduto(p));
       } else {
         adicionarProduto();
       }
 
-      atualizarListaFornecedoresLote();
       if(dados.fornecedorLote){
         document.getElementById("fornecedorLote").value = dados.fornecedorLote;
       }
@@ -1237,9 +965,8 @@
         document.querySelectorAll("#containerProdutos .produto-card").forEach(c => c.classList.add("aprovada-geral"));
       }
 
-      await carregarXmlsDaCotacao();
+      atualizarListaFornecedoresLote();
       atualizarDashboard();
-      mostrarStatusSalvo("Cotação carregada");
     }
 
     async function limparDadosDaData(){
@@ -1253,30 +980,66 @@
         ? document.getElementById("filtroComprador").value
         : usuarioSessao.usuario;
 
-      if(confirm(`Deseja apagar a cotação da data ${formatarDataBR(data)}?`)){
-        const ok = await excluirDaNuvemPorData(data, compradorUsuario);
-        if (!ok) return;
-        await carregarDadosDaData();
-        await atualizarListaCotacoesSalvas();
-      }
-    }
+      if(!confirm(`Deseja apagar a cotação de ${nomeTipoCotacao(tipoCotacaoAtual)} da data ${formatarDataBR(data)}?`)) return;
 
-    async function excluirCotacao(data, compradorUsuario){
-      if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
-      const ok = await excluirDaNuvemPorData(data, compradorUsuario);
-      if (!ok) return;
+      let query = client
+        .from("cotacoes_bsm")
+        .delete()
+        .eq("tipo_cotacao", tipoCotacaoAtual)
+        .eq("data_referencia", data);
+
+      if(usuarioSessao.perfil === "admin"){
+        if(compradorUsuario) query = query.eq("comprador_usuario", compradorUsuario);
+      } else {
+        query = query.eq("comprador_usuario", usuarioSessao.usuario);
+      }
+
+      const { error } = await query;
+      if(error){
+        alert("Erro ao excluir: " + error.message);
+        return;
+      }
+
       await carregarDadosDaData();
       await atualizarListaCotacoesSalvas();
     }
 
-    async function abrirCotacao(data, compradorUsuario, compradorNome){
+    async function abrirCotacao(data, compradorUsuario, compradorNome, tipoCotacao){
+      tipoCotacaoAtual = tipoCotacao || "MP";
+      atualizarVisualAbas();
       document.getElementById("dataReferencia").value = data;
+
       if(usuarioSessao.perfil === "admin"){
         document.getElementById("filtroComprador").value = compradorUsuario;
         document.getElementById("compradorNome").value = compradorNome || "";
       }
+
       await carregarDadosDaData();
-      atualizarDashboard();
+    }
+
+    async function excluirCotacao(data, compradorUsuario, tipoCotacao){
+      if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
+
+      let query = client
+        .from("cotacoes_bsm")
+        .delete()
+        .eq("tipo_cotacao", tipoCotacao)
+        .eq("data_referencia", data);
+
+      if(usuarioSessao.perfil === "admin"){
+        query = query.eq("comprador_usuario", compradorUsuario);
+      } else {
+        query = query.eq("comprador_usuario", usuarioSessao.usuario);
+      }
+
+      const { error } = await query;
+      if(error){
+        alert("Erro ao excluir: " + error.message);
+        return;
+      }
+
+      await atualizarListaCotacoesSalvas();
+      await carregarDadosDaData();
     }
 
     async function atualizarListaCotacoesSalvas(){
@@ -1286,37 +1049,38 @@
       const registros = await listarCotacoesSalvas();
 
       if(!registros.length){
-        alvo.innerHTML = `<div class="salvo">Nenhuma cotação salva ainda.</div>`;
+        alvo.innerHTML = `<div class="salvo">Nenhuma cotação salva em ${nomeTipoCotacao(tipoCotacaoAtual)} ainda.</div>`;
         return;
       }
 
-      registros.forEach(registro => {
-        const dados = registro.dados || {};
+      registros.forEach(reg => {
+        const dados = reg.dados || {};
         const produtos = dados.produtos || [];
-
         let total = 0;
+
         produtos.forEach(prod => {
-          (prod.fornecedores || []).forEach(forn => {
-            if(forn.aprovado){
-              const kg = parseNumeroBR(prod.kg || 0);
-              const vu = parseNumeroBR(forn.valor || 0);
-              total += (kg * vu);
+          (prod.fornecedores || []).forEach(f => {
+            if(f.aprovado){
+              total += parseNumeroBR(prod.kg || 0) * parseNumeroBR(f.valor || 0);
             }
           });
         });
 
-        const statusClass = registro.status_aprovacao === "APROVADA" ? "chip-aprovada" : "chip-pendente";
+        const statusClass = reg.status_aprovacao === "APROVADA" ? "chip-aprovada" : "chip-pendente";
 
         const div = document.createElement("div");
         div.className = "salvo";
         div.innerHTML = `
-          <strong>${formatarDataBR(registro.data_referencia)}</strong>
-          <div>Comprador: ${escapeHtml(registro.comprador_nome || "-")}</div>
+          <strong>${formatarDataBR(reg.data_referencia)}</strong>
+          <div>Tipo: ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}</div>
+          <div>Comprador: ${escapeHtml(reg.comprador_nome || "-")}</div>
           <div>Produtos: ${produtos.length}</div>
           <div>Total aprovado: R$ ${formatarMoedaBR(total)}</div>
-          <div class="chip ${statusClass}" style="margin-bottom:8px;">${registro.status_aprovacao || "PENDENTE"}</div>
-          <button class="btn-blue" onclick="abrirCotacao('${registro.data_referencia}','${registro.comprador_usuario}','${escapeHtml(registro.comprador_nome || "")}')">Abrir</button>
-          ${usuarioSessao.perfil === "admin" ? `<button class="btn-red" onclick="excluirCotacao('${registro.data_referencia}','${registro.comprador_usuario}')">Excluir</button>` : ""}
+          <div class="chip ${statusClass}">${reg.status_aprovacao || "PENDENTE"}</div>
+          <div style="margin-top:8px;">
+            <button class="btn-blue" onclick="abrirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${escapeHtml(reg.comprador_nome || "")}','${reg.tipo_cotacao || "MP"}')">Abrir</button>
+            ${usuarioSessao.perfil === "admin" ? `<button class="btn-red" onclick="excluirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${reg.tipo_cotacao || "MP"}')">Excluir</button>` : ""}
+          </div>
         `;
         alvo.appendChild(div);
       });
@@ -1341,6 +1105,7 @@
       const { data: registro, error } = await client
         .from("cotacoes_bsm")
         .upsert({
+          tipo_cotacao: tipoCotacaoAtual,
           data_referencia: data,
           comprador_usuario: compradorUsuario,
           comprador_nome: document.getElementById("compradorNome").value || "",
@@ -1351,7 +1116,7 @@
           aprovado_por: usuarioSessao.nome,
           aprovado_em: new Date().toISOString(),
           dados: payload
-        }, { onConflict: "data_referencia,comprador_usuario" })
+        }, { onConflict: "tipo_cotacao,data_referencia,comprador_usuario" })
         .select()
         .maybeSingle();
 
@@ -1361,69 +1126,22 @@
       }
 
       cotacaoAtual = registro;
-
-      document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
-        r.classList.add("aprovado");
-      });
-
       document.querySelectorAll("#containerProdutos .produto-card").forEach(c => c.classList.add("aprovada-geral"));
-
       atualizarDashboard();
       await atualizarListaCotacoesSalvas();
       mostrarStatusSalvo("Cotação aprovada");
-      alert("Cotação aprovada com sucesso.");
-    }
-
-    async function carregarCompradoresParaAdmin(){
-      const { data, error } = await client
-        .from("usuarios_cotacao")
-        .select("*")
-        .eq("perfil", "usuario")
-        .eq("ativo", true)
-        .order("nome", { ascending: true });
-
-      if(error) return;
-
-      const select = document.getElementById("filtroComprador");
-      select.innerHTML = `<option value="">Selecione</option>`;
-
-      (data || []).forEach(u => {
-        const op = document.createElement("option");
-        op.value = u.usuario;
-        op.textContent = u.nome;
-        select.appendChild(op);
-      });
-
-      if(data && data.length){
-        select.value = data[0].usuario;
-        document.getElementById("compradorNome").value = data[0].nome;
-      }
-    }
-
-    async function carregarCotacaoDoCompradorAdmin(){
-      const usuario = document.getElementById("filtroComprador").value;
-      if(!usuario) return;
-
-      const { data } = await client
-        .from("usuarios_cotacao")
-        .select("*")
-        .eq("usuario", usuario)
-        .maybeSingle();
-
-      document.getElementById("compradorNome").value = data?.nome || "";
-      await carregarDadosDaData();
     }
 
     async function abrirRelatorioAprovados(){
       const painel = document.getElementById("painelRelatorio");
       const alvo = document.getElementById("conteudoRelatorioAprovados");
-
       painel.classList.remove("hidden");
-      alvo.innerHTML = "Carregando relatório...";
+      alvo.innerHTML = "Carregando...";
 
       let query = client
         .from("cotacoes_bsm")
         .select("*")
+        .eq("tipo_cotacao", tipoCotacaoAtual)
         .eq("status_aprovacao", "APROVADA")
         .order("data_referencia", { ascending: false });
 
@@ -1432,19 +1150,17 @@
       }
 
       const { data, error } = await query;
-
       if(error){
-        alvo.innerHTML = `<div style="color:#ffb4b4;font-weight:bold;">Erro ao carregar relatório: ${error.message}</div>`;
+        alvo.innerHTML = `<div class="msg" style="color:#ffb4b4;">Erro: ${error.message}</div>`;
         return;
       }
 
-      if(!data || !data.length){
-        alvo.innerHTML = `<div>Nenhuma cotação aprovada encontrada.</div>`;
+      if(!data?.length){
+        alvo.innerHTML = `<div>Nenhuma cotação aprovada em ${nomeTipoCotacao(tipoCotacaoAtual)}.</div>`;
         return;
       }
 
       let html = "";
-
       data.forEach(reg => {
         const produtos = reg.dados?.produtos || [];
         let totalGeral = 0;
@@ -1474,11 +1190,12 @@
         });
 
         if(!linhas){
-          linhas = `<tr><td colspan="7">Nenhum fornecedor aprovado nesta cotação.</td></tr>`;
+          linhas = `<tr><td colspan="7">Nenhum fornecedor aprovado.</td></tr>`;
         }
 
         html += `
           <div class="card" style="margin-bottom:12px;">
+            <strong>Tipo:</strong> ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}<br>
             <strong>Data:</strong> ${formatarDataBR(reg.data_referencia)}<br>
             <strong>Comprador:</strong> ${escapeHtml(reg.comprador_nome || "-")}<br>
             <strong>Aprovado por:</strong> ${escapeHtml(reg.aprovado_por || "-")}<br>
@@ -1488,8 +1205,8 @@
               <table>
                 <tr>
                   <th>Produto</th>
-                  <th>KG</th>
-                  <th>Fornecedor Aprovado</th>
+                  <th>KG/QTD</th>
+                  <th>Fornecedor</th>
                   <th>Classificação</th>
                   <th>Nota Recebida</th>
                   <th>Valor Unitário</th>
@@ -1497,14 +1214,10 @@
                 </tr>
                 ${linhas}
                 <tr>
-                  <td colspan="6" style="text-align:right;"><strong>Total Geral Aprovado</strong></td>
+                  <td colspan="6" style="text-align:right;"><strong>Total Geral</strong></td>
                   <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
                 </tr>
               </table>
-            </div>
-
-            <div style="margin-top:10px;">
-              <button class="btn-green" onclick="enviarRelatorioAprovadoWhatsApp('${reg.id}')">📲 Enviar para WhatsApp</button>
             </div>
           </div>
         `;
@@ -1513,236 +1226,50 @@
       alvo.innerHTML = html;
     }
 
-    async function enviarRelatorioAprovadoWhatsApp(cotacaoId){
-      const { data: reg, error } = await client
-        .from("cotacoes_bsm")
+    async function carregarCompradoresParaAdmin(){
+      const { data, error } = await client
+        .from("usuarios_cotacao")
         .select("*")
-        .eq("id", cotacaoId)
+        .eq("perfil", "usuario")
+        .eq("ativo", true)
+        .order("nome", { ascending: true });
+
+      if(error) return;
+
+      const select = document.getElementById("filtroComprador");
+      select.innerHTML = `<option value="">Selecione</option>`;
+
+      (data || []).forEach(u => {
+        const op = document.createElement("option");
+        op.value = u.usuario;
+        op.textContent = u.nome;
+        select.appendChild(op);
+      });
+
+      if(data?.length){
+        select.value = data[0].usuario;
+        document.getElementById("compradorNome").value = data[0].nome;
+      }
+    }
+
+    async function carregarCotacaoDoCompradorAdmin(){
+      const usuario = document.getElementById("filtroComprador").value;
+      if(!usuario) return;
+
+      const { data } = await client
+        .from("usuarios_cotacao")
+        .select("*")
+        .eq("usuario", usuario)
         .maybeSingle();
 
-      if(error || !reg){
-        alert("Não foi possível carregar a cotação para envio.");
-        return;
-      }
-
-      const produtos = reg.dados?.produtos || [];
-
-      let texto = `*RELATÓRIO DE APROVADOS - BSM*%0A`;
-      texto += `Data: ${formatarDataBR(reg.data_referencia)}%0A`;
-      texto += `Comprador: ${encodeURIComponent(reg.comprador_nome || "-")}%0A`;
-      texto += `Aprovado por: ${encodeURIComponent(reg.aprovado_por || "-")}%0A`;
-      texto += `Aprovado em: ${encodeURIComponent(formatarDataHoraBR(reg.aprovado_em))}%0A%0A`;
-
-      let totalGeral = 0;
-
-      produtos.forEach(prod => {
-        (prod.fornecedores || []).forEach(f => {
-          if(f.aprovado){
-            const kg = parseNumeroBR(prod.kg || 0);
-            const vu = parseNumeroBR(f.valor || 0);
-            const total = kg * vu;
-            totalGeral += total;
-
-            texto += `Produto: ${encodeURIComponent(prod.nome || "")}%0A`;
-            texto += `Fornecedor: ${encodeURIComponent(f.nome || "")}%0A`;
-            texto += `Classificação: ${encodeURIComponent(f.classificacao || "")}%0A`;
-            texto += `Nota Recebida: ${encodeURIComponent(f.notaRecebida || "-")}%0A`;
-            texto += `KG: ${encodeURIComponent(formatarMoedaBR(kg))}%0A`;
-            texto += `Valor Unitário: R$ ${encodeURIComponent(formatarMoedaBR(vu))}%0A`;
-            texto += `Total: R$ ${encodeURIComponent(formatarMoedaBR(total))}%0A%0A`;
-          }
-        });
-      });
-
-      texto += `*TOTAL GERAL: R$ ${encodeURIComponent(formatarMoedaBR(totalGeral))}*`;
-
-      window.open("https://web.whatsapp.com/send?text=" + texto, "_blank");
-    }
-
-    async function enviarRelatorioAtualParaComprador(){
-      if(!cotacaoAtual){
-        alert("Nenhuma cotação carregada.");
-        return;
-      }
-
-      const numero = limparNumeroWhatsapp(
-        document.getElementById("compradorWhatsapp").value || cotacaoAtual.comprador_whatsapp || ""
-      );
-
-      if(!numero){
-        alert("Informe o WhatsApp do comprador.");
-        return;
-      }
-
-      const produtos = cotacaoAtual.dados?.produtos || [];
-      let texto = `*RELATÓRIO DE APROVADOS - BSM*%0A`;
-      texto += `Data: ${formatarDataBR(cotacaoAtual.data_referencia)}%0A`;
-      texto += `Comprador: ${encodeURIComponent(cotacaoAtual.comprador_nome || "-")}%0A`;
-      texto += `Aprovado por: ${encodeURIComponent(cotacaoAtual.aprovado_por || "-")}%0A`;
-      texto += `Aprovado em: ${encodeURIComponent(formatarDataHoraBR(cotacaoAtual.aprovado_em))}%0A%0A`;
-
-      let totalGeral = 0;
-
-      produtos.forEach(prod => {
-        (prod.fornecedores || []).forEach(f => {
-          if(f.aprovado){
-            const kg = parseNumeroBR(prod.kg || 0);
-            const vu = parseNumeroBR(f.valor || 0);
-            const total = kg * vu;
-            totalGeral += total;
-
-            texto += `Produto: ${encodeURIComponent(prod.nome || "")}%0A`;
-            texto += `Fornecedor: ${encodeURIComponent(f.nome || "")}%0A`;
-            texto += `Classificação: ${encodeURIComponent(f.classificacao || "")}%0A`;
-            texto += `Nota Recebida: ${encodeURIComponent(f.notaRecebida || "-")}%0A`;
-            texto += `KG: ${encodeURIComponent(formatarMoedaBR(kg))}%0A`;
-            texto += `Valor Unitário: R$ ${encodeURIComponent(formatarMoedaBR(vu))}%0A`;
-            texto += `Total: R$ ${encodeURIComponent(formatarMoedaBR(total))}%0A%0A`;
-          }
-        });
-      });
-
-      texto += `*TOTAL GERAL: R$ ${encodeURIComponent(formatarMoedaBR(totalGeral))}*`;
-
-      window.open(`https://web.whatsapp.com/send?phone=${numero}&text=${texto}`, "_blank");
-    }
-
-    async function uploadXmlNota(){
-      try{
-        const fileInput = document.getElementById("xmlFileInput");
-        const file = fileInput.files[0];
-
-        if(!file){
-          mostrarMsgXml("Selecione um arquivo XML.", "#ffd6a5");
-          return;
-        }
-
-        const nome = file.name.toLowerCase();
-        if(!nome.endsWith(".xml")){
-          mostrarMsgXml("Escolha um arquivo .xml", "#ffd6a5");
-          return;
-        }
-
-        if(!cotacaoAtual?.id){
-          const ok = await salvarNaNuvem();
-          if(!ok || !cotacaoAtual?.id){
-            mostrarMsgXml("Salve a cotação antes de anexar o XML.", "#ffb4b4");
-            return;
-          }
-        }
-
-        const conteudoXml = await file.text();
-
-        const { error } = await client
-          .from("cotacoes_xml")
-          .insert({
-            cotacao_id: cotacaoAtual.id,
-            nome_arquivo: file.name,
-            conteudo_xml: conteudoXml,
-            uploaded_by: usuarioSessao?.nome || ""
-          });
-
-        if(error){
-          mostrarMsgXml("Erro ao anexar XML: " + error.message, "#ffb4b4");
-          return;
-        }
-
-        fileInput.value = "";
-        mostrarMsgXml("XML anexado com sucesso.");
-        await carregarXmlsDaCotacao();
-      }catch(e){
-        mostrarMsgXml("Erro ao ler o XML.", "#ffb4b4");
-      }
-    }
-
-    async function carregarXmlsDaCotacao(){
-      const alvo = document.getElementById("listaXmls");
-      alvo.innerHTML = "";
-
-      if(!cotacaoAtual?.id){
-        alvo.innerHTML = `<div class="xml-item">Nenhum XML vinculado ainda.</div>`;
-        return;
-      }
-
-      const { data, error } = await client
-        .from("cotacoes_xml")
-        .select("*")
-        .eq("cotacao_id", cotacaoAtual.id)
-        .order("uploaded_at", { ascending: false });
-
-      if(error){
-        alvo.innerHTML = `<div class="xml-item">Erro ao carregar XMLs: ${error.message}</div>`;
-        return;
-      }
-
-      if(!data || !data.length){
-        alvo.innerHTML = `<div class="xml-item">Nenhum XML anexado ainda.</div>`;
-        return;
-      }
-
-      data.forEach(xml => {
-        const div = document.createElement("div");
-        div.className = "xml-item";
-        div.innerHTML = `
-          <strong>${escapeHtml(xml.nome_arquivo || "")}</strong>
-          <div>Enviado por: ${escapeHtml(xml.uploaded_by || "-")}</div>
-          <div>Data: ${formatarDataHoraBR(xml.uploaded_at)}</div>
-          <div style="margin-top:10px;">
-            <button class="btn-blue" onclick="baixarXml(${xml.id})">⬇️ Baixar</button>
-            <button class="btn-red" onclick="excluirXml(${xml.id})">🗑️ Excluir</button>
-          </div>
-        `;
-        alvo.appendChild(div);
-      });
-    }
-
-    async function baixarXml(xmlId){
-      const { data, error } = await client
-        .from("cotacoes_xml")
-        .select("*")
-        .eq("id", xmlId)
-        .maybeSingle();
-
-      if(error || !data){
-        alert("Não foi possível baixar o XML.");
-        return;
-      }
-
-      const blob = new Blob([data.conteudo_xml || ""], { type: "application/xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = data.nome_arquivo || "nota.xml";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    async function excluirXml(xmlId){
-      if(!confirm("Deseja excluir este XML?")) return;
-
-      const { error } = await client
-        .from("cotacoes_xml")
-        .delete()
-        .eq("id", xmlId);
-
-      if(error){
-        alert("Erro ao excluir XML: " + error.message);
-        return;
-      }
-
-      mostrarMsgXml("XML excluído com sucesso.");
-      await carregarXmlsDaCotacao();
+      document.getElementById("compradorNome").value = data?.nome || "";
+      await carregarDadosDaData();
     }
 
     function togglePainelUsuarios(){
       const painel = document.getElementById("painelUsuarios");
       painel.classList.toggle("hidden");
-      if(!painel.classList.contains("hidden")){
-        carregarUsuarios();
-      }
+      if(!painel.classList.contains("hidden")) carregarUsuarios();
     }
 
     function limparFormularioUsuario(){
@@ -1766,29 +1293,19 @@
 
       if(!usuario || !senha || !nome){
         document.getElementById("msgUsuarios").innerText = "Preencha usuário, senha e nome.";
-        document.getElementById("msgUsuarios").style.color = "#ffd6a5";
         return;
       }
 
       const { error } = await client
         .from("usuarios_cotacao")
-        .upsert({
-          usuario,
-          senha,
-          nome,
-          perfil,
-          ativo: true
-        }, { onConflict: "usuario" });
+        .upsert({ usuario, senha, nome, perfil, ativo: true }, { onConflict: "usuario" });
 
       if(error){
         document.getElementById("msgUsuarios").innerText = "Erro ao salvar usuário: " + error.message;
-        document.getElementById("msgUsuarios").style.color = "#ffb4b4";
         return;
       }
 
       document.getElementById("msgUsuarios").innerText = "Usuário salvo com sucesso.";
-      document.getElementById("msgUsuarios").style.color = "#b7f7c8";
-
       limparFormularioUsuario();
       await carregarUsuarios();
       await carregarCompradoresParaAdmin();
@@ -1810,13 +1327,12 @@
         return;
       }
 
-      if(!data || !data.length){
+      if(!data?.length){
         alvo.innerHTML = `<div class="salvo">Nenhum usuário cadastrado.</div>`;
         return;
       }
 
       alvo.innerHTML = "";
-
       data.forEach(u => {
         const div = document.createElement("div");
         div.className = "salvo";
@@ -1825,47 +1341,9 @@
           <div>Usuário: ${escapeHtml(u.usuario || "")}</div>
           <div>Perfil: ${escapeHtml(u.perfil || "")}</div>
           <div>Status: ${u.ativo === false ? "Inativo" : "Ativo"}</div>
-          <div style="margin-top:10px;">
-            <button class="btn-blue" onclick="editarUsuario('${escapeHtml(u.usuario)}', '${escapeHtml(u.nome)}', '${escapeHtml(u.senha)}', '${escapeHtml(u.perfil)}')">Editar</button>
-            <button class="btn-red" onclick="toggleUsuarioAtivo('${escapeHtml(u.usuario)}', ${u.ativo === false ? 'true' : 'false'})">
-              ${u.ativo === false ? 'Ativar' : 'Desativar'}
-            </button>
-          </div>
         `;
         alvo.appendChild(div);
       });
-    }
-
-    function editarUsuario(usuario, nome, senha, perfil){
-      document.getElementById("novoUsuario").value = usuario;
-      document.getElementById("novoNome").value = nome;
-      document.getElementById("novaSenha").value = senha;
-      document.getElementById("novoPerfil").value = perfil || "usuario";
-      document.getElementById("painelUsuarios").classList.remove("hidden");
-      window.scrollTo({
-        top: document.getElementById("painelUsuarios").offsetTop - 20,
-        behavior: "smooth"
-      });
-    }
-
-    async function toggleUsuarioAtivo(usuario, ativar){
-      if(usuarioSessao?.perfil !== "admin"){
-        alert("Somente o administrador pode alterar usuários.");
-        return;
-      }
-
-      const { error } = await client
-        .from("usuarios_cotacao")
-        .update({ ativo: ativar })
-        .eq("usuario", usuario);
-
-      if(error){
-        alert("Erro ao alterar usuário: " + error.message);
-        return;
-      }
-
-      await carregarUsuarios();
-      await carregarCompradoresParaAdmin();
     }
 
     function ativarEventosInputs(container){
@@ -1892,26 +1370,12 @@
 
     function ativarEventosGlobais(){
       document.getElementById("dataReferencia").addEventListener("change", async () => {
-        marcarNaoSalvo();
         await carregarDadosDaData();
       });
 
-      document.getElementById("responsavel").addEventListener("input", () => {
-        marcarNaoSalvo();
-        salvarAutomatico();
-      });
-
-      document.getElementById("observacao").addEventListener("input", () => {
-        marcarNaoSalvo();
-        salvarAutomatico();
-      });
-
-      document.getElementById("compradorWhatsapp").addEventListener("input", () => {
-        marcarNaoSalvo();
-        salvarAutomatico();
-      });
-
-      document.getElementById("fornecedorLote").addEventListener("change", marcarNaoSalvo);
+      document.getElementById("responsavel").addEventListener("input", salvarAutomatico);
+      document.getElementById("observacao").addEventListener("input", salvarAutomatico);
+      document.getElementById("compradorWhatsapp").addEventListener("input", salvarAutomatico);
     }
 
     document.getElementById("dataReferencia").value = dataAtualISO();
