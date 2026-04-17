@@ -36,6 +36,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
+      overflow-x: hidden;
     }
 
     body { min-height: 100vh; }
@@ -57,6 +58,7 @@
       margin: 0 auto;
       padding: 14px;
       padding-bottom: 36px;
+      overflow-x: hidden;
     }
 
     .hidden { display: none !important; }
@@ -101,11 +103,12 @@
       border: none;
       outline: none;
       border-radius: 14px;
-      padding: 14px 14px;
-      font-size: 16px;
+      padding: 12px 12px;
+      font-size: 15px;
       background: rgba(255,255,255,.98);
       color: #111827;
       margin-top: 4px;
+      min-width: 0;
     }
 
     input[readonly] { background: #e5eefc; }
@@ -172,8 +175,14 @@
 
     .grid-produtos {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 14px;
+      align-items: start;
+    }
+
+    .card {
+      min-width: 0;
+      overflow: hidden;
     }
 
     .card h3 {
@@ -188,7 +197,7 @@
 
     .topo-produto {
       display: grid;
-      grid-template-columns: 1fr 130px;
+      grid-template-columns: minmax(0, 1fr) 120px;
       gap: 10px;
       margin-bottom: 12px;
     }
@@ -196,23 +205,27 @@
     .table-wrap {
       width: 100%;
       overflow-x: auto;
+      overflow-y: hidden;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.08);
+      -webkit-overflow-scrolling: touch;
     }
 
     table {
       width: 100%;
-      min-width: 900px;
+      min-width: 0;
       border-collapse: collapse;
       background: rgba(255,255,255,0.03);
+      table-layout: fixed;
     }
 
     th, td {
-      padding: 10px 8px;
+      padding: 8px 6px;
       text-align: center;
-      font-size: 13px;
+      font-size: 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       vertical-align: middle;
+      word-break: break-word;
     }
 
     th {
@@ -220,6 +233,25 @@
       position: sticky;
       top: 0;
       z-index: 1;
+    }
+
+    /* larguras das colunas */
+    th.col-forn, td.col-forn { width: 28%; }
+    th.col-vu, td.col-vu { width: 12%; }
+    th.col-total, td.col-total { width: 14%; }
+    th.col-class, td.col-class { width: 16%; }
+    th.col-nota, td.col-nota { width: 16%; }
+    th.col-ok, td.col-ok { width: 8%; }
+
+    td.col-forn input,
+    td.col-vu input,
+    td.col-class select,
+    td.col-nota select {
+      width: 100%;
+      min-width: 0;
+      font-size: 12px;
+      padding: 10px 8px;
+      border-radius: 10px;
     }
 
     .aprovado td {
@@ -306,6 +338,16 @@
 
     .nao-imprimir { margin-top: 16px; }
 
+    @media (max-width: 1024px) {
+      .grid-produtos {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        min-width: 760px;
+      }
+    }
+
     @media (max-width: 768px) {
       .container { padding: 10px; }
       .topo { font-size: 18px; padding: 14px 10px; }
@@ -328,6 +370,10 @@
       .acoes-topo .status-save {
         flex: 1 1 calc(50% - 10px);
       }
+
+      table {
+        min-width: 740px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -335,6 +381,10 @@
       .acoes-topo button,
       .acoes-topo .status-save { flex: 1 1 100%; }
       .card h3 { font-size: 17px; }
+
+      table {
+        min-width: 700px;
+      }
     }
 
     @media print {
@@ -549,7 +599,7 @@
     <option value="MART MINAS DISTRIBUICAO LTDA">
     <option value="MINEIRAO ATACADISTA LTDA">
     <option value="PLENA ALIMENTOS LTDA">
-    <option value="QS DISTRIBUICAO E COMERCIO DE CARNES LTDA">
+    <option value="QS DISTRIBUIDAO E COMERCIO DE CARNES LTDA">
     <option value="SEARA COMERCIO DE ALIMENTOS LTDA">
     <option value="SUPERMERCADOS BH COMERCIO DE ALIMENTOS S/A">
     <option value="SUPREMO CARNES LTDA">
@@ -880,10 +930,10 @@
 
         htmlFornecedores += `
           <tr id="row_${produtoId}_${f}" class="${aprovado ? "aprovado" : ""}">
-            <td><input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}"></td>
-            <td><input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
-            <td id="total_${produtoId}_${f}" class="valor-total">0,00</td>
-            <td>
+            <td class="col-forn"><input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}"></td>
+            <td class="col-vu"><input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})"></td>
+            <td class="col-total" id="total_${produtoId}_${f}">0,00</td>
+            <td class="col-class">
               <select id="class_${produtoId}_${f}">
                 <option value="">Classificação</option>
                 <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
@@ -891,14 +941,14 @@
                 <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
               </select>
             </td>
-            <td>
+            <td class="col-nota">
               <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
                 <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
                 <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
                 <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
               </select>
             </td>
-            <td><input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})"></td>
+            <td class="col-ok"><input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})"></td>
           </tr>`;
       }
 
@@ -916,12 +966,12 @@
         <div class="table-wrap">
           <table>
             <tr>
-              <th>Fornecedor</th>
-              <th>V.Unit</th>
-              <th>Total</th>
-              <th>Classificação</th>
-              <th>Nota Recebida</th>
-              <th>OK</th>
+              <th class="col-forn">Fornecedor</th>
+              <th class="col-vu">V.Unit</th>
+              <th class="col-total">Total</th>
+              <th class="col-class">Classificação</th>
+              <th class="col-nota">Nota Recebida</th>
+              <th class="col-ok">OK</th>
             </tr>
             ${htmlFornecedores}
           </table>
