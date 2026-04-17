@@ -202,7 +202,7 @@
 
     table {
       width: 100%;
-      min-width: 700px;
+      min-width: 900px;
       border-collapse: collapse;
       background: rgba(255,255,255,0.03);
     }
@@ -816,6 +816,17 @@
       salvarAutomatico();
     }
 
+    function alterarNotaRecebida(produtoId, fornecedorId){
+      if(usuarioSessao?.perfil !== "admin"){
+        const sel = document.getElementById(`nota_${produtoId}_${fornecedorId}`);
+        if(sel) sel.value = "";
+        alert("Somente o administrador pode informar se recebeu a nota.");
+        return;
+      }
+
+      salvarAutomatico();
+    }
+
     function aprovarFornecedorEmLote(){
       if(usuarioSessao?.perfil !== "admin"){
         alert("Somente o administrador pode aprovar em lote.");
@@ -864,6 +875,7 @@
         const fornVal = dados?.fornecedores?.[f-1]?.nome || "";
         const vuVal = dados?.fornecedores?.[f-1]?.valor || "";
         const classVal = dados?.fornecedores?.[f-1]?.classificacao || "";
+        const notaVal = dados?.fornecedores?.[f-1]?.notaRecebida || "";
         const aprovado = dados?.fornecedores?.[f-1]?.aprovado || false;
 
         htmlFornecedores += `
@@ -877,6 +889,13 @@
                 <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
                 <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
                 <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
+              </select>
+            </td>
+            <td>
+              <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
+                <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
+                <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
+                <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
               </select>
             </td>
             <td><input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})"></td>
@@ -901,6 +920,7 @@
               <th>V.Unit</th>
               <th>Total</th>
               <th>Classificação</th>
+              <th>Nota Recebida</th>
               <th>OK</th>
             </tr>
             ${htmlFornecedores}
@@ -948,6 +968,7 @@
             nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
             valor: document.getElementById(`vu_${produtoId}_${f}`)?.value || "",
             classificacao: document.getElementById(`class_${produtoId}_${f}`)?.value || "",
+            notaRecebida: document.getElementById(`nota_${produtoId}_${f}`)?.value || "",
             aprovado: document.getElementById(`ok_${produtoId}_${f}`)?.checked || false
           });
         }
@@ -1376,6 +1397,7 @@
                   <td>${formatarMoedaBR(kg)}</td>
                   <td>${escapeHtml(f.nome || "")}</td>
                   <td>${escapeHtml(f.classificacao || "")}</td>
+                  <td>${escapeHtml(f.notaRecebida || "-")}</td>
                   <td>${formatarMoedaBR(vu)}</td>
                   <td>${formatarMoedaBR(total)}</td>
                 </tr>
@@ -1385,7 +1407,7 @@
         });
 
         if(!linhas){
-          linhas = `<tr><td colspan="6">Nenhum fornecedor aprovado nesta cotação.</td></tr>`;
+          linhas = `<tr><td colspan="7">Nenhum fornecedor aprovado nesta cotação.</td></tr>`;
         }
 
         html += `
@@ -1402,12 +1424,13 @@
                   <th>KG</th>
                   <th>Fornecedor Aprovado</th>
                   <th>Classificação</th>
+                  <th>Nota Recebida</th>
                   <th>Valor Unitário</th>
                   <th>Total</th>
                 </tr>
                 ${linhas}
                 <tr>
-                  <td colspan="5" style="text-align:right;"><strong>Total Geral Aprovado</strong></td>
+                  <td colspan="6" style="text-align:right;"><strong>Total Geral Aprovado</strong></td>
                   <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
                 </tr>
               </table>
@@ -1456,6 +1479,7 @@
             texto += `Produto: ${encodeURIComponent(prod.nome || "")}%0A`;
             texto += `Fornecedor: ${encodeURIComponent(f.nome || "")}%0A`;
             texto += `Classificação: ${encodeURIComponent(f.classificacao || "")}%0A`;
+            texto += `Nota Recebida: ${encodeURIComponent(f.notaRecebida || "-")}%0A`;
             texto += `KG: ${encodeURIComponent(formatarMoedaBR(kg))}%0A`;
             texto += `Valor Unitário: R$ ${encodeURIComponent(formatarMoedaBR(vu))}%0A`;
             texto += `Total: R$ ${encodeURIComponent(formatarMoedaBR(total))}%0A%0A`;
@@ -1503,6 +1527,7 @@
             texto += `Produto: ${encodeURIComponent(prod.nome || "")}%0A`;
             texto += `Fornecedor: ${encodeURIComponent(f.nome || "")}%0A`;
             texto += `Classificação: ${encodeURIComponent(f.classificacao || "")}%0A`;
+            texto += `Nota Recebida: ${encodeURIComponent(f.notaRecebida || "-")}%0A`;
             texto += `KG: ${encodeURIComponent(formatarMoedaBR(kg))}%0A`;
             texto += `Valor Unitário: R$ ${encodeURIComponent(formatarMoedaBR(vu))}%0A`;
             texto += `Total: R$ ${encodeURIComponent(formatarMoedaBR(total))}%0A%0A`;
