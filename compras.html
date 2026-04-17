@@ -173,16 +173,21 @@
       font-size: 24px;
     }
 
-    /* AQUI ESTÁ O AJUSTE PRINCIPAL */
+    /* 3 CARDS FIXOS POR LINHA */
     .grid-produtos {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(3, minmax(380px, 1fr));
+      gap: 18px;
       align-items: start;
+      justify-content: center;
     }
 
-    .card {
+    .card.produto-card {
       min-width: 0;
+      width: 100%;
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
 
@@ -210,6 +215,7 @@
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.08);
       -webkit-overflow-scrolling: touch;
+      flex: 1;
     }
 
     table {
@@ -338,17 +344,21 @@
 
     .nao-imprimir { margin-top: 16px; }
 
-    /* 2 COLUNAS EM TELA MÉDIA */
-    @media (max-width: 1400px) {
+    /* 2 COLUNAS */
+    @media (max-width: 1450px) {
       .grid-produtos {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(360px, 1fr));
       }
     }
 
-    /* 1 COLUNA NO CELULAR */
-    @media (max-width: 900px) {
+    /* 1 COLUNA */
+    @media (max-width: 950px) {
       .grid-produtos {
         grid-template-columns: 1fr;
+      }
+
+      .card.produto-card {
+        min-height: auto;
       }
 
       table {
@@ -763,7 +773,7 @@
 
     function atualizarDashboard(){
       let total = 0;
-      let qtdProdutos = document.querySelectorAll("#containerProdutos .card").length;
+      let qtdProdutos = document.querySelectorAll("#containerProdutos .produto-card").length;
       let qtdAprovados = 0;
 
       document.querySelectorAll("#containerProdutos tr.aprovado").forEach(r => {
@@ -892,13 +902,13 @@
 
       const fornecedor = document.getElementById("fornecedorLote").value;
       if(!fornecedor){
-        alert("Selecione um fornecedor.");
+        alert("Selecione o fornecedor.");
         return;
       }
 
       let aprovados = 0;
 
-      document.querySelectorAll("#containerProdutos .card").forEach(card => {
+      document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
         const produtoId = card.id.replace("card_","");
         for(let f=1; f<=FORNECEDORES; f++){
           const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
@@ -924,7 +934,7 @@
       if(produtoId >= proximoProdutoId) proximoProdutoId = produtoId + 1;
 
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "card produto-card";
       card.id = `card_${produtoId}`;
 
       let htmlFornecedores = "";
@@ -1013,7 +1023,7 @@
     function montarDadosTela(){
       const produtos = [];
 
-      document.querySelectorAll("#containerProdutos .card").forEach(card => {
+      document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
         const produtoId = parseInt(card.id.replace("card_",""), 10);
         const nome = document.getElementById(`prod_${produtoId}`)?.value || "";
         const kg = document.getElementById(`kg_${produtoId}`)?.value || "";
@@ -1224,7 +1234,7 @@
       }
 
       if(registro.status_aprovacao === "APROVADA"){
-        document.querySelectorAll("#containerProdutos .card").forEach(c => c.classList.add("aprovada-geral"));
+        document.querySelectorAll("#containerProdutos .produto-card").forEach(c => c.classList.add("aprovada-geral"));
       }
 
       await carregarXmlsDaCotacao();
@@ -1356,7 +1366,7 @@
         r.classList.add("aprovado");
       });
 
-      document.querySelectorAll("#containerProdutos .card").forEach(c => c.classList.add("aprovada-geral"));
+      document.querySelectorAll("#containerProdutos .produto-card").forEach(c => c.classList.add("aprovada-geral"));
 
       atualizarDashboard();
       await atualizarListaCotacoesSalvas();
