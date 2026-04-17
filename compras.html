@@ -54,7 +54,7 @@
     }
 
     .container {
-      max-width: 1600px;
+      max-width: 1700px;
       margin: 0 auto;
       padding: 14px;
       padding-bottom: 36px;
@@ -173,9 +173,10 @@
       font-size: 24px;
     }
 
+    /* AQUI ESTÁ O AJUSTE PRINCIPAL */
     .grid-produtos {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
       align-items: start;
     }
@@ -235,7 +236,6 @@
       z-index: 1;
     }
 
-    /* larguras das colunas */
     th.col-forn, td.col-forn { width: 28%; }
     th.col-vu, td.col-vu { width: 12%; }
     th.col-total, td.col-total { width: 14%; }
@@ -338,7 +338,15 @@
 
     .nao-imprimir { margin-top: 16px; }
 
-    @media (max-width: 1024px) {
+    /* 2 COLUNAS EM TELA MÉDIA */
+    @media (max-width: 1400px) {
+      .grid-produtos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    /* 1 COLUNA NO CELULAR */
+    @media (max-width: 900px) {
       .grid-produtos {
         grid-template-columns: 1fr;
       }
@@ -353,7 +361,6 @@
       .topo { font-size: 18px; padding: 14px 10px; }
       .topbar { grid-template-columns: 1fr; }
       .dashboard { grid-template-columns: repeat(2, 1fr); }
-      .grid-produtos { grid-template-columns: 1fr; }
       .topo-produto { grid-template-columns: 1fr; }
 
       .acoes-topo {
@@ -596,7 +603,7 @@
     <option value="FRIGORIFICO SABOR DE MINAS LTDA">
     <option value="GVA ALIMENTOS COMERCIO DE CARNES LTDA">
     <option value="IMPERIUM ALIMENTOS LTDA">
-    <option value="MART MINAS DISTRIBUICAO LTDA">
+    <option value="MART MINAS DISTRIBUIDORA LTDA">
     <option value="MINEIRAO ATACADISTA LTDA">
     <option value="PLENA ALIMENTOS LTDA">
     <option value="QS DISTRIBUIDAO E COMERCIO DE CARNES LTDA">
