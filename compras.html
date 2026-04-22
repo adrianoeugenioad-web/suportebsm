@@ -28,7 +28,7 @@
     }
 
     .container {
-      max-width: 1800px;
+      max-width: 1850px;
       margin: 0 auto;
       padding: 14px;
     }
@@ -58,7 +58,7 @@
       color: #dbeafe;
     }
 
-    input, select {
+    input, select, textarea {
       width: 100%;
       border: none;
       border-radius: 12px;
@@ -169,10 +169,6 @@
     .chip-aprovada { background: #dbeafe; color: #1e40af; }
     .chip-tipo { background: #bfdbfe; color: #1e3a8a; }
 
-    /* IMPORTANTE:
-       2 cards por linha no desktop normal
-       3 só em tela muito grande
-    */
     .grid-produtos {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -188,7 +184,7 @@
 
     .produto-topo {
       display: grid;
-      grid-template-columns: 1fr 120px;
+      grid-template-columns: 1fr 150px;
       gap: 10px;
       margin-bottom: 12px;
     }
@@ -204,13 +200,20 @@
 
     .linha-cabecalho {
       display: grid;
-      grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
       gap: 8px;
       padding: 0 4px 8px 4px;
       font-size: 12px;
       font-weight: 700;
       color: #ffffff;
       text-align: center;
+    }
+
+    .cab-mp {
+      grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
+    }
+
+    .cab-cd {
+      grid-template-columns: 1.6fr 1fr 1fr 1.5fr 1fr 1.1fr 1.1fr .7fr;
     }
 
     .fornecedores-wrap {
@@ -220,13 +223,20 @@
 
     .fornecedor-linha {
       display: grid;
-      grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
       gap: 8px;
       align-items: center;
       padding: 8px;
       border-radius: 12px;
       background: rgba(255,255,255,.04);
       border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .linha-mp {
+      grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
+    }
+
+    .linha-cd {
+      grid-template-columns: 1.6fr 1fr 1fr 1.5fr 1fr 1.1fr 1.1fr .7fr;
     }
 
     .fornecedor-linha input,
@@ -246,6 +256,8 @@
       color: #fff;
       font-size: 14px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .ok-col {
@@ -279,13 +291,45 @@
     .salvo strong { display: block; margin-bottom: 6px; }
     .msg { margin-top: 10px; font-weight: 700; }
 
+    .relatorio-box {
+      overflow: auto;
+    }
+
+    .relatorio-box table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+    }
+
+    .relatorio-box th,
+    .relatorio-box td {
+      border: 1px solid rgba(255,255,255,.08);
+      padding: 8px;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .relatorio-box th {
+      background: rgba(0,0,0,.22);
+    }
+
+    .link-mini {
+      display: inline-block;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #cfe3ff;
+      text-decoration: underline;
+    }
+
     @media (min-width: 1650px) {
       .grid-produtos {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1280px) {
       .grid-produtos {
         grid-template-columns: 1fr;
       }
@@ -295,14 +339,14 @@
       .acoes button, .acoes .status-save { flex: 1 1 calc(50% - 10px); }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 860px) {
       .produto-topo {
         grid-template-columns: 1fr;
       }
 
       .linha-cabecalho,
       .fornecedor-linha {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
       }
 
       .linha-cabecalho {
@@ -485,6 +529,10 @@
 
     function nomeTipoCotacao(tipo){
       return tipo === "CD" ? "COMPRAS DIVERSAS" : "MATÉRIA-PRIMA";
+    }
+
+    function isComprasDiversas(){
+      return tipoCotacaoAtual === "CD";
     }
 
     function parseNumeroBR(valor){
@@ -769,28 +817,51 @@
       alert(`Fornecedor aprovado em ${aprovados} item(ns).`);
     }
 
-    function adicionarProduto(dados = null){
-      const produtoId = dados?.produtoId || proximoProdutoId++;
-      if(produtoId >= proximoProdutoId) proximoProdutoId = produtoId + 1;
+    function renderLinhaCabecalho(){
+      if(isComprasDiversas()){
+        return `
+          <div class="linha-cabecalho cab-cd">
+            <div>Fornecedor</div>
+            <div>Estoque KG</div>
+            <div>V.Unit</div>
+            <div>Link da cotação</div>
+            <div>Total</div>
+            <div>Classificação</div>
+            <div>Nota Recebida</div>
+            <div>OK</div>
+          </div>
+        `;
+      }
 
-      const card = document.createElement("div");
-      card.className = "card produto-card";
-      card.id = `card_${produtoId}`;
+      return `
+        <div class="linha-cabecalho cab-mp">
+          <div>Fornecedor</div>
+          <div>Estoque KG</div>
+          <div>V.Unit</div>
+          <div>Total</div>
+          <div>Classificação</div>
+          <div>Nota Recebida</div>
+          <div>OK</div>
+        </div>
+      `;
+    }
 
-      let linhas = "";
-      for(let f=1; f<=FORNECEDORES; f++){
-        const fornVal = dados?.fornecedores?.[f-1]?.nome || "";
-        const estoqueVal = dados?.fornecedores?.[f-1]?.estoque || "";
-        const vuVal = dados?.fornecedores?.[f-1]?.valor || "";
-        const classVal = dados?.fornecedores?.[f-1]?.classificacao || "";
-        const notaVal = dados?.fornecedores?.[f-1]?.notaRecebida || "";
-        const aprovado = dados?.fornecedores?.[f-1]?.aprovado || false;
+    function renderLinhaFornecedor(produtoId, f, dadosFornecedor = {}){
+      const fornVal = dadosFornecedor.nome || "";
+      const estoqueVal = dadosFornecedor.estoque || "";
+      const vuVal = dadosFornecedor.valor || "";
+      const linkVal = dadosFornecedor.link || "";
+      const classVal = dadosFornecedor.classificacao || "";
+      const notaVal = dadosFornecedor.notaRecebida || "";
+      const aprovado = dadosFornecedor.aprovado || false;
 
-        linhas += `
-          <div id="box_${produtoId}_${f}" class="fornecedor-linha ${aprovado ? "fornecedor-aprovado" : ""}">
+      if(isComprasDiversas()){
+        return `
+          <div id="box_${produtoId}_${f}" class="fornecedor-linha linha-cd ${aprovado ? "fornecedor-aprovado" : ""}">
             <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
             <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque KG" oninput="calcular(${produtoId},${f})">
             <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+            <input type="text" id="link_${produtoId}_${f}" value="${escapeHtml(linkVal)}" placeholder="https://...">
             <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
             <select id="class_${produtoId}_${f}">
               <option value="">Classificação</option>
@@ -810,6 +881,43 @@
         `;
       }
 
+      return `
+        <div id="box_${produtoId}_${f}" class="fornecedor-linha linha-mp ${aprovado ? "fornecedor-aprovado" : ""}">
+          <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
+          <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque KG" oninput="calcular(${produtoId},${f})">
+          <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+          <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
+          <select id="class_${produtoId}_${f}">
+            <option value="">Classificação</option>
+            <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
+            <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
+            <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
+          </select>
+          <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
+            <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
+            <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
+            <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
+          </select>
+          <div class="ok-col">
+            <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
+          </div>
+        </div>
+      `;
+    }
+
+    function adicionarProduto(dados = null){
+      const produtoId = dados?.produtoId || proximoProdutoId++;
+      if(produtoId >= proximoProdutoId) proximoProdutoId = produtoId + 1;
+
+      const card = document.createElement("div");
+      card.className = "card produto-card";
+      card.id = `card_${produtoId}`;
+
+      let linhas = "";
+      for(let f=1; f<=FORNECEDORES; f++){
+        linhas += renderLinhaFornecedor(produtoId, f, dados?.fornecedores?.[f-1] || {});
+      }
+
       card.innerHTML = `
         <h3>
           <span>Produto</span>
@@ -821,15 +929,7 @@
           <input type="text" id="kg_${produtoId}" placeholder="KG/QTD solicitado" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
         </div>
 
-        <div class="linha-cabecalho">
-          <div>Fornecedor</div>
-          <div>Estoque KG</div>
-          <div>V.Unit</div>
-          <div>Total</div>
-          <div>Classificação</div>
-          <div>Nota Recebida</div>
-          <div>OK</div>
-        </div>
+        ${renderLinhaCabecalho()}
 
         <div class="fornecedores-wrap">
           ${linhas}
@@ -869,6 +969,7 @@
             nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
             estoque: document.getElementById(`estoque_${produtoId}_${f}`)?.value || "",
             valor: document.getElementById(`vu_${produtoId}_${f}`)?.value || "",
+            link: document.getElementById(`link_${produtoId}_${f}`)?.value || "",
             classificacao: document.getElementById(`class_${produtoId}_${f}`)?.value || "",
             notaRecebida: document.getElementById(`nota_${produtoId}_${f}`)?.value || "",
             aprovado: document.getElementById(`ok_${produtoId}_${f}`)?.checked || false
@@ -1236,24 +1337,41 @@
               const total = estoque * vu;
               totalGeral += total;
 
-              linhas += `
-                <tr>
-                  <td>${escapeHtml(prod.nome || "")}</td>
-                  <td>${escapeHtml(prod.kg || "")}</td>
-                  <td>${escapeHtml(f.nome || "")}</td>
-                  <td>${escapeHtml(f.estoque || "-")}</td>
-                  <td>${escapeHtml(f.classificacao || "")}</td>
-                  <td>${escapeHtml(f.notaRecebida || "-")}</td>
-                  <td>${formatarMoedaBR(vu)}</td>
-                  <td>${formatarMoedaBR(total)}</td>
-                </tr>
-              `;
+              if(reg.tipo_cotacao === "CD"){
+                linhas += `
+                  <tr>
+                    <td>${escapeHtml(prod.nome || "")}</td>
+                    <td>${escapeHtml(prod.kg || "")}</td>
+                    <td>${escapeHtml(f.nome || "")}</td>
+                    <td>${escapeHtml(f.estoque || "-")}</td>
+                    <td>${escapeHtml(f.link || "-")}</td>
+                    <td>${escapeHtml(f.classificacao || "")}</td>
+                    <td>${escapeHtml(f.notaRecebida || "-")}</td>
+                    <td>${formatarMoedaBR(vu)}</td>
+                    <td>${formatarMoedaBR(total)}</td>
+                  </tr>
+                `;
+              } else {
+                linhas += `
+                  <tr>
+                    <td>${escapeHtml(prod.nome || "")}</td>
+                    <td>${escapeHtml(prod.kg || "")}</td>
+                    <td>${escapeHtml(f.nome || "")}</td>
+                    <td>${escapeHtml(f.estoque || "-")}</td>
+                    <td>${escapeHtml(f.classificacao || "")}</td>
+                    <td>${escapeHtml(f.notaRecebida || "-")}</td>
+                    <td>${formatarMoedaBR(vu)}</td>
+                    <td>${formatarMoedaBR(total)}</td>
+                  </tr>
+                `;
+              }
             }
           });
         });
 
         if(!linhas){
-          linhas = `<tr><td colspan="8">Nenhum fornecedor aprovado.</td></tr>`;
+          const colspan = reg.tipo_cotacao === "CD" ? 9 : 8;
+          linhas = `<tr><td colspan="${colspan}">Nenhum fornecedor aprovado.</td></tr>`;
         }
 
         html += `
@@ -1264,13 +1382,14 @@
             <strong>Aprovado por:</strong> ${escapeHtml(reg.aprovado_por || "-")}<br>
             <strong>Data aprovação:</strong> ${formatarDataHoraBR(reg.aprovado_em)}<br><br>
 
-            <div class="box" style="padding:10px; overflow:auto;">
-              <table style="width:100%; min-width:820px; border-collapse:collapse;">
+            <div class="relatorio-box">
+              <table>
                 <tr>
                   <th>Produto</th>
                   <th>KG/QTD Solicitado</th>
                   <th>Fornecedor</th>
                   <th>Estoque KG</th>
+                  ${reg.tipo_cotacao === "CD" ? "<th>Link da Cotação</th>" : ""}
                   <th>Classificação</th>
                   <th>Nota Recebida</th>
                   <th>Valor Unitário</th>
@@ -1278,7 +1397,7 @@
                 </tr>
                 ${linhas}
                 <tr>
-                  <td colspan="7" style="text-align:right;"><strong>Total Geral</strong></td>
+                  <td colspan="${reg.tipo_cotacao === "CD" ? 8 : 7}" style="text-align:right;"><strong>Total Geral</strong></td>
                   <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
                 </tr>
               </table>
