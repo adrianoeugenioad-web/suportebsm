@@ -62,8 +62,8 @@
       width: 100%;
       border: none;
       border-radius: 12px;
-      padding: 11px 10px;
-      font-size: 14px;
+      padding: 10px 10px;
+      font-size: 13px;
       margin-top: 4px;
       background: #fff;
       color: #111827;
@@ -169,9 +169,13 @@
     .chip-aprovada { background: #dbeafe; color: #1e40af; }
     .chip-tipo { background: #bfdbfe; color: #1e3a8a; }
 
+    /* IMPORTANTE:
+       2 cards por linha no desktop normal
+       3 só em tela muito grande
+    */
     .grid-produtos {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
       margin-bottom: 16px;
       align-items: start;
@@ -198,59 +202,73 @@
       font-size: 18px;
     }
 
+    .linha-cabecalho {
+      display: grid;
+      grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
+      gap: 8px;
+      padding: 0 4px 8px 4px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+    }
+
     .fornecedores-wrap {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .fornecedor-box {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 14px;
-      padding: 10px;
-    }
-
-    .fornecedor-grid {
+    .fornecedor-linha {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 8px 10px;
+      grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.06);
     }
 
-    .fornecedor-grid .campo {
+    .fornecedor-linha input,
+    .fornecedor-linha select {
+      margin: 0;
+      padding: 9px 8px;
+      font-size: 12px;
       min-width: 0;
     }
 
-    .fornecedor-grid .campo label {
-      font-size: 11px;
-      margin-bottom: 2px;
-      color: #cfe3ff;
-    }
-
-    .fornecedor-grid .campo-total {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background: rgba(0,0,0,.12);
-      border-radius: 12px;
-      padding: 8px 10px;
-    }
-
-    .fornecedor-grid .campo-total .ttl-label {
-      font-size: 11px;
-      color: #cfe3ff;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .fornecedor-grid .campo-total .ttl-valor {
-      font-size: 18px;
+    .total-box {
+      background: rgba(0,0,0,.18);
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
       font-weight: 700;
       color: #fff;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .ok-col {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .ok-check {
+      width: 20px !important;
+      height: 20px;
+      margin: 0;
     }
 
     .fornecedor-aprovado {
       background: #08294d !important;
       border: 1px solid #2563eb !important;
+    }
+
+    .fornecedor-aprovado .total-box {
+      background: rgba(37,99,235,.25);
+      color: #fff;
+      font-weight: 700;
     }
 
     .fornecedor-menor {
@@ -261,39 +279,35 @@
     .salvo strong { display: block; margin-bottom: 6px; }
     .msg { margin-top: 10px; font-weight: 700; }
 
-    .ok-line {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 4px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #fff;
+    @media (min-width: 1650px) {
+      .grid-produtos {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
-    .ok-check {
-      width: 20px !important;
-      height: 20px;
-      margin: 0;
-    }
-
-    @media (max-width: 1450px) {
-      .grid-produtos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 1000px) {
-      .grid-produtos { grid-template-columns: 1fr; }
-      .produto-topo { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 700px) {
-      .fornecedor-grid {
+    @media (max-width: 1200px) {
+      .grid-produtos {
         grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 900px) {
       .acoes button, .acoes .status-save { flex: 1 1 calc(50% - 10px); }
+    }
+
+    @media (max-width: 760px) {
+      .produto-topo {
+        grid-template-columns: 1fr;
+      }
+
+      .linha-cabecalho,
+      .fornecedor-linha {
+        grid-template-columns: 1fr;
+      }
+
+      .linha-cabecalho {
+        display: none;
+      }
     }
 
     @media (max-width: 520px) {
@@ -615,7 +629,7 @@
       let qtdAprovados = 0;
 
       document.querySelectorAll(".fornecedor-aprovado").forEach(box => {
-        const totalEl = box.querySelector(".ttl-valor");
+        const totalEl = box.querySelector(".total-box");
         total += parseNumeroBR(totalEl?.innerText || 0);
         qtdAprovados++;
       });
@@ -763,7 +777,7 @@
       card.className = "card produto-card";
       card.id = `card_${produtoId}`;
 
-      let blocos = "";
+      let linhas = "";
       for(let f=1; f<=FORNECEDORES; f++){
         const fornVal = dados?.fornecedores?.[f-1]?.nome || "";
         const estoqueVal = dados?.fornecedores?.[f-1]?.estoque || "";
@@ -772,55 +786,25 @@
         const notaVal = dados?.fornecedores?.[f-1]?.notaRecebida || "";
         const aprovado = dados?.fornecedores?.[f-1]?.aprovado || false;
 
-        blocos += `
-          <div id="box_${produtoId}_${f}" class="fornecedor-box ${aprovado ? "fornecedor-aprovado" : ""}">
-            <div class="fornecedor-grid">
-              <div class="campo">
-                <label>Fornecedor</label>
-                <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}">
-              </div>
-
-              <div class="campo">
-                <label>Estoque KG</label>
-                <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" oninput="calcular(${produtoId},${f})">
-              </div>
-
-              <div class="campo">
-                <label>Valor Unitário</label>
-                <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" oninput="calcular(${produtoId},${f})">
-              </div>
-
-              <div class="campo campo-total">
-                <span class="ttl-label">Total Estoque × Valor</span>
-                <span class="ttl-valor" id="total_${produtoId}_${f}">0,00</span>
-              </div>
-
-              <div class="campo">
-                <label>Classificação</label>
-                <select id="class_${produtoId}_${f}">
-                  <option value="">Classificação</option>
-                  <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
-                  <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
-                  <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
-                </select>
-              </div>
-
-              <div class="campo">
-                <label>Nota Recebida</label>
-                <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
-                  <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
-                  <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
-                  <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
-                </select>
-              </div>
-
-              <div class="campo">
-                <label>Aprovar</label>
-                <div class="ok-line">
-                  <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
-                  <span>OK</span>
-                </div>
-              </div>
+        linhas += `
+          <div id="box_${produtoId}_${f}" class="fornecedor-linha ${aprovado ? "fornecedor-aprovado" : ""}">
+            <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
+            <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque KG" oninput="calcular(${produtoId},${f})">
+            <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+            <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
+            <select id="class_${produtoId}_${f}">
+              <option value="">Classificação</option>
+              <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
+              <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
+              <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
+            </select>
+            <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
+              <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
+              <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
+              <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
+            </select>
+            <div class="ok-col">
+              <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
             </div>
           </div>
         `;
@@ -831,12 +815,24 @@
           <span>Produto</span>
           <button class="btn-red" onclick="removerProduto(${produtoId})">🗑️</button>
         </h3>
+
         <div class="produto-topo">
           <input type="text" id="prod_${produtoId}" placeholder="Nome do produto" value="${escapeHtml(dados?.nome || "")}">
           <input type="text" id="kg_${produtoId}" placeholder="KG/QTD solicitado" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
         </div>
+
+        <div class="linha-cabecalho">
+          <div>Fornecedor</div>
+          <div>Estoque KG</div>
+          <div>V.Unit</div>
+          <div>Total</div>
+          <div>Classificação</div>
+          <div>Nota Recebida</div>
+          <div>OK</div>
+        </div>
+
         <div class="fornecedores-wrap">
-          ${blocos}
+          ${linhas}
         </div>
       `;
 
