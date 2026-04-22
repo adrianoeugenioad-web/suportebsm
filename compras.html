@@ -114,6 +114,14 @@
     .btn-yellow { background: #b45309; }
     .btn-gray { background: #374151; }
     .btn-black { background: #111827; }
+    .btn-link {
+      background: #1d4ed8;
+      color: #fff;
+      padding: 9px 10px;
+      font-size: 12px;
+      min-height: auto;
+      white-space: nowrap;
+    }
 
     .status-save {
       display: inline-flex;
@@ -213,7 +221,7 @@
     }
 
     .cab-cd {
-      grid-template-columns: 1.6fr 1fr 1fr 1.5fr 1fr 1.1fr 1.1fr .7fr;
+      grid-template-columns: 1.5fr .9fr .9fr 1.4fr .9fr 1fr .7fr;
     }
 
     .fornecedores-wrap {
@@ -236,7 +244,7 @@
     }
 
     .linha-cd {
-      grid-template-columns: 1.6fr 1fr 1fr 1.5fr 1fr 1.1fr 1.1fr .7fr;
+      grid-template-columns: 1.5fr .9fr .9fr 1.4fr .9fr 1fr .7fr;
     }
 
     .fornecedor-linha input,
@@ -244,6 +252,18 @@
       margin: 0;
       padding: 9px 8px;
       font-size: 12px;
+      min-width: 0;
+    }
+
+    .campo-link-wrap {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .campo-link-wrap input {
+      flex: 1;
       min-width: 0;
     }
 
@@ -313,14 +333,10 @@
       background: rgba(0,0,0,.22);
     }
 
-    .link-mini {
-      display: inline-block;
-      max-width: 220px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: #cfe3ff;
+    .link-relatorio {
+      color: #93c5fd;
       text-decoration: underline;
+      word-break: break-all;
     }
 
     @media (min-width: 1650px) {
@@ -351,6 +367,11 @@
 
       .linha-cabecalho {
         display: none;
+      }
+
+      .campo-link-wrap {
+        flex-direction: column;
+        align-items: stretch;
       }
     }
 
@@ -573,6 +594,22 @@
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;");
+    }
+
+    function garantirHttps(url){
+      const valor = String(url || "").trim();
+      if(!valor) return "";
+      if(/^https?:\/\//i.test(valor)) return valor;
+      return "https://" + valor;
+    }
+
+    function abrirLink(url){
+      const link = garantirHttps(url);
+      if(!link){
+        alert("Link não informado.");
+        return;
+      }
+      window.open(link, "_blank");
     }
 
     function mostrarMsgLogin(texto, cor = "red"){
@@ -826,7 +863,6 @@
             <div>V.Unit</div>
             <div>Link da cotação</div>
             <div>Total</div>
-            <div>Classificação</div>
             <div>Nota Recebida</div>
             <div>OK</div>
           </div>
@@ -861,14 +897,11 @@
             <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
             <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque KG" oninput="calcular(${produtoId},${f})">
             <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
-            <input type="text" id="link_${produtoId}_${f}" value="${escapeHtml(linkVal)}" placeholder="https://...">
+            <div class="campo-link-wrap">
+              <input type="text" id="link_${produtoId}_${f}" value="${escapeHtml(linkVal)}" placeholder="https://...">
+              <button type="button" class="btn-link" onclick="abrirLink(document.getElementById('link_${produtoId}_${f}').value)">Abrir</button>
+            </div>
             <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
-            <select id="class_${produtoId}_${f}">
-              <option value="">Classificação</option>
-              <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
-              <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
-              <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
-            </select>
             <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
               <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
               <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
@@ -1338,14 +1371,14 @@
               totalGeral += total;
 
               if(reg.tipo_cotacao === "CD"){
+                const link = garantirHttps(f.link || "");
                 linhas += `
                   <tr>
                     <td>${escapeHtml(prod.nome || "")}</td>
                     <td>${escapeHtml(prod.kg || "")}</td>
                     <td>${escapeHtml(f.nome || "")}</td>
                     <td>${escapeHtml(f.estoque || "-")}</td>
-                    <td>${escapeHtml(f.link || "-")}</td>
-                    <td>${escapeHtml(f.classificacao || "")}</td>
+                    <td>${link ? `<a class="link-relatorio" href="${escapeHtml(link)}" target="_blank">Abrir link</a>` : "-"}</td>
                     <td>${escapeHtml(f.notaRecebida || "-")}</td>
                     <td>${formatarMoedaBR(vu)}</td>
                     <td>${formatarMoedaBR(total)}</td>
@@ -1370,7 +1403,7 @@
         });
 
         if(!linhas){
-          const colspan = reg.tipo_cotacao === "CD" ? 9 : 8;
+          const colspan = reg.tipo_cotacao === "CD" ? 8 : 8;
           linhas = `<tr><td colspan="${colspan}">Nenhum fornecedor aprovado.</td></tr>`;
         }
 
@@ -1389,15 +1422,14 @@
                   <th>KG/QTD Solicitado</th>
                   <th>Fornecedor</th>
                   <th>Estoque KG</th>
-                  ${reg.tipo_cotacao === "CD" ? "<th>Link da Cotação</th>" : ""}
-                  <th>Classificação</th>
+                  ${reg.tipo_cotacao === "CD" ? "<th>Link da Cotação</th>" : "<th>Classificação</th>"}
                   <th>Nota Recebida</th>
                   <th>Valor Unitário</th>
                   <th>Total</th>
                 </tr>
                 ${linhas}
                 <tr>
-                  <td colspan="${reg.tipo_cotacao === "CD" ? 8 : 7}" style="text-align:right;"><strong>Total Geral</strong></td>
+                  <td colspan="7" style="text-align:right;"><strong>Total Geral</strong></td>
                   <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
                 </tr>
               </table>
