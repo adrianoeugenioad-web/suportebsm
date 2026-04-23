@@ -1,400 +1,183 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BSM Cotação</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSM Cotação</title>
 
-  <style>
-    * { box-sizing: border-box; }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0f2b4a;
-      color: #fff;
-      overflow-x: hidden;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    .topo {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: #0c223a;
-      padding: 14px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: 700;
-      box-shadow: 0 2px 10px rgba(0,0,0,.25);
-    }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0f2b4a;
+  color: #fff;
+  overflow-x: hidden;
+}
 
-    .container {
-      max-width: 1850px;
-      margin: 0 auto;
-      padding: 14px;
-    }
+.topo {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #0c223a;
+  padding: 14px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(0,0,0,.25);
+}
 
-    .hidden { display: none !important; }
+.container {
+  max-width: 1850px;
+  margin: 0 auto;
+  padding: 14px;
+}
 
-    .box, .card, .dash, .salvo {
-      background: linear-gradient(180deg, #173a63 0%, #123250 100%);
-      border-radius: 16px;
-      padding: 14px;
-      border: 1px solid rgba(255,255,255,.08);
-      box-shadow: 0 8px 24px rgba(0,0,0,.16);
-    }
+.hidden {
+  display: none !important;
+}
 
-    .login-wrap {
-      max-width: 420px;
-      margin: 30px auto;
-    }
+.box, .card, .dash, .salvo {
+  background: linear-gradient(180deg, #173a63 0%, #123250 100%);
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+}
 
-    .login-wrap h2 { margin-top: 0; }
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: white;
+}
 
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: #dbeafe;
-    }
+.btn-blue { background: #2563eb; }
+.btn-green { background: #15803d; }
+.btn-red { background: #b91c1c; }
+.btn-yellow { background: #b45309; }
+.btn-gray { background: #374151; }
+.btn-black { background: #111827; }
 
-    input, select {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 10px;
-      font-size: 13px;
-      margin-top: 4px;
-      background: #fff;
-      color: #111827;
-      min-width: 0;
-    }
+.tabs, .acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
 
-    input[readonly] { background: #e5eefc; }
+.tab-btn {
+  background: #102944;
+  color: white;
+}
 
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      color: white;
-    }
+.tab-btn.active {
+  background: #2563eb;
+}
 
-    button:disabled,
-    input:disabled,
-    select:disabled {
-      opacity: .65;
-      cursor: not-allowed;
-    }
+.topbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
 
-    .btn-blue { background: #2563eb; }
-    .btn-green { background: #15803d; }
-    .btn-red { background: #b91c1c; }
-    .btn-yellow { background: #b45309; }
-    .btn-gray { background: #374151; }
-    .btn-black { background: #111827; }
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
 
-    .btn-link {
-      background: #1d4ed8;
-      padding: 9px 10px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
+.dash {
+  text-align: center;
+}
 
-    .tabs, .acoes {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
+.dash strong {
+  font-size: 24px;
+}
 
-    .tab-btn {
-      background: #102944;
-      color: white;
-    }
+.grid-produtos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
 
-    .tab-btn.active { background: #2563eb; }
+/* 🔥 AJUSTE PRINCIPAL PRA NÃO CORTAR VALOR */
+.total-box {
+  background: rgba(0,0,0,.18);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  font-weight: 800;
+  color: #fff;
+  font-size: 12px;
 
-    .status-save {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: #374151;
-      min-height: 44px;
-      font-weight: 700;
-    }
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
 
-    .topbar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-bottom: 14px;
-    }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 14px;
-    }
+/* 🔥 GRID MP AJUSTADO */
+.cab-mp, .linha-mp {
+  display: grid;
+  grid-template-columns: 2fr .9fr .9fr 1.3fr 1fr 1fr .6fr;
+  gap: 6px;
+}
 
-    .dash { text-align: center; }
+/* 🔥 GRID COMPRAS DIVERSAS AJUSTADO */
+.cab-cd, .linha-cd {
+  display: grid;
+  grid-template-columns: 1.4fr .8fr .8fr 1.2fr 1.25fr .9fr .6fr;
+  gap: 6px;
+}
 
-    .dash span {
-      display: block;
-      font-size: 12px;
-      color: #dbeafe;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
+.fornecedor-linha {
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+}
 
-    .dash strong {
-      display: block;
-      font-size: 24px;
-    }
+.fornecedor-aprovado {
+  background: #08294d !important;
+  border: 1px solid #2563eb;
+}
 
-    .chip {
-      display: inline-block;
-      margin-top: 8px;
-      margin-right: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
+.ok-check {
+  width: 20px;
+  height: 20px;
+}
 
-    .chip-pendente { background: #fef3c7; color: #92400e; }
-    .chip-aprovada { background: #dbeafe; color: #1e40af; }
-    .chip-tipo { background: #bfdbfe; color: #1e3a8a; }
+@media (max-width: 1200px){
+  .grid-produtos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
-    .aviso-aprovada {
-      margin-bottom: 14px;
-      background: linear-gradient(180deg, #7f1d1d 0%, #dc2626 100%);
-      color: #fff;
-      border-radius: 16px;
-      padding: 14px 16px;
-      font-size: 16px;
-      font-weight: 800;
-      text-align: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,.18);
-    }
-
-    .grid-produtos {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 16px;
-      align-items: start;
-    }
-
-    .produto-card {
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .produto-topo {
-      display: grid;
-      grid-template-columns: 1fr 150px;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .card h3 {
-      margin: 0 0 12px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 18px;
-    }
-
-    .linha-cabecalho {
-      display: grid;
-      gap: 8px;
-      padding: 0 4px 8px 4px;
-      font-size: 12px;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .cab-mp, .linha-mp {
-      grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
-    }
-
-    .cab-cd, .linha-cd {
-      grid-template-columns: 1.5fr .9fr .9fr 1.4fr .9fr 1fr .7fr;
-    }
-
-    .fornecedores-wrap {
-      display: grid;
-      gap: 8px;
-    }
-
-    .fornecedor-linha {
-      display: grid;
-      gap: 8px;
-      align-items: center;
-      padding: 8px;
-      border-radius: 12px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.06);
-    }
-
-    .fornecedor-linha input,
-    .fornecedor-linha select {
-      margin: 0;
-      padding: 9px 8px;
-      font-size: 12px;
-    }
-
-    .campo-link-wrap {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      min-width: 0;
-    }
-
-    .campo-link-wrap input {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .total-box {
-      background: rgba(0,0,0,.18);
-      border-radius: 10px;
-      padding: 10px 8px;
-      text-align: center;
-      font-weight: 700;
-      color: #fff;
-      font-size: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .ok-col {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .ok-check {
-      width: 20px !important;
-      height: 20px;
-      margin: 0;
-    }
-
-    .fornecedor-aprovado {
-      background: #08294d !important;
-      border: 1px solid #2563eb !important;
-    }
-
-    .fornecedor-aprovado .total-box {
-      background: rgba(37,99,235,.25);
-    }
-
-    .fornecedor-menor {
-      box-shadow: inset 0 0 0 2px #f1c40f;
-    }
-
-    .salvo {
-      margin-bottom: 10px;
-    }
-
-    .salvo strong {
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .msg {
-      margin-top: 10px;
-      font-weight: 700;
-    }
-
-    .relatorio-box {
-      overflow: auto;
-    }
-
-    .relatorio-box table {
-      width: 100%;
-      min-width: 980px;
-      border-collapse: collapse;
-    }
-
-    .relatorio-box th,
-    .relatorio-box td {
-      border: 1px solid rgba(255,255,255,.08);
-      padding: 8px;
-      font-size: 12px;
-      text-align: left;
-    }
-
-    .relatorio-box th {
-      background: rgba(0,0,0,.22);
-    }
-
-    .link-relatorio {
-      color: #93c5fd;
-      text-decoration: underline;
-      word-break: break-all;
-    }
-
-    @media (min-width: 1650px) {
-      .grid-produtos {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 1280px) {
-      .grid-produtos {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 900px) {
-      .acoes button, .acoes .status-save {
-        flex: 1 1 calc(50% - 10px);
-      }
-    }
-
-    @media (max-width: 860px) {
-      .produto-topo {
-        grid-template-columns: 1fr;
-      }
-
-      .linha-cabecalho {
-        display: none;
-      }
-
-      .fornecedor-linha {
-        grid-template-columns: 1fr !important;
-      }
-
-      .campo-link-wrap {
-        flex-direction: column;
-        align-items: stretch;
-      }
-    }
-
-    @media (max-width: 520px) {
-      .acoes button, .acoes .status-save {
-        flex: 1 1 100%;
-      }
-    }
-  </style>
+@media (max-width: 700px){
+  .grid-produtos {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 
 <body>
   <div class="topo">BSM SISTEMA DE COTAÇÃO</div>
 
   <div id="telaLogin" class="container">
-    <div class="card login-wrap">
+    <div class="card" style="max-width:420px;margin:30px auto;">
       <h2>Login do sistema</h2>
 
       <label>Usuário</label>
@@ -404,7 +187,7 @@
       <input type="password" id="loginSenha" placeholder="Senha">
 
       <button class="btn-blue" onclick="fazerLogin()">Entrar</button>
-      <div class="msg" id="msgLogin"></div>
+      <div id="msgLogin" style="margin-top:10px;font-weight:bold;"></div>
     </div>
   </div>
 
@@ -424,7 +207,7 @@
       <button class="btn-green hidden" id="btnAprovarCotacao" onclick="aprovarCotacaoAdmin()">✅ Aprovar Cotação</button>
       <button class="btn-gray hidden" id="btnRelatorioAprovados" onclick="abrirRelatorioAprovados()">📄 Relatório</button>
       <button class="btn-gray hidden" id="btnUsuarios" onclick="togglePainelUsuarios()">👥 Usuários</button>
-      <span id="statusSalvar" class="status-save">🟢 Salvo</span>
+      <span id="statusSalvar" style="background:#374151;padding:12px 14px;border-radius:12px;font-weight:bold;">🟢 Salvo</span>
     </div>
 
     <div class="topbar">
@@ -488,11 +271,11 @@
       <div><strong>Nº da Cotação:</strong> <span id="numeroCotacao">-</span></div>
       <div><strong>Perfil:</strong> <span id="perfilLogadoInfo">-</span></div>
       <div><strong>Última aprovação:</strong> <span id="infoAprovacao">-</span></div>
-      <div id="chipStatusCotacao" class="chip chip-pendente">PENDENTE</div>
-      <div id="chipTipoCotacao" class="chip chip-tipo">MATÉRIA-PRIMA</div>
+      <div id="chipStatusCotacao" class="chip-pendente" style="display:inline-block;margin-top:8px;padding:6px 10px;border-radius:999px;font-weight:bold;">PENDENTE</div>
+      <div id="chipTipoCotacao" style="display:inline-block;margin-top:8px;padding:6px 10px;border-radius:999px;font-weight:bold;background:#bfdbfe;color:#1e3a8a;">MATÉRIA-PRIMA</div>
     </div>
 
-    <div id="avisoCotacaoAprovada" class="aviso-aprovada hidden">
+    <div id="avisoCotacaoAprovada" class="hidden" style="margin-bottom:14px;background:#dc2626;color:#fff;border-radius:16px;padding:14px;font-weight:900;text-align:center;">
       🔒 COTAÇÃO APROVADA — SOMENTE O ADMINISTRADOR PODE ALTERAR
     </div>
 
@@ -541,7 +324,7 @@
         <button class="btn-black" onclick="limparFormularioUsuario()">🧹 Limpar</button>
       </div>
 
-      <div id="msgUsuarios" class="msg"></div>
+      <div id="msgUsuarios" style="font-weight:bold;"></div>
       <div id="listaUsuarios"></div>
     </div>
   </div>
@@ -573,1345 +356,1339 @@
     <option value="WL DISTRIBUIDORA">
   </datalist>
 
-  <script>
-    const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script>
+const SUPABASE_URL = "https://xzxcxalmarshffueylxw.supabase.co";
+const SUPABASE_KEY = "sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const FORNECEDORES = 6;
+const FORNECEDORES = 6;
 
-    let proximoProdutoId = 1;
-    let usuarioSessao = null;
-    let cotacaoAtual = null;
-    let tipoCotacaoAtual = "MP";
+let proximoProdutoId = 1;
+let usuarioSessao = null;
+let cotacaoAtual = null;
+let tipoCotacaoAtual = "MP";
 
-    function nomeTipoCotacao(tipo){
-      return tipo === "CD" ? "COMPRAS DIVERSAS" : "MATÉRIA-PRIMA";
+function nomeTipoCotacao(tipo){
+  return tipo === "CD" ? "COMPRAS DIVERSAS" : "MATÉRIA-PRIMA";
+}
+
+function isComprasDiversas(){
+  return tipoCotacaoAtual === "CD";
+}
+
+function usuarioEhAdmin(){
+  return usuarioSessao?.perfil === "admin";
+}
+
+function cotacaoEstaAprovada(){
+  return cotacaoAtual?.status_aprovacao === "APROVADA";
+}
+
+function podeEditarCotacao(){
+  return usuarioEhAdmin() || !cotacaoEstaAprovada();
+}
+
+function parseNumeroBR(valor){
+  if(valor === null || valor === undefined) return 0;
+  let v = String(valor).trim();
+  if(!v) return 0;
+  v = v.replace(/\./g, "").replace(",", ".");
+  const n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+
+function formatarMoedaBR(valor){
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function formatarDataBR(dataISO){
+  if(!dataISO) return "-";
+  const p = dataISO.split("-");
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : dataISO;
+}
+
+function formatarDataHoraBR(dataISO){
+  if(!dataISO) return "-";
+  return new Date(dataISO).toLocaleString("pt-BR", {
+    timeZone: "America/Sao_Paulo"
+  });
+}
+
+function dataAtualISO(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function escapeHtml(texto){
+  return String(texto ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function garantirHttps(url){
+  const valor = String(url || "").trim();
+  if(!valor) return "";
+  if(/^https?:\/\//i.test(valor)) return valor;
+  return "https://" + valor;
+}
+
+function abrirLink(url){
+  const link = garantirHttps(url);
+  if(!link){
+    alert("Link não informado.");
+    return;
+  }
+  window.open(link, "_blank");
+}
+
+function gerarNumeroCotacao(tipo, data, sequencial){
+  const dataFormatada = data.replaceAll("-", "");
+  const seq = String(sequencial).padStart(4, "0");
+  return `${tipo}-${dataFormatada}-${seq}`;
+}
+
+async function obterProximoNumeroCotacao(data, tipo){
+  const dataFormatada = data.replaceAll("-", "");
+
+  const { data: registros, error } = await client
+    .from("cotacoes_bsm")
+    .select("numero_cotacao")
+    .like("numero_cotacao", `${tipo}-${dataFormatada}-%`);
+
+  if(error || !registros) {
+    return `${tipo}-${dataFormatada}-0001`;
+  }
+
+  let maior = 0;
+
+  registros.forEach(r => {
+    if(r.numero_cotacao){
+      const partes = r.numero_cotacao.split("-");
+      const num = parseInt(partes[2] || "0", 10);
+      if(num > maior) maior = num;
     }
+  });
 
-    function isComprasDiversas(){
-      return tipoCotacaoAtual === "CD";
+  return gerarNumeroCotacao(tipo, data, maior + 1);
+}
+
+function mostrarMsgLogin(texto, cor = "red"){
+  const el = document.getElementById("msgLogin");
+  el.innerText = texto;
+  el.style.color = cor;
+}
+
+function mostrarStatusSalvo(msg){
+  const el = document.getElementById("statusSalvar");
+  el.innerText = "🟢 " + msg;
+  el.style.background = "#14532d";
+
+  setTimeout(() => {
+    el.innerText = "🟢 Salvo";
+    el.style.background = "#374151";
+  }, 2000);
+}
+
+function marcarNaoSalvo(){
+  const el = document.getElementById("statusSalvar");
+  el.innerText = "🟡 Alterações não salvas";
+  el.style.background = "#92400e";
+}
+
+function atualizarVisualAbas(){
+  document.getElementById("tabMP").classList.toggle("active", tipoCotacaoAtual === "MP");
+  document.getElementById("tabCD").classList.toggle("active", tipoCotacaoAtual === "CD");
+  document.getElementById("dashTipo").innerText = tipoCotacaoAtual;
+  document.getElementById("chipTipoCotacao").innerText = nomeTipoCotacao(tipoCotacaoAtual);
+}
+
+function aplicarBloqueioTela(){
+  const bloqueado = !podeEditarCotacao();
+  const aviso = document.getElementById("avisoCotacaoAprovada");
+
+  if(aviso) {
+    aviso.classList.toggle("hidden", !bloqueado);
+  }
+
+  ["compradorWhatsapp", "responsavel", "observacao", "fornecedorLote"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.disabled = bloqueado;
+  });
+
+  const btnAdd = document.querySelector('button[onclick="adicionarProduto()"]');
+  const btnSalvar = document.querySelector('button[onclick="salvarManual()"]');
+  const btnLote = document.querySelector('button[onclick="aprovarFornecedorEmLote()"]');
+  const btnLimpar = document.querySelector('button[onclick="limparDadosDaData()"]');
+
+  if(btnAdd) btnAdd.disabled = bloqueado;
+  if(btnSalvar) btnSalvar.disabled = bloqueado;
+  if(btnLote) btnLote.disabled = bloqueado;
+  if(btnLimpar) btnLimpar.disabled = bloqueado;
+
+  document.querySelectorAll("#containerProdutos input, #containerProdutos select").forEach(el => {
+    el.disabled = bloqueado;
+  });
+
+  document.querySelectorAll("#containerProdutos button").forEach(btn => {
+    if(btn.classList.contains("btn-red") || btn.classList.contains("btn-link")){
+      btn.disabled = bloqueado;
     }
+  });
+}
 
-    function usuarioEhAdmin(){
-      return usuarioSessao?.perfil === "admin";
+async function trocarTipoCotacao(tipo){
+  if(tipoCotacaoAtual === tipo) return;
+
+  tipoCotacaoAtual = tipo;
+  atualizarVisualAbas();
+
+  await carregarDadosDaData();
+  await atualizarListaCotacoesSalvas();
+}
+
+async function fazerLogin(){
+  const usuario = document.getElementById("loginUsuario").value.trim().toLowerCase();
+  const senha = document.getElementById("loginSenha").value.trim();
+
+  if(!usuario || !senha){
+    mostrarMsgLogin("Informe usuário e senha.");
+    return;
+  }
+
+  const { data, error } = await client
+    .from("usuarios_cotacao")
+    .select("*")
+    .eq("usuario", usuario)
+    .eq("senha", senha)
+    .limit(1);
+
+  if(error){
+    mostrarMsgLogin("Erro ao consultar usuário: " + error.message);
+    return;
+  }
+
+  if(!data || !data.length){
+    mostrarMsgLogin("Usuário ou senha inválidos.");
+    return;
+  }
+
+  usuarioSessao = data[0];
+
+  if(usuarioSessao.ativo === false){
+    mostrarMsgLogin("Usuário inativo.");
+    return;
+  }
+
+  document.getElementById("telaLogin").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+
+  document.getElementById("usuarioLogadoInfo").innerText = usuarioSessao.nome;
+  document.getElementById("perfilLogadoInfo").innerText = usuarioSessao.perfil;
+  document.getElementById("compradorNome").value = usuarioSessao.nome;
+
+  document.getElementById("btnRelatorioAprovados").classList.remove("hidden");
+
+  if(usuarioEhAdmin()){
+    document.getElementById("btnAprovarCotacao").classList.remove("hidden");
+    document.getElementById("btnUsuarios").classList.remove("hidden");
+    document.getElementById("boxFiltroComprador").classList.remove("hidden");
+
+    await carregarCompradoresParaAdmin();
+    await carregarUsuarios();
+  }
+
+  document.getElementById("dataReferencia").value = dataAtualISO();
+
+  atualizarVisualAbas();
+  await carregarDadosDaData();
+  await atualizarListaCotacoesSalvas();
+  ativarEventosGlobais();
+}
+
+function logout(){
+  location.reload();
+}
+
+function atualizarDashboard(){
+  let total = 0;
+  let qtdProdutos = document.querySelectorAll("#containerProdutos .produto-card").length;
+  let qtdAprovados = 0;
+
+  document.querySelectorAll(".fornecedor-aprovado").forEach(box => {
+    const totalEl = box.querySelector(".total-box");
+    total += parseNumeroBR(totalEl?.innerText || 0);
+    qtdAprovados++;
+  });
+
+  document.getElementById("dashTipo").innerText = tipoCotacaoAtual;
+  document.getElementById("dashData").innerText = formatarDataBR(document.getElementById("dataReferencia").value);
+  document.getElementById("dashProdutos").innerText = qtdProdutos;
+  document.getElementById("dashAprovados").innerText = qtdAprovados;
+  document.getElementById("dashTotal").innerText = formatarMoedaBR(total);
+
+  const status = cotacaoAtual?.status_aprovacao || "PENDENTE";
+  document.getElementById("dashStatus").innerText = status;
+
+  const chip = document.getElementById("chipStatusCotacao");
+  chip.innerText = status;
+
+  document.getElementById("infoAprovacao").innerText =
+    cotacaoAtual?.aprovado_por
+      ? `${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}`
+      : "-";
+
+  document.getElementById("numeroCotacao").innerText =
+    cotacaoAtual?.numero_cotacao || "-";
+}
+
+function atualizarListaFornecedoresLote(){
+  const select = document.getElementById("fornecedorLote");
+  const atual = select.value;
+  const fornecedores = new Set();
+
+  document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
+    const v = (inp.value || "").trim().toUpperCase();
+    if(v) fornecedores.add(v);
+  });
+
+  select.innerHTML = `<option value="">Selecione o fornecedor</option>`;
+
+  [...fornecedores].sort().forEach(nome => {
+    const op = document.createElement("option");
+    op.value = nome;
+    op.textContent = nome;
+    select.appendChild(op);
+  });
+
+  if([...fornecedores].includes(atual)) {
+    select.value = atual;
+  }
+}
+
+function destacarMenor(produtoId){
+  let valores = [];
+
+  for(let i = 1; i <= FORNECEDORES; i++){
+    const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+    if(v > 0) valores.push(v);
+  }
+
+  const menor = valores.length ? Math.min(...valores) : 0;
+
+  for(let i = 1; i <= FORNECEDORES; i++){
+    const box = document.getElementById(`box_${produtoId}_${i}`);
+    if(!box) continue;
+
+    box.classList.remove("fornecedor-menor");
+
+    const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
+    if(menor > 0 && v === menor) {
+      box.classList.add("fornecedor-menor");
     }
-
-    function cotacaoEstaAprovada(){
-      return cotacaoAtual?.status_aprovacao === "APROVADA";
-    }
-
-    function podeEditarCotacao(){
-      return usuarioEhAdmin() || !cotacaoEstaAprovada();
-    }
-
-    function parseNumeroBR(valor){
-      if (valor === null || valor === undefined) return 0;
-      let v = String(valor).trim();
-      if (!v) return 0;
-      v = v.replace(/\./g, "").replace(",", ".");
-      const n = parseFloat(v);
-      return isNaN(n) ? 0 : n;
-    }
-
-    function formatarMoedaBR(valor){
-      return Number(valor || 0).toLocaleString("pt-BR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
-
-    function formatarDataBR(dataISO){
-      if(!dataISO) return "-";
-      const p = dataISO.split("-");
-      return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : dataISO;
-    }
-
-    function formatarDataHoraBR(dataISO){
-      if(!dataISO) return "-";
-      return new Date(dataISO).toLocaleString("pt-BR", {
-        timeZone: "America/Sao_Paulo"
-      });
-    }
-
-    function dataAtualISO(){
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-    }
-
-    function escapeHtml(texto){
-      return String(texto ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
-    }
-
-    function garantirHttps(url){
-      const valor = String(url || "").trim();
-      if(!valor) return "";
-      if(/^https?:\/\//i.test(valor)) return valor;
-      return "https://" + valor;
-    }
-
-    function abrirLink(url){
-      const link = garantirHttps(url);
-      if(!link){
-        alert("Link não informado.");
-        return;
-      }
-      window.open(link, "_blank");
-    }
-
-    function gerarNumeroCotacao(tipo, data, sequencial){
-      const dataFormatada = data.replaceAll("-", "");
-      const seq = String(sequencial).padStart(4, "0");
-      return `${tipo}-${dataFormatada}-${seq}`;
-    }
-
-    async function obterProximoNumeroCotacao(data, tipo){
-      const dataFormatada = data.replaceAll("-", "");
-
-      const { data: registros, error } = await client
-        .from("cotacoes_bsm")
-        .select("numero_cotacao")
-        .like("numero_cotacao", `${tipo}-${dataFormatada}-%`);
-
-      if(error || !registros) {
-        return `${tipo}-${dataFormatada}-0001`;
-      }
-
-      let maior = 0;
-
-      registros.forEach(r => {
-        if(r.numero_cotacao){
-          const partes = r.numero_cotacao.split("-");
-          const num = parseInt(partes[2] || "0", 10);
-          if(num > maior) maior = num;
-        }
-      });
-
-      return gerarNumeroCotacao(tipo, data, maior + 1);
-    }
-
-    function mostrarMsgLogin(texto, cor = "red"){
-      const el = document.getElementById("msgLogin");
-      el.innerText = texto;
-      el.style.color = cor;
-    }
-
-    function mostrarStatusSalvo(msg){
-      const el = document.getElementById("statusSalvar");
-      el.innerText = "🟢 " + msg;
-      el.style.background = "#14532d";
-
-      setTimeout(() => {
-        el.innerText = "🟢 Salvo";
-        el.style.background = "#374151";
-      }, 2000);
-    }
-
-    function marcarNaoSalvo(){
-      const el = document.getElementById("statusSalvar");
-      el.innerText = "🟡 Alterações não salvas";
-      el.style.background = "#92400e";
-    }
-
-    function atualizarVisualAbas(){
-      document.getElementById("tabMP").classList.toggle("active", tipoCotacaoAtual === "MP");
-      document.getElementById("tabCD").classList.toggle("active", tipoCotacaoAtual === "CD");
-      document.getElementById("dashTipo").innerText = tipoCotacaoAtual;
-      document.getElementById("chipTipoCotacao").innerText = nomeTipoCotacao(tipoCotacaoAtual);
-    }
-
-    function aplicarBloqueioTela(){
-      const bloqueado = !podeEditarCotacao();
-      const aviso = document.getElementById("avisoCotacaoAprovada");
-
-      if(aviso) {
-        aviso.classList.toggle("hidden", !bloqueado);
-      }
-
-      ["compradorWhatsapp", "responsavel", "observacao", "fornecedorLote"].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.disabled = bloqueado;
-      });
-
-      const btnAdd = document.querySelector('button[onclick="adicionarProduto()"]');
-      const btnSalvar = document.querySelector('button[onclick="salvarManual()"]');
-      const btnLote = document.querySelector('button[onclick="aprovarFornecedorEmLote()"]');
-      const btnLimpar = document.querySelector('button[onclick="limparDadosDaData()"]');
-
-      if(btnAdd) btnAdd.disabled = bloqueado;
-      if(btnSalvar) btnSalvar.disabled = bloqueado;
-      if(btnLote) btnLote.disabled = bloqueado;
-      if(btnLimpar) btnLimpar.disabled = bloqueado;
-
-      document.querySelectorAll("#containerProdutos input, #containerProdutos select").forEach(el => {
-        el.disabled = bloqueado;
-      });
-
-      document.querySelectorAll("#containerProdutos button").forEach(btn => {
-        if(btn.classList.contains("btn-red") || btn.classList.contains("btn-link")){
-          btn.disabled = bloqueado;
-        }
-      });
-    }
-
-    async function trocarTipoCotacao(tipo){
-      if(tipoCotacaoAtual === tipo) return;
-
-      tipoCotacaoAtual = tipo;
-      atualizarVisualAbas();
-
-      await carregarDadosDaData();
-      await atualizarListaCotacoesSalvas();
-    }
-
-    async function fazerLogin(){
-      const usuario = document.getElementById("loginUsuario").value.trim().toLowerCase();
-      const senha = document.getElementById("loginSenha").value.trim();
-
-      if(!usuario || !senha){
-        mostrarMsgLogin("Informe usuário e senha.");
-        return;
-      }
-
-      const { data, error } = await client
-        .from("usuarios_cotacao")
-        .select("*")
-        .eq("usuario", usuario)
-        .eq("senha", senha)
-        .limit(1);
-
-      if(error){
-        mostrarMsgLogin("Erro ao consultar usuário: " + error.message);
-        return;
-      }
-
-      if(!data || !data.length){
-        mostrarMsgLogin("Usuário ou senha inválidos.");
-        return;
-      }
-
-      usuarioSessao = data[0];
-
-      if(usuarioSessao.ativo === false){
-        mostrarMsgLogin("Usuário inativo.");
-        return;
-      }
-
-      document.getElementById("telaLogin").classList.add("hidden");
-      document.getElementById("app").classList.remove("hidden");
-
-      document.getElementById("usuarioLogadoInfo").innerText = usuarioSessao.nome;
-      document.getElementById("perfilLogadoInfo").innerText = usuarioSessao.perfil;
-      document.getElementById("compradorNome").value = usuarioSessao.nome;
-
-      if(usuarioEhAdmin()){
-        document.getElementById("btnAprovarCotacao").classList.remove("hidden");
-        document.getElementById("btnRelatorioAprovados").classList.remove("hidden");
-        document.getElementById("btnUsuarios").classList.remove("hidden");
-        document.getElementById("boxFiltroComprador").classList.remove("hidden");
-
-        await carregarCompradoresParaAdmin();
-        await carregarUsuarios();
-      }
-
-      document.getElementById("dataReferencia").value = dataAtualISO();
-
-      atualizarVisualAbas();
-      await carregarDadosDaData();
-      await atualizarListaCotacoesSalvas();
-      ativarEventosGlobais();
-    }
-
-    function logout(){
-      location.reload();
-    }
-
-    function atualizarDashboard(){
-      let total = 0;
-      let qtdProdutos = document.querySelectorAll("#containerProdutos .produto-card").length;
-      let qtdAprovados = 0;
-
-      document.querySelectorAll(".fornecedor-aprovado").forEach(box => {
-        const totalEl = box.querySelector(".total-box");
-        total += parseNumeroBR(totalEl?.innerText || 0);
-        qtdAprovados++;
-      });
-
-      document.getElementById("dashTipo").innerText = tipoCotacaoAtual;
-      document.getElementById("dashData").innerText = formatarDataBR(document.getElementById("dataReferencia").value);
-      document.getElementById("dashProdutos").innerText = qtdProdutos;
-      document.getElementById("dashAprovados").innerText = qtdAprovados;
-      document.getElementById("dashTotal").innerText = formatarMoedaBR(total);
-
-      const status = cotacaoAtual?.status_aprovacao || "PENDENTE";
-      document.getElementById("dashStatus").innerText = status;
-
-      const chip = document.getElementById("chipStatusCotacao");
-      chip.innerText = status;
-      chip.className = "chip " + (status === "APROVADA" ? "chip-aprovada" : "chip-pendente");
-
-      document.getElementById("infoAprovacao").innerText =
-        cotacaoAtual?.aprovado_por
-          ? `${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}`
-          : "-";
-
-      document.getElementById("numeroCotacao").innerText =
-        cotacaoAtual?.numero_cotacao || "-";
-    }
-
-    function atualizarListaFornecedoresLote(){
-      const select = document.getElementById("fornecedorLote");
-      const atual = select.value;
-      const fornecedores = new Set();
-
-      document.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
-        const v = (inp.value || "").trim().toUpperCase();
-        if(v) fornecedores.add(v);
-      });
-
-      select.innerHTML = `<option value="">Selecione o fornecedor</option>`;
-
-      [...fornecedores].sort().forEach(nome => {
-        const op = document.createElement("option");
-        op.value = nome;
-        op.textContent = nome;
-        select.appendChild(op);
-      });
-
-      if([...fornecedores].includes(atual)) {
-        select.value = atual;
-      }
-    }
-
-    function destacarMenor(produtoId){
-      let valores = [];
-
-      for(let i = 1; i <= FORNECEDORES; i++){
-        const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
-        if(v > 0) valores.push(v);
-      }
-
-      const menor = valores.length ? Math.min(...valores) : 0;
-
-      for(let i = 1; i <= FORNECEDORES; i++){
-        const box = document.getElementById(`box_${produtoId}_${i}`);
-        if(!box) continue;
-
-        box.classList.remove("fornecedor-menor");
-
-        const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
-        if(menor > 0 && v === menor) {
-          box.classList.add("fornecedor-menor");
-        }
-      }
-    }
-
-    function calcular(produtoId, fornecedorId, salvar = true){
-      const estoque = parseNumeroBR(document.getElementById(`estoque_${produtoId}_${fornecedorId}`).value || 0);
-      const vu = parseNumeroBR(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
-      const total = estoque * vu;
-
-      document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = formatarMoedaBR(total);
-
-      destacarMenor(produtoId);
-      atualizarListaFornecedoresLote();
-      atualizarDashboard();
-
-      if(salvar && podeEditarCotacao()) {
-        salvarAutomatico();
-      }
-    }
-
-    function recalcular(produtoId){
-      if(!podeEditarCotacao()) return;
-
-      for(let i = 1; i <= FORNECEDORES; i++) {
-        calcular(produtoId, i, false);
-      }
-
-      salvarAutomatico();
-    }
-
-    function toggleAprovacao(produtoId, fornecedorId){
-      if(!usuarioEhAdmin()){
-        const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
-        chk.checked = !chk.checked;
-        alert("Somente o administrador pode aprovar.");
-        return;
-      }
-
-      const box = document.getElementById(`box_${produtoId}_${fornecedorId}`);
-      const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
-
-      if(chk.checked) {
+  }
+}
+
+function calcular(produtoId, fornecedorId, salvar = true){
+  const estoque = parseNumeroBR(document.getElementById(`estoque_${produtoId}_${fornecedorId}`).value || 0);
+  const vu = parseNumeroBR(document.getElementById(`vu_${produtoId}_${fornecedorId}`).value || 0);
+  const total = estoque * vu;
+
+  document.getElementById(`total_${produtoId}_${fornecedorId}`).innerText = formatarMoedaBR(total);
+
+  destacarMenor(produtoId);
+  atualizarListaFornecedoresLote();
+  atualizarDashboard();
+
+  if(salvar && podeEditarCotacao()) {
+    salvarAutomatico();
+  }
+}
+
+function recalcular(produtoId){
+  if(!podeEditarCotacao()) return;
+
+  for(let i = 1; i <= FORNECEDORES; i++) {
+    calcular(produtoId, i, false);
+  }
+
+  salvarAutomatico();
+}
+
+function toggleAprovacao(produtoId, fornecedorId){
+  if(!usuarioEhAdmin()){
+    const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
+    chk.checked = !chk.checked;
+    alert("Somente o administrador pode aprovar.");
+    return;
+  }
+
+  const box = document.getElementById(`box_${produtoId}_${fornecedorId}`);
+  const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
+
+  if(chk.checked) {
+    box.classList.add("fornecedor-aprovado");
+  } else {
+    box.classList.remove("fornecedor-aprovado");
+  }
+
+  atualizarDashboard();
+  salvarAutomatico();
+}
+
+function alterarNotaRecebida(produtoId, fornecedorId){
+  if(!usuarioEhAdmin()){
+    document.getElementById(`nota_${produtoId}_${fornecedorId}`).value = "";
+    alert("Somente o administrador pode informar a nota.");
+    return;
+  }
+
+  salvarAutomatico();
+}
+
+function aprovarFornecedorEmLote(){
+  if(!usuarioEhAdmin()){
+    alert("Somente o administrador pode aprovar em lote.");
+    return;
+  }
+
+  const fornecedor = document.getElementById("fornecedorLote").value;
+
+  if(!fornecedor){
+    alert("Selecione o fornecedor.");
+    return;
+  }
+
+  let aprovados = 0;
+
+  document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
+    const produtoId = card.id.replace("card_", "");
+
+    for(let f = 1; f <= FORNECEDORES; f++){
+      const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
+      const valor = parseNumeroBR(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
+      const chk = document.getElementById(`ok_${produtoId}_${f}`);
+      const box = document.getElementById(`box_${produtoId}_${f}`);
+
+      if(forn === fornecedor.trim().toUpperCase() && valor > 0){
+        chk.checked = true;
         box.classList.add("fornecedor-aprovado");
-      } else {
-        box.classList.remove("fornecedor-aprovado");
+        aprovados++;
       }
+    }
+  });
 
-      atualizarDashboard();
-      salvarAutomatico();
+  atualizarDashboard();
+  salvarAutomatico();
+
+  alert(`Fornecedor aprovado em ${aprovados} item(ns).`);
+}
+
+function renderLinhaCabecalho(){
+  if(isComprasDiversas()){
+    return `
+      <div class="linha-cabecalho cab-cd">
+        <div>Fornecedor</div>
+        <div>Estoque KG</div>
+        <div>V.Unit</div>
+        <div>Link</div>
+        <div>Total</div>
+        <div>Nota</div>
+        <div>OK</div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="linha-cabecalho cab-mp">
+      <div>Fornecedor</div>
+      <div>Estoque KG</div>
+      <div>V.Unit</div>
+      <div>Total</div>
+      <div>Classificação</div>
+      <div>Nota</div>
+      <div>OK</div>
+    </div>
+  `;
+}
+
+function renderLinhaFornecedor(produtoId, f, dadosFornecedor = {}){
+  const fornVal = dadosFornecedor.nome || "";
+  const estoqueVal = dadosFornecedor.estoque || "";
+  const vuVal = dadosFornecedor.valor || "";
+  const linkVal = dadosFornecedor.link || "";
+  const classVal = dadosFornecedor.classificacao || "";
+  const notaVal = dadosFornecedor.notaRecebida || "";
+  const aprovado = dadosFornecedor.aprovado || false;
+
+  if(isComprasDiversas()){
+    return `
+      <div id="box_${produtoId}_${f}" class="fornecedor-linha linha-cd ${aprovado ? "fornecedor-aprovado" : ""}">
+        <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
+        <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque" oninput="calcular(${produtoId},${f})">
+        <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+
+        <div style="display:flex;gap:5px;">
+          <input type="text" id="link_${produtoId}_${f}" value="${escapeHtml(linkVal)}" placeholder="Link">
+          <button type="button" class="btn-blue btn-link" onclick="abrirLink(document.getElementById('link_${produtoId}_${f}').value)">Abrir</button>
+        </div>
+
+        <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
+
+        <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
+          <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
+          <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
+          <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
+        </select>
+
+        <div class="ok-col">
+          <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div id="box_${produtoId}_${f}" class="fornecedor-linha linha-mp ${aprovado ? "fornecedor-aprovado" : ""}">
+      <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
+      <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque" oninput="calcular(${produtoId},${f})">
+      <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+
+      <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
+
+      <select id="class_${produtoId}_${f}">
+        <option value="">Classificação</option>
+        <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
+        <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
+        <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
+      </select>
+
+      <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
+        <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
+        <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
+        <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
+      </select>
+
+      <div class="ok-col">
+        <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
+      </div>
+    </div>
+  `;
+}
+
+function adicionarProduto(dados = null){
+  if(!podeEditarCotacao()){
+    alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
+    return;
+  }
+
+  const produtoId = dados?.produtoId || proximoProdutoId++;
+
+  if(produtoId >= proximoProdutoId) {
+    proximoProdutoId = produtoId + 1;
+  }
+
+  const card = document.createElement("div");
+  card.className = "card produto-card";
+  card.id = `card_${produtoId}`;
+
+  let linhas = "";
+
+  for(let f = 1; f <= FORNECEDORES; f++){
+    linhas += renderLinhaFornecedor(produtoId, f, dados?.fornecedores?.[f-1] || {});
+  }
+
+  card.innerHTML = `
+    <h3>
+      <span>Produto</span>
+      <button class="btn-red" onclick="removerProduto(${produtoId})">🗑️</button>
+    </h3>
+
+    <div class="produto-topo">
+      <input type="text" id="prod_${produtoId}" placeholder="Nome do produto" value="${escapeHtml(dados?.nome || "")}">
+      <input type="text" id="kg_${produtoId}" placeholder="KG/QTD solicitado" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
+    </div>
+
+    ${renderLinhaCabecalho()}
+
+    <div class="fornecedores-wrap">
+      ${linhas}
+    </div>
+  `;
+
+  document.getElementById("containerProdutos").appendChild(card);
+
+  for(let f = 1; f <= FORNECEDORES; f++) {
+    calcular(produtoId, f, false);
+  }
+
+  ativarEventosInputs(card);
+  atualizarListaFornecedoresLote();
+  atualizarDashboard();
+  aplicarBloqueioTela();
+}
+
+function removerProduto(produtoId){
+  if(!podeEditarCotacao()){
+    alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
+    return;
+  }
+
+  if(!confirm("Deseja remover este produto?")) return;
+
+  document.getElementById(`card_${produtoId}`)?.remove();
+
+  atualizarListaFornecedoresLote();
+  atualizarDashboard();
+  salvarAutomatico();
+}
+
+function montarDadosTela(){
+  const produtos = [];
+
+  document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
+    const produtoId = parseInt(card.id.replace("card_", ""), 10);
+    const nome = document.getElementById(`prod_${produtoId}`).value || "";
+    const kg = document.getElementById(`kg_${produtoId}`).value || "";
+
+    const fornecedores = [];
+
+    for(let f = 1; f <= FORNECEDORES; f++){
+      fornecedores.push({
+        nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
+        estoque: document.getElementById(`estoque_${produtoId}_${f}`)?.value || "",
+        valor: document.getElementById(`vu_${produtoId}_${f}`)?.value || "",
+        link: document.getElementById(`link_${produtoId}_${f}`)?.value || "",
+        classificacao: document.getElementById(`class_${produtoId}_${f}`)?.value || "",
+        notaRecebida: document.getElementById(`nota_${produtoId}_${f}`)?.value || "",
+        aprovado: document.getElementById(`ok_${produtoId}_${f}`)?.checked || false
+      });
     }
 
-    function alterarNotaRecebida(produtoId, fornecedorId){
-      if(!usuarioEhAdmin()){
-        document.getElementById(`nota_${produtoId}_${fornecedorId}`).value = "";
-        alert("Somente o administrador pode informar a nota.");
-        return;
-      }
+    produtos.push({ produtoId, nome, kg, fornecedores });
+  });
 
-      salvarAutomatico();
+  return {
+    tipoCotacao: tipoCotacaoAtual,
+    dataReferencia: document.getElementById("dataReferencia").value || "",
+    compradorNome: document.getElementById("compradorNome").value || "",
+    compradorWhatsapp: document.getElementById("compradorWhatsapp").value || "",
+    responsavel: document.getElementById("responsavel").value || "",
+    observacao: document.getElementById("observacao").value || "",
+    fornecedorLote: document.getElementById("fornecedorLote").value || "",
+    produtos
+  };
+}
+
+async function salvarNaNuvem(){
+  const data = document.getElementById("dataReferencia").value;
+
+  if(!data) return false;
+
+  const payload = montarDadosTela();
+
+  const compradorUsuario = usuarioEhAdmin()
+    ? (document.getElementById("filtroComprador").value || usuarioSessao.usuario)
+    : usuarioSessao.usuario;
+
+  const compradorNome = usuarioEhAdmin()
+    ? (document.getElementById("compradorNome").value || usuarioSessao.nome)
+    : usuarioSessao.nome;
+
+  let numeroCotacao = cotacaoAtual?.numero_cotacao;
+
+  if(!numeroCotacao){
+    numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
+  }
+
+  const registro = {
+    numero_cotacao: numeroCotacao,
+    tipo_cotacao: tipoCotacaoAtual,
+    data_referencia: data,
+    comprador_usuario: compradorUsuario,
+    comprador_nome: compradorNome,
+    comprador_whatsapp: payload.compradorWhatsapp || "",
+    responsavel: payload.responsavel || "",
+    observacao: payload.observacao || "",
+    status_aprovacao: cotacaoAtual?.status_aprovacao || "PENDENTE",
+    aprovado_por: cotacaoAtual?.aprovado_por || null,
+    aprovado_em: cotacaoAtual?.aprovado_em || null,
+    dados: payload
+  };
+
+  const { data: upsertData, error } = await client
+    .from("cotacoes_bsm")
+    .upsert(registro, {
+      onConflict: "tipo_cotacao,data_referencia,comprador_usuario"
+    })
+    .select()
+    .maybeSingle();
+
+  if(error){
+    alert("Erro ao salvar: " + error.message);
+    return false;
+  }
+
+  cotacaoAtual = upsertData || cotacaoAtual;
+  document.getElementById("numeroCotacao").innerText = numeroCotacao;
+
+  return true;
+}
+
+async function carregarDaNuvemPorData(data, compradorUsuario){
+  let query = client
+    .from("cotacoes_bsm")
+    .select("*")
+    .eq("tipo_cotacao", tipoCotacaoAtual)
+    .eq("data_referencia", data);
+
+  if(usuarioEhAdmin()){
+    if(compradorUsuario) {
+      query = query.eq("comprador_usuario", compradorUsuario);
+    }
+  } else {
+    query = query.eq("comprador_usuario", usuarioSessao.usuario);
+  }
+
+  const { data: registros, error } = await query.order("created_at", {
+    ascending: false
+  });
+
+  if(error) return null;
+
+  return registros?.[0] || null;
+}
+
+async function listarCotacoesSalvas(){
+  let query = client
+    .from("cotacoes_bsm")
+    .select("*")
+    .eq("tipo_cotacao", tipoCotacaoAtual)
+    .order("data_referencia", { ascending: false });
+
+  if(!usuarioEhAdmin()){
+    query = query.eq("comprador_usuario", usuarioSessao.usuario);
+  }
+
+  const { data, error } = await query;
+
+  if(error) return [];
+
+  return data || [];
+}
+
+async function salvarAutomatico(manual = false){
+  if(!podeEditarCotacao()) return;
+
+  const ok = await salvarNaNuvem();
+
+  if(ok){
+    await atualizarListaCotacoesSalvas();
+    mostrarStatusSalvo(manual ? "Salvo com sucesso" : "Salvo automático");
+  }
+}
+
+async function salvarManual(){
+  if(!podeEditarCotacao()){
+    alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
+    return;
+  }
+
+  marcarNaoSalvo();
+  await salvarAutomatico(true);
+}
+
+function limparTela(){
+  document.getElementById("containerProdutos").innerHTML = "";
+  document.getElementById("numeroCotacao").innerText = "-";
+  proximoProdutoId = 1;
+  atualizarDashboard();
+}
+
+async function carregarDadosDaData(){
+  limparTela();
+  cotacaoAtual = null;
+
+  const data = document.getElementById("dataReferencia").value;
+
+  if(!data) return;
+
+  const compradorUsuario = usuarioEhAdmin()
+    ? document.getElementById("filtroComprador").value
+    : usuarioSessao.usuario;
+
+  const registro = await carregarDaNuvemPorData(data, compradorUsuario);
+
+  if(!registro){
+    document.getElementById("responsavel").value = "";
+    document.getElementById("observacao").value = "";
+    document.getElementById("compradorWhatsapp").value = "";
+
+    if(!usuarioEhAdmin()){
+      document.getElementById("compradorNome").value = usuarioSessao.nome;
     }
 
-    function aprovarFornecedorEmLote(){
-      if(!usuarioEhAdmin()){
-        alert("Somente o administrador pode aprovar em lote.");
-        return;
-      }
+    adicionarProduto();
+    atualizarDashboard();
+    aplicarBloqueioTela();
+    return;
+  }
 
-      const fornecedor = document.getElementById("fornecedorLote").value;
+  cotacaoAtual = registro;
 
-      if(!fornecedor){
-        alert("Selecione o fornecedor.");
-        return;
-      }
+  const dados = registro.dados || {};
 
-      let aprovados = 0;
+  document.getElementById("numeroCotacao").innerText = registro.numero_cotacao || "-";
+  document.getElementById("compradorNome").value = registro.comprador_nome || "";
+  document.getElementById("responsavel").value = registro.responsavel || "";
+  document.getElementById("observacao").value = registro.observacao || "";
+  document.getElementById("compradorWhatsapp").value = registro.comprador_whatsapp || "";
 
-      document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
-        const produtoId = card.id.replace("card_", "");
+  if(dados.produtos?.length){
+    dados.produtos.forEach(p => adicionarProduto(p));
+  } else {
+    adicionarProduto();
+  }
 
-        for(let f = 1; f <= FORNECEDORES; f++){
-          const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
-          const valor = parseNumeroBR(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
-          const chk = document.getElementById(`ok_${produtoId}_${f}`);
-          const box = document.getElementById(`box_${produtoId}_${f}`);
+  if(dados.fornecedorLote){
+    document.getElementById("fornecedorLote").value = dados.fornecedorLote;
+  }
 
-          if(forn === fornecedor.trim().toUpperCase() && valor > 0){
-            chk.checked = true;
-            box.classList.add("fornecedor-aprovado");
-            aprovados++;
+  atualizarListaFornecedoresLote();
+  atualizarDashboard();
+  aplicarBloqueioTela();
+}
+
+async function limparDadosDaData(){
+  if(!podeEditarCotacao()){
+    alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
+    return;
+  }
+
+  const data = document.getElementById("dataReferencia").value;
+
+  if(!data){
+    alert("Selecione uma data.");
+    return;
+  }
+
+  const compradorUsuario = usuarioEhAdmin()
+    ? document.getElementById("filtroComprador").value
+    : usuarioSessao.usuario;
+
+  if(!confirm(`Deseja apagar a cotação de ${nomeTipoCotacao(tipoCotacaoAtual)} da data ${formatarDataBR(data)}?`)) return;
+
+  let query = client
+    .from("cotacoes_bsm")
+    .delete()
+    .eq("tipo_cotacao", tipoCotacaoAtual)
+    .eq("data_referencia", data);
+
+  if(usuarioEhAdmin()){
+    if(compradorUsuario) {
+      query = query.eq("comprador_usuario", compradorUsuario);
+    }
+  } else {
+    query = query.eq("comprador_usuario", usuarioSessao.usuario);
+  }
+
+  const { error } = await query;
+
+  if(error){
+    alert("Erro ao excluir: " + error.message);
+    return;
+  }
+
+  await carregarDadosDaData();
+  await atualizarListaCotacoesSalvas();
+}
+
+async function abrirCotacao(data, compradorUsuario, compradorNome, tipoCotacao){
+  tipoCotacaoAtual = tipoCotacao || "MP";
+  atualizarVisualAbas();
+
+  document.getElementById("dataReferencia").value = data;
+
+  if(usuarioEhAdmin()){
+    document.getElementById("filtroComprador").value = compradorUsuario;
+    document.getElementById("compradorNome").value = compradorNome || "";
+  }
+
+  await carregarDadosDaData();
+}
+
+async function buscarCotacaoPorNumero(){
+  const numero = document.getElementById("buscarNumeroCotacao").value.trim().toUpperCase();
+
+  if(!numero){
+    alert("Informe o número da cotação.");
+    return;
+  }
+
+  let query = client
+    .from("cotacoes_bsm")
+    .select("*")
+    .eq("numero_cotacao", numero)
+    .limit(1);
+
+  if(!usuarioEhAdmin()){
+    query = query.eq("comprador_usuario", usuarioSessao.usuario);
+  }
+
+  const { data, error } = await query;
+
+  if(error){
+    alert("Erro ao buscar cotação: " + error.message);
+    return;
+  }
+
+  if(!data || !data.length){
+    alert("Cotação não encontrada.");
+    return;
+  }
+
+  const reg = data[0];
+
+  tipoCotacaoAtual = reg.tipo_cotacao || "MP";
+  atualizarVisualAbas();
+
+  document.getElementById("dataReferencia").value = reg.data_referencia;
+
+  if(usuarioEhAdmin()){
+    document.getElementById("filtroComprador").value = reg.comprador_usuario;
+    document.getElementById("compradorNome").value = reg.comprador_nome || "";
+  }
+
+  await carregarDadosDaData();
+}
+
+async function excluirCotacao(data, compradorUsuario, tipoCotacao){
+  if(!usuarioEhAdmin()){
+    alert("Somente o administrador pode excluir.");
+    return;
+  }
+
+  if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
+
+  const { error } = await client
+    .from("cotacoes_bsm")
+    .delete()
+    .eq("tipo_cotacao", tipoCotacao)
+    .eq("data_referencia", data)
+    .eq("comprador_usuario", compradorUsuario);
+
+  if(error){
+    alert("Erro ao excluir: " + error.message);
+    return;
+  }
+
+  await atualizarListaCotacoesSalvas();
+  await carregarDadosDaData();
+}
+
+async function atualizarListaCotacoesSalvas(){
+  const alvo = document.getElementById("listaCotacoesSalvas");
+  alvo.innerHTML = "";
+
+  const registros = await listarCotacoesSalvas();
+
+  if(!registros.length){
+    alvo.innerHTML = `<div class="salvo">Nenhuma cotação salva em ${nomeTipoCotacao(tipoCotacaoAtual)} ainda.</div>`;
+    return;
+  }
+
+  registros.forEach(reg => {
+    const dados = reg.dados || {};
+    const produtos = dados.produtos || [];
+    let total = 0;
+
+    produtos.forEach(prod => {
+      (prod.fornecedores || []).forEach(f => {
+        if(f.aprovado){
+          total += parseNumeroBR(f.estoque || 0) * parseNumeroBR(f.valor || 0);
+        }
+      });
+    });
+
+    const div = document.createElement("div");
+    div.className = "salvo";
+    div.innerHTML = `
+      <strong>Nº: ${reg.numero_cotacao || "-"}</strong>
+      <div>Data: ${formatarDataBR(reg.data_referencia)}</div>
+      <div>Tipo: ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}</div>
+      <div>Comprador: ${escapeHtml(reg.comprador_nome || "-")}</div>
+      <div>Produtos: ${produtos.length}</div>
+      <div>Total aprovado: R$ ${formatarMoedaBR(total)}</div>
+      <div style="margin-top:8px;font-weight:bold;">${reg.status_aprovacao || "PENDENTE"}</div>
+
+      <div style="margin-top:8px;">
+        <button class="btn-blue" onclick="abrirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${escapeHtml(reg.comprador_nome || "")}','${reg.tipo_cotacao || "MP"}')">Abrir</button>
+        ${usuarioEhAdmin() ? `<button class="btn-red" onclick="excluirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${reg.tipo_cotacao || "MP"}')">Excluir</button>` : ""}
+      </div>
+    `;
+
+    alvo.appendChild(div);
+  });
+}
+
+async function aprovarCotacaoAdmin(){
+  if(!usuarioEhAdmin()){
+    alert("Somente o administrador pode aprovar.");
+    return;
+  }
+
+  const data = document.getElementById("dataReferencia").value;
+  const compradorUsuario = document.getElementById("filtroComprador").value;
+
+  if(!data || !compradorUsuario){
+    alert("Selecione data e comprador.");
+    return;
+  }
+
+  const payload = montarDadosTela();
+
+  let numeroCotacao = cotacaoAtual?.numero_cotacao;
+
+  if(!numeroCotacao){
+    numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
+  }
+
+  const { data: registro, error } = await client
+    .from("cotacoes_bsm")
+    .upsert({
+      numero_cotacao: numeroCotacao,
+      tipo_cotacao: tipoCotacaoAtual,
+      data_referencia: data,
+      comprador_usuario: compradorUsuario,
+      comprador_nome: document.getElementById("compradorNome").value || "",
+      comprador_whatsapp: document.getElementById("compradorWhatsapp").value || "",
+      responsavel: payload.responsavel || "",
+      observacao: payload.observacao || "",
+      status_aprovacao: "APROVADA",
+      aprovado_por: usuarioSessao.nome,
+      aprovado_em: new Date().toISOString(),
+      dados: payload
+    }, {
+      onConflict: "tipo_cotacao,data_referencia,comprador_usuario"
+    })
+    .select()
+    .maybeSingle();
+
+  if(error){
+    alert("Erro ao aprovar: " + error.message);
+    return;
+  }
+
+  cotacaoAtual = registro;
+
+  atualizarDashboard();
+  await atualizarListaCotacoesSalvas();
+  aplicarBloqueioTela();
+  mostrarStatusSalvo("Cotação aprovada");
+}
+
+async function abrirRelatorioAprovados(){
+  const painel = document.getElementById("painelRelatorio");
+  const alvo = document.getElementById("conteudoRelatorioAprovados");
+
+  painel.classList.remove("hidden");
+  alvo.innerHTML = "Carregando...";
+
+  let query = client
+    .from("cotacoes_bsm")
+    .select("*")
+    .eq("tipo_cotacao", tipoCotacaoAtual)
+    .eq("status_aprovacao", "APROVADA")
+    .order("data_referencia", { ascending: false });
+
+  if(!usuarioEhAdmin()){
+    query = query.eq("comprador_usuario", usuarioSessao.usuario);
+  }
+
+  const { data, error } = await query;
+
+  if(error){
+    alvo.innerHTML = `<div style="color:#ffb4b4;">Erro: ${error.message}</div>`;
+    return;
+  }
+
+  if(!data?.length){
+    alvo.innerHTML = `<div>Nenhuma cotação aprovada em ${nomeTipoCotacao(tipoCotacaoAtual)}.</div>`;
+    return;
+  }
+
+  let html = "";
+
+  data.forEach(reg => {
+    const produtos = reg.dados?.produtos || [];
+    let totalGeral = 0;
+    let linhas = "";
+
+    produtos.forEach(prod => {
+      (prod.fornecedores || []).forEach(f => {
+        if(f.aprovado){
+          const estoque = parseNumeroBR(f.estoque || 0);
+          const vu = parseNumeroBR(f.valor || 0);
+          const total = estoque * vu;
+          totalGeral += total;
+
+          if(reg.tipo_cotacao === "CD"){
+            const link = garantirHttps(f.link || "");
+
+            linhas += `
+              <tr>
+                <td>${escapeHtml(prod.nome || "")}</td>
+                <td>${escapeHtml(prod.kg || "")}</td>
+                <td>${escapeHtml(f.nome || "")}</td>
+                <td>${escapeHtml(f.estoque || "-")}</td>
+                <td>${link ? `<a href="${escapeHtml(link)}" target="_blank">Abrir link</a>` : "-"}</td>
+                <td>${escapeHtml(f.notaRecebida || "-")}</td>
+                <td>${formatarMoedaBR(vu)}</td>
+                <td>${formatarMoedaBR(total)}</td>
+              </tr>
+            `;
+          } else {
+            linhas += `
+              <tr>
+                <td>${escapeHtml(prod.nome || "")}</td>
+                <td>${escapeHtml(prod.kg || "")}</td>
+                <td>${escapeHtml(f.nome || "")}</td>
+                <td>${escapeHtml(f.estoque || "-")}</td>
+                <td>${escapeHtml(f.classificacao || "")}</td>
+                <td>${escapeHtml(f.notaRecebida || "-")}</td>
+                <td>${formatarMoedaBR(vu)}</td>
+                <td>${formatarMoedaBR(total)}</td>
+              </tr>
+            `;
           }
         }
       });
+    });
 
-      atualizarDashboard();
-      salvarAutomatico();
-
-      alert(`Fornecedor aprovado em ${aprovados} item(ns).`);
+    if(!linhas){
+      linhas = `<tr><td colspan="8">Nenhum fornecedor aprovado.</td></tr>`;
     }
 
-    function renderLinhaCabecalho(){
-      if(isComprasDiversas()){
-        return `
-          <div class="linha-cabecalho cab-cd">
-            <div>Fornecedor</div>
-            <div>Estoque KG</div>
-            <div>V.Unit</div>
-            <div>Link da cotação</div>
-            <div>Total</div>
-            <div>Nota Recebida</div>
-            <div>OK</div>
-          </div>
-        `;
-      }
+    html += `
+      <div class="card" style="margin-bottom:12px;">
+        <strong>Nº da Cotação:</strong> ${reg.numero_cotacao || "-"}<br>
+        <strong>Tipo:</strong> ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}<br>
+        <strong>Data:</strong> ${formatarDataBR(reg.data_referencia)}<br>
+        <strong>Comprador:</strong> ${escapeHtml(reg.comprador_nome || "-")}<br>
+        <strong>Aprovado por:</strong> ${escapeHtml(reg.aprovado_por || "-")}<br>
+        <strong>Data aprovação:</strong> ${formatarDataHoraBR(reg.aprovado_em)}<br><br>
 
-      return `
-        <div class="linha-cabecalho cab-mp">
-          <div>Fornecedor</div>
-          <div>Estoque KG</div>
-          <div>V.Unit</div>
-          <div>Total</div>
-          <div>Classificação</div>
-          <div>Nota Recebida</div>
-          <div>OK</div>
+        <div style="overflow:auto;">
+          <table style="width:100%;min-width:980px;border-collapse:collapse;">
+            <tr>
+              <th>Produto</th>
+              <th>KG/QTD</th>
+              <th>Fornecedor</th>
+              <th>Estoque KG</th>
+              ${reg.tipo_cotacao === "CD" ? "<th>Link</th>" : "<th>Classificação</th>"}
+              <th>Nota</th>
+              <th>V.Unit</th>
+              <th>Total</th>
+            </tr>
+
+            ${linhas}
+
+            <tr>
+              <td colspan="7" style="text-align:right;"><strong>Total Geral</strong></td>
+              <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
+            </tr>
+          </table>
         </div>
-      `;
-    }
+      </div>
+    `;
+  });
 
-    function renderLinhaFornecedor(produtoId, f, dadosFornecedor = {}){
-      const fornVal = dadosFornecedor.nome || "";
-      const estoqueVal = dadosFornecedor.estoque || "";
-      const vuVal = dadosFornecedor.valor || "";
-      const linkVal = dadosFornecedor.link || "";
-      const classVal = dadosFornecedor.classificacao || "";
-      const notaVal = dadosFornecedor.notaRecebida || "";
-      const aprovado = dadosFornecedor.aprovado || false;
+  alvo.innerHTML = html;
+}
 
-      if(isComprasDiversas()){
-        return `
-          <div id="box_${produtoId}_${f}" class="fornecedor-linha linha-cd ${aprovado ? "fornecedor-aprovado" : ""}">
-            <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
-            <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque KG" oninput="calcular(${produtoId},${f})">
-            <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+async function carregarCompradoresParaAdmin(){
+  const { data, error } = await client
+    .from("usuarios_cotacao")
+    .select("*")
+    .eq("perfil", "usuario")
+    .eq("ativo", true)
+    .order("nome", { ascending: true });
 
-            <div class="campo-link-wrap">
-              <input type="text" id="link_${produtoId}_${f}" value="${escapeHtml(linkVal)}" placeholder="https://...">
-              <button type="button" class="btn-link" onclick="abrirLink(document.getElementById('link_${produtoId}_${f}').value)">Abrir</button>
-            </div>
+  if(error) return;
 
-            <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
+  const select = document.getElementById("filtroComprador");
+  select.innerHTML = `<option value="">Selecione</option>`;
 
-            <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
-              <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
-              <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
-              <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
-            </select>
+  (data || []).forEach(u => {
+    const op = document.createElement("option");
+    op.value = u.usuario;
+    op.textContent = u.nome;
+    select.appendChild(op);
+  });
 
-            <div class="ok-col">
-              <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
-            </div>
-          </div>
-        `;
-      }
+  if(data?.length){
+    select.value = data[0].usuario;
+    document.getElementById("compradorNome").value = data[0].nome;
+  }
+}
 
-      return `
-        <div id="box_${produtoId}_${f}" class="fornecedor-linha linha-mp ${aprovado ? "fornecedor-aprovado" : ""}">
-          <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
-          <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque KG" oninput="calcular(${produtoId},${f})">
-          <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+async function carregarCotacaoDoCompradorAdmin(){
+  const usuario = document.getElementById("filtroComprador").value;
 
-          <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
+  if(!usuario) return;
 
-          <select id="class_${produtoId}_${f}">
-            <option value="">Classificação</option>
-            <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
-            <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
-            <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
-          </select>
+  const { data } = await client
+    .from("usuarios_cotacao")
+    .select("*")
+    .eq("usuario", usuario)
+    .maybeSingle();
 
-          <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
-            <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
-            <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
-            <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
-          </select>
+  document.getElementById("compradorNome").value = data?.nome || "";
 
-          <div class="ok-col">
-            <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
-          </div>
-        </div>
-      `;
-    }
+  await carregarDadosDaData();
+}
 
-    function adicionarProduto(dados = null){
-      if(!podeEditarCotacao()){
-        alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
-        return;
-      }
+function togglePainelUsuarios(){
+  const painel = document.getElementById("painelUsuarios");
+  painel.classList.toggle("hidden");
 
-      const produtoId = dados?.produtoId || proximoProdutoId++;
+  if(!painel.classList.contains("hidden")) {
+    carregarUsuarios();
+  }
+}
 
-      if(produtoId >= proximoProdutoId) {
-        proximoProdutoId = produtoId + 1;
-      }
+function limparFormularioUsuario(){
+  document.getElementById("novoUsuario").value = "";
+  document.getElementById("novaSenha").value = "";
+  document.getElementById("novoNome").value = "";
+  document.getElementById("novoPerfil").value = "usuario";
+  document.getElementById("msgUsuarios").innerText = "";
+}
 
-      const card = document.createElement("div");
-      card.className = "card produto-card";
-      card.id = `card_${produtoId}`;
+async function salvarUsuario(){
+  if(!usuarioEhAdmin()){
+    alert("Somente o administrador pode cadastrar usuários.");
+    return;
+  }
 
-      let linhas = "";
+  const usuario = document.getElementById("novoUsuario").value.trim().toLowerCase();
+  const senha = document.getElementById("novaSenha").value.trim();
+  const nome = document.getElementById("novoNome").value.trim();
+  const perfil = document.getElementById("novoPerfil").value;
 
-      for(let f = 1; f <= FORNECEDORES; f++){
-        linhas += renderLinhaFornecedor(produtoId, f, dados?.fornecedores?.[f-1] || {});
-      }
+  if(!usuario || !senha || !nome){
+    document.getElementById("msgUsuarios").innerText = "Preencha usuário, senha e nome.";
+    return;
+  }
 
-      card.innerHTML = `
-        <h3>
-          <span>Produto</span>
-          <button class="btn-red" onclick="removerProduto(${produtoId})">🗑️</button>
-        </h3>
+  const { error } = await client
+    .from("usuarios_cotacao")
+    .upsert({
+      usuario,
+      senha,
+      nome,
+      perfil,
+      ativo: true
+    }, {
+      onConflict: "usuario"
+    });
 
-        <div class="produto-topo">
-          <input type="text" id="prod_${produtoId}" placeholder="Nome do produto" value="${escapeHtml(dados?.nome || "")}">
-          <input type="text" id="kg_${produtoId}" placeholder="KG/QTD solicitado" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
-        </div>
+  if(error){
+    document.getElementById("msgUsuarios").innerText = "Erro ao salvar usuário: " + error.message;
+    return;
+  }
 
-        ${renderLinhaCabecalho()}
+  document.getElementById("msgUsuarios").innerText = "Usuário salvo com sucesso.";
 
-        <div class="fornecedores-wrap">
-          ${linhas}
-        </div>
-      `;
+  limparFormularioUsuario();
+  await carregarUsuarios();
+  await carregarCompradoresParaAdmin();
+}
 
-      document.getElementById("containerProdutos").appendChild(card);
+async function carregarUsuarios(){
+  if(!usuarioEhAdmin()) return;
 
-      for(let f = 1; f <= FORNECEDORES; f++) {
-        calcular(produtoId, f, false);
-      }
+  const alvo = document.getElementById("listaUsuarios");
+  alvo.innerHTML = "Carregando...";
 
-      ativarEventosInputs(card);
-      atualizarListaFornecedoresLote();
-      atualizarDashboard();
-      aplicarBloqueioTela();
-    }
+  const { data, error } = await client
+    .from("usuarios_cotacao")
+    .select("*")
+    .order("nome", { ascending: true });
 
-    function removerProduto(produtoId){
-      if(!podeEditarCotacao()){
-        alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
-        return;
-      }
+  if(error){
+    alvo.innerHTML = `<div class="salvo">Erro ao carregar usuários: ${error.message}</div>`;
+    return;
+  }
 
-      if(!confirm("Deseja remover este produto?")) return;
+  if(!data?.length){
+    alvo.innerHTML = `<div class="salvo">Nenhum usuário cadastrado.</div>`;
+    return;
+  }
 
-      document.getElementById(`card_${produtoId}`)?.remove();
+  alvo.innerHTML = "";
 
-      atualizarListaFornecedoresLote();
-      atualizarDashboard();
-      salvarAutomatico();
-    }
+  data.forEach(u => {
+    const div = document.createElement("div");
+    div.className = "salvo";
+    div.innerHTML = `
+      <strong>${escapeHtml(u.nome || "")}</strong>
+      <div>Usuário: ${escapeHtml(u.usuario || "")}</div>
+      <div>Perfil: ${escapeHtml(u.perfil || "")}</div>
+      <div>Status: ${u.ativo === false ? "Inativo" : "Ativo"}</div>
+    `;
 
-    function montarDadosTela(){
-      const produtos = [];
+    alvo.appendChild(div);
+  });
+}
 
-      document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
-        const produtoId = parseInt(card.id.replace("card_", ""), 10);
-        const nome = document.getElementById(`prod_${produtoId}`).value || "";
-        const kg = document.getElementById(`kg_${produtoId}`).value || "";
-
-        const fornecedores = [];
-
-        for(let f = 1; f <= FORNECEDORES; f++){
-          fornecedores.push({
-            nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
-            estoque: document.getElementById(`estoque_${produtoId}_${f}`)?.value || "",
-            valor: document.getElementById(`vu_${produtoId}_${f}`)?.value || "",
-            link: document.getElementById(`link_${produtoId}_${f}`)?.value || "",
-            classificacao: document.getElementById(`class_${produtoId}_${f}`)?.value || "",
-            notaRecebida: document.getElementById(`nota_${produtoId}_${f}`)?.value || "",
-            aprovado: document.getElementById(`ok_${produtoId}_${f}`)?.checked || false
-          });
-        }
-
-        produtos.push({ produtoId, nome, kg, fornecedores });
-      });
-
-      return {
-        tipoCotacao: tipoCotacaoAtual,
-        dataReferencia: document.getElementById("dataReferencia").value || "",
-        compradorNome: document.getElementById("compradorNome").value || "",
-        compradorWhatsapp: document.getElementById("compradorWhatsapp").value || "",
-        responsavel: document.getElementById("responsavel").value || "",
-        observacao: document.getElementById("observacao").value || "",
-        fornecedorLote: document.getElementById("fornecedorLote").value || "",
-        produtos
-      };
-    }
-
-    async function salvarNaNuvem(){
-      const data = document.getElementById("dataReferencia").value;
-
-      if(!data) return false;
-
-      const payload = montarDadosTela();
-
-      const compradorUsuario = usuarioEhAdmin()
-        ? (document.getElementById("filtroComprador").value || usuarioSessao.usuario)
-        : usuarioSessao.usuario;
-
-      const compradorNome = usuarioEhAdmin()
-        ? (document.getElementById("compradorNome").value || usuarioSessao.nome)
-        : usuarioSessao.nome;
-
-      let numeroCotacao = cotacaoAtual?.numero_cotacao;
-
-      if(!numeroCotacao){
-        numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
-      }
-
-      const registro = {
-        numero_cotacao: numeroCotacao,
-        tipo_cotacao: tipoCotacaoAtual,
-        data_referencia: data,
-        comprador_usuario: compradorUsuario,
-        comprador_nome: compradorNome,
-        comprador_whatsapp: payload.compradorWhatsapp || "",
-        responsavel: payload.responsavel || "",
-        observacao: payload.observacao || "",
-        status_aprovacao: cotacaoAtual?.status_aprovacao || "PENDENTE",
-        aprovado_por: cotacaoAtual?.aprovado_por || null,
-        aprovado_em: cotacaoAtual?.aprovado_em || null,
-        dados: payload
-      };
-
-      const { data: upsertData, error } = await client
-        .from("cotacoes_bsm")
-        .upsert(registro, {
-          onConflict: "tipo_cotacao,data_referencia,comprador_usuario"
-        })
-        .select()
-        .maybeSingle();
-
-      if(error){
-        alert("Erro ao salvar: " + error.message);
-        return false;
-      }
-
-      cotacaoAtual = upsertData || cotacaoAtual;
-      document.getElementById("numeroCotacao").innerText = numeroCotacao;
-
-      return true;
-    }
-
-    async function carregarDaNuvemPorData(data, compradorUsuario){
-      let query = client
-        .from("cotacoes_bsm")
-        .select("*")
-        .eq("tipo_cotacao", tipoCotacaoAtual)
-        .eq("data_referencia", data);
-
-      if(usuarioEhAdmin()){
-        if(compradorUsuario) {
-          query = query.eq("comprador_usuario", compradorUsuario);
-        }
-      } else {
-        query = query.eq("comprador_usuario", usuarioSessao.usuario);
-      }
-
-      const { data: registros, error } = await query.order("created_at", {
-        ascending: false
-      });
-
-      if(error) return null;
-
-      return registros?.[0] || null;
-    }
-
-    async function listarCotacoesSalvas(){
-      let query = client
-        .from("cotacoes_bsm")
-        .select("*")
-        .eq("tipo_cotacao", tipoCotacaoAtual)
-        .order("data_referencia", { ascending: false });
-
-      if(!usuarioEhAdmin()){
-        query = query.eq("comprador_usuario", usuarioSessao.usuario);
-      }
-
-      const { data, error } = await query;
-
-      if(error) return [];
-
-      return data || [];
-    }
-
-    async function salvarAutomatico(manual = false){
+function ativarEventosInputs(container){
+  container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
+    inp.addEventListener("blur", () => {
       if(!podeEditarCotacao()) return;
 
-      const ok = await salvarNaNuvem();
-
-      if(ok){
-        await atualizarListaCotacoesSalvas();
-        mostrarStatusSalvo(manual ? "Salvo com sucesso" : "Salvo automático");
-      }
-    }
-
-    async function salvarManual(){
-      if(!podeEditarCotacao()){
-        alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
-        return;
-      }
-
-      marcarNaoSalvo();
-      await salvarAutomatico(true);
-    }
-
-    function limparTela(){
-      document.getElementById("containerProdutos").innerHTML = "";
-      document.getElementById("numeroCotacao").innerText = "-";
-      proximoProdutoId = 1;
-      atualizarDashboard();
-    }
-
-    async function carregarDadosDaData(){
-      limparTela();
-      cotacaoAtual = null;
-
-      const data = document.getElementById("dataReferencia").value;
-
-      if(!data) return;
-
-      const compradorUsuario = usuarioEhAdmin()
-        ? document.getElementById("filtroComprador").value
-        : usuarioSessao.usuario;
-
-      const registro = await carregarDaNuvemPorData(data, compradorUsuario);
-
-      if(!registro){
-        document.getElementById("responsavel").value = "";
-        document.getElementById("observacao").value = "";
-        document.getElementById("compradorWhatsapp").value = "";
-
-        if(!usuarioEhAdmin()){
-          document.getElementById("compradorNome").value = usuarioSessao.nome;
-        }
-
-        adicionarProduto();
-        atualizarDashboard();
-        aplicarBloqueioTela();
-        return;
-      }
-
-      cotacaoAtual = registro;
-
-      const dados = registro.dados || {};
-
-      document.getElementById("numeroCotacao").innerText = registro.numero_cotacao || "-";
-      document.getElementById("compradorNome").value = registro.comprador_nome || "";
-      document.getElementById("responsavel").value = registro.responsavel || "";
-      document.getElementById("observacao").value = registro.observacao || "";
-      document.getElementById("compradorWhatsapp").value = registro.comprador_whatsapp || "";
-
-      if(dados.produtos?.length){
-        dados.produtos.forEach(p => adicionarProduto(p));
-      } else {
-        adicionarProduto();
-      }
-
-      if(dados.fornecedorLote){
-        document.getElementById("fornecedorLote").value = dados.fornecedorLote;
-      }
+      inp.value = (inp.value || "").trim().toUpperCase();
 
       atualizarListaFornecedoresLote();
-      atualizarDashboard();
-      aplicarBloqueioTela();
-    }
+      marcarNaoSalvo();
+      salvarAutomatico();
+    });
+  });
+
+  container.querySelectorAll("input[type='text'], select").forEach(inp => {
+    inp.addEventListener("input", () => {
+      if(!podeEditarCotacao()) return;
+      marcarNaoSalvo();
+      salvarAutomatico();
+    });
+
+    inp.addEventListener("change", () => {
+      if(!podeEditarCotacao()) return;
+      marcarNaoSalvo();
+      salvarAutomatico();
+    });
+  });
+}
+
+function ativarEventosGlobais(){
+  document.getElementById("dataReferencia").addEventListener("change", async () => {
+    await carregarDadosDaData();
+  });
+
+  ["responsavel", "observacao", "compradorWhatsapp"].forEach(id => {
+    document.getElementById(id).addEventListener("input", () => {
+      if(!podeEditarCotacao()) return;
+      salvarAutomatico();
+    });
+  });
+}
+
+document.getElementById("dataReferencia").value = dataAtualISO();
+</script>
 
-    async function limparDadosDaData(){
-      if(!podeEditarCotacao()){
-        alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
-        return;
-      }
-
-      const data = document.getElementById("dataReferencia").value;
-
-      if(!data){
-        alert("Selecione uma data.");
-        return;
-      }
-
-      const compradorUsuario = usuarioEhAdmin()
-        ? document.getElementById("filtroComprador").value
-        : usuarioSessao.usuario;
-
-      if(!confirm(`Deseja apagar a cotação de ${nomeTipoCotacao(tipoCotacaoAtual)} da data ${formatarDataBR(data)}?`)) return;
-
-      let query = client
-        .from("cotacoes_bsm")
-        .delete()
-        .eq("tipo_cotacao", tipoCotacaoAtual)
-        .eq("data_referencia", data);
-
-      if(usuarioEhAdmin()){
-        if(compradorUsuario) {
-          query = query.eq("comprador_usuario", compradorUsuario);
-        }
-      } else {
-        query = query.eq("comprador_usuario", usuarioSessao.usuario);
-      }
-
-      const { error } = await query;
-
-      if(error){
-        alert("Erro ao excluir: " + error.message);
-        return;
-      }
-
-      await carregarDadosDaData();
-      await atualizarListaCotacoesSalvas();
-    }
-
-    async function abrirCotacao(data, compradorUsuario, compradorNome, tipoCotacao){
-      tipoCotacaoAtual = tipoCotacao || "MP";
-      atualizarVisualAbas();
-
-      document.getElementById("dataReferencia").value = data;
-
-      if(usuarioEhAdmin()){
-        document.getElementById("filtroComprador").value = compradorUsuario;
-        document.getElementById("compradorNome").value = compradorNome || "";
-      }
-
-      await carregarDadosDaData();
-    }
-
-    async function buscarCotacaoPorNumero(){
-      const numero = document.getElementById("buscarNumeroCotacao").value.trim().toUpperCase();
-
-      if(!numero){
-        alert("Informe o número da cotação.");
-        return;
-      }
-
-      let query = client
-        .from("cotacoes_bsm")
-        .select("*")
-        .eq("numero_cotacao", numero)
-        .limit(1);
-
-      if(!usuarioEhAdmin()){
-        query = query.eq("comprador_usuario", usuarioSessao.usuario);
-      }
-
-      const { data, error } = await query;
-
-      if(error){
-        alert("Erro ao buscar cotação: " + error.message);
-        return;
-      }
-
-      if(!data || !data.length){
-        alert("Cotação não encontrada.");
-        return;
-      }
-
-      const reg = data[0];
-
-      tipoCotacaoAtual = reg.tipo_cotacao || "MP";
-      atualizarVisualAbas();
-
-      document.getElementById("dataReferencia").value = reg.data_referencia;
-
-      if(usuarioEhAdmin()){
-        document.getElementById("filtroComprador").value = reg.comprador_usuario;
-        document.getElementById("compradorNome").value = reg.comprador_nome || "";
-      }
-
-      await carregarDadosDaData();
-    }
-
-    async function excluirCotacao(data, compradorUsuario, tipoCotacao){
-      if(!usuarioEhAdmin()){
-        alert("Somente o administrador pode excluir.");
-        return;
-      }
-
-      if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
-
-      const { error } = await client
-        .from("cotacoes_bsm")
-        .delete()
-        .eq("tipo_cotacao", tipoCotacao)
-        .eq("data_referencia", data)
-        .eq("comprador_usuario", compradorUsuario);
-
-      if(error){
-        alert("Erro ao excluir: " + error.message);
-        return;
-      }
-
-      await atualizarListaCotacoesSalvas();
-      await carregarDadosDaData();
-    }
-
-    async function atualizarListaCotacoesSalvas(){
-      const alvo = document.getElementById("listaCotacoesSalvas");
-      alvo.innerHTML = "";
-
-      const registros = await listarCotacoesSalvas();
-
-      if(!registros.length){
-        alvo.innerHTML = `<div class="salvo">Nenhuma cotação salva em ${nomeTipoCotacao(tipoCotacaoAtual)} ainda.</div>`;
-        return;
-      }
-
-      registros.forEach(reg => {
-        const dados = reg.dados || {};
-        const produtos = dados.produtos || [];
-        let total = 0;
-
-        produtos.forEach(prod => {
-          (prod.fornecedores || []).forEach(f => {
-            if(f.aprovado){
-              total += parseNumeroBR(f.estoque || 0) * parseNumeroBR(f.valor || 0);
-            }
-          });
-        });
-
-        const statusClass = reg.status_aprovacao === "APROVADA"
-          ? "chip-aprovada"
-          : "chip-pendente";
-
-        const div = document.createElement("div");
-        div.className = "salvo";
-        div.innerHTML = `
-          <strong>Nº: ${reg.numero_cotacao || "-"}</strong>
-          <div>Data: ${formatarDataBR(reg.data_referencia)}</div>
-          <div>Tipo: ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}</div>
-          <div>Comprador: ${escapeHtml(reg.comprador_nome || "-")}</div>
-          <div>Produtos: ${produtos.length}</div>
-          <div>Total aprovado: R$ ${formatarMoedaBR(total)}</div>
-          <div class="chip ${statusClass}">${reg.status_aprovacao || "PENDENTE"}</div>
-
-          <div style="margin-top:8px;">
-            <button class="btn-blue" onclick="abrirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${escapeHtml(reg.comprador_nome || "")}','${reg.tipo_cotacao || "MP"}')">Abrir</button>
-            ${usuarioEhAdmin() ? `<button class="btn-red" onclick="excluirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${reg.tipo_cotacao || "MP"}')">Excluir</button>` : ""}
-          </div>
-        `;
-
-        alvo.appendChild(div);
-      });
-    }
-
-    async function aprovarCotacaoAdmin(){
-      if(!usuarioEhAdmin()){
-        alert("Somente o administrador pode aprovar.");
-        return;
-      }
-
-      const data = document.getElementById("dataReferencia").value;
-      const compradorUsuario = document.getElementById("filtroComprador").value;
-
-      if(!data || !compradorUsuario){
-        alert("Selecione data e comprador.");
-        return;
-      }
-
-      const payload = montarDadosTela();
-
-      let numeroCotacao = cotacaoAtual?.numero_cotacao;
-
-      if(!numeroCotacao){
-        numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
-      }
-
-      const { data: registro, error } = await client
-        .from("cotacoes_bsm")
-        .upsert({
-          numero_cotacao: numeroCotacao,
-          tipo_cotacao: tipoCotacaoAtual,
-          data_referencia: data,
-          comprador_usuario: compradorUsuario,
-          comprador_nome: document.getElementById("compradorNome").value || "",
-          comprador_whatsapp: document.getElementById("compradorWhatsapp").value || "",
-          responsavel: payload.responsavel || "",
-          observacao: payload.observacao || "",
-          status_aprovacao: "APROVADA",
-          aprovado_por: usuarioSessao.nome,
-          aprovado_em: new Date().toISOString(),
-          dados: payload
-        }, {
-          onConflict: "tipo_cotacao,data_referencia,comprador_usuario"
-        })
-        .select()
-        .maybeSingle();
-
-      if(error){
-        alert("Erro ao aprovar: " + error.message);
-        return;
-      }
-
-      cotacaoAtual = registro;
-
-      atualizarDashboard();
-      await atualizarListaCotacoesSalvas();
-      aplicarBloqueioTela();
-      mostrarStatusSalvo("Cotação aprovada");
-    }
-
-    async function abrirRelatorioAprovados(){
-      const painel = document.getElementById("painelRelatorio");
-      const alvo = document.getElementById("conteudoRelatorioAprovados");
-
-      painel.classList.remove("hidden");
-      alvo.innerHTML = "Carregando...";
-
-      let query = client
-        .from("cotacoes_bsm")
-        .select("*")
-        .eq("tipo_cotacao", tipoCotacaoAtual)
-        .eq("status_aprovacao", "APROVADA")
-        .order("data_referencia", { ascending: false });
-
-      if(!usuarioEhAdmin()){
-        query = query.eq("comprador_usuario", usuarioSessao.usuario);
-      }
-
-      const { data, error } = await query;
-
-      if(error){
-        alvo.innerHTML = `<div class="msg" style="color:#ffb4b4;">Erro: ${error.message}</div>`;
-        return;
-      }
-
-      if(!data?.length){
-        alvo.innerHTML = `<div>Nenhuma cotação aprovada em ${nomeTipoCotacao(tipoCotacaoAtual)}.</div>`;
-        return;
-      }
-
-      let html = "";
-
-      data.forEach(reg => {
-        const produtos = reg.dados?.produtos || [];
-        let totalGeral = 0;
-        let linhas = "";
-
-        produtos.forEach(prod => {
-          (prod.fornecedores || []).forEach(f => {
-            if(f.aprovado){
-              const estoque = parseNumeroBR(f.estoque || 0);
-              const vu = parseNumeroBR(f.valor || 0);
-              const total = estoque * vu;
-              totalGeral += total;
-
-              if(reg.tipo_cotacao === "CD"){
-                const link = garantirHttps(f.link || "");
-
-                linhas += `
-                  <tr>
-                    <td>${escapeHtml(prod.nome || "")}</td>
-                    <td>${escapeHtml(prod.kg || "")}</td>
-                    <td>${escapeHtml(f.nome || "")}</td>
-                    <td>${escapeHtml(f.estoque || "-")}</td>
-                    <td>${link ? `<a class="link-relatorio" href="${escapeHtml(link)}" target="_blank">Abrir link</a>` : "-"}</td>
-                    <td>${escapeHtml(f.notaRecebida || "-")}</td>
-                    <td>${formatarMoedaBR(vu)}</td>
-                    <td>${formatarMoedaBR(total)}</td>
-                  </tr>
-                `;
-              } else {
-                linhas += `
-                  <tr>
-                    <td>${escapeHtml(prod.nome || "")}</td>
-                    <td>${escapeHtml(prod.kg || "")}</td>
-                    <td>${escapeHtml(f.nome || "")}</td>
-                    <td>${escapeHtml(f.estoque || "-")}</td>
-                    <td>${escapeHtml(f.classificacao || "")}</td>
-                    <td>${escapeHtml(f.notaRecebida || "-")}</td>
-                    <td>${formatarMoedaBR(vu)}</td>
-                    <td>${formatarMoedaBR(total)}</td>
-                  </tr>
-                `;
-              }
-            }
-          });
-        });
-
-        if(!linhas){
-          linhas = `<tr><td colspan="8">Nenhum fornecedor aprovado.</td></tr>`;
-        }
-
-        html += `
-          <div class="card" style="margin-bottom:12px;">
-            <strong>Nº da Cotação:</strong> ${reg.numero_cotacao || "-"}<br>
-            <strong>Tipo:</strong> ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}<br>
-            <strong>Data:</strong> ${formatarDataBR(reg.data_referencia)}<br>
-            <strong>Comprador:</strong> ${escapeHtml(reg.comprador_nome || "-")}<br>
-            <strong>Aprovado por:</strong> ${escapeHtml(reg.aprovado_por || "-")}<br>
-            <strong>Data aprovação:</strong> ${formatarDataHoraBR(reg.aprovado_em)}<br><br>
-
-            <div class="relatorio-box">
-              <table>
-                <tr>
-                  <th>Produto</th>
-                  <th>KG/QTD Solicitado</th>
-                  <th>Fornecedor</th>
-                  <th>Estoque KG</th>
-                  ${reg.tipo_cotacao === "CD" ? "<th>Link da Cotação</th>" : "<th>Classificação</th>"}
-                  <th>Nota Recebida</th>
-                  <th>Valor Unitário</th>
-                  <th>Total</th>
-                </tr>
-
-                ${linhas}
-
-                <tr>
-                  <td colspan="7" style="text-align:right;"><strong>Total Geral</strong></td>
-                  <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
-                </tr>
-              </table>
-            </div>
-          </div>
-        `;
-      });
-
-      alvo.innerHTML = html;
-    }
-
-    async function carregarCompradoresParaAdmin(){
-      const { data, error } = await client
-        .from("usuarios_cotacao")
-        .select("*")
-        .eq("perfil", "usuario")
-        .eq("ativo", true)
-        .order("nome", { ascending: true });
-
-      if(error) return;
-
-      const select = document.getElementById("filtroComprador");
-      select.innerHTML = `<option value="">Selecione</option>`;
-
-      (data || []).forEach(u => {
-        const op = document.createElement("option");
-        op.value = u.usuario;
-        op.textContent = u.nome;
-        select.appendChild(op);
-      });
-
-      if(data?.length){
-        select.value = data[0].usuario;
-        document.getElementById("compradorNome").value = data[0].nome;
-      }
-    }
-
-    async function carregarCotacaoDoCompradorAdmin(){
-      const usuario = document.getElementById("filtroComprador").value;
-
-      if(!usuario) return;
-
-      const { data } = await client
-        .from("usuarios_cotacao")
-        .select("*")
-        .eq("usuario", usuario)
-        .maybeSingle();
-
-      document.getElementById("compradorNome").value = data?.nome || "";
-
-      await carregarDadosDaData();
-    }
-
-    function togglePainelUsuarios(){
-      const painel = document.getElementById("painelUsuarios");
-
-      painel.classList.toggle("hidden");
-
-      if(!painel.classList.contains("hidden")) {
-        carregarUsuarios();
-      }
-    }
-
-    function limparFormularioUsuario(){
-      document.getElementById("novoUsuario").value = "";
-      document.getElementById("novaSenha").value = "";
-      document.getElementById("novoNome").value = "";
-      document.getElementById("novoPerfil").value = "usuario";
-      document.getElementById("msgUsuarios").innerText = "";
-    }
-
-    async function salvarUsuario(){
-      if(!usuarioEhAdmin()){
-        alert("Somente o administrador pode cadastrar usuários.");
-        return;
-      }
-
-      const usuario = document.getElementById("novoUsuario").value.trim().toLowerCase();
-      const senha = document.getElementById("novaSenha").value.trim();
-      const nome = document.getElementById("novoNome").value.trim();
-      const perfil = document.getElementById("novoPerfil").value;
-
-      if(!usuario || !senha || !nome){
-        document.getElementById("msgUsuarios").innerText = "Preencha usuário, senha e nome.";
-        return;
-      }
-
-      const { error } = await client
-        .from("usuarios_cotacao")
-        .upsert({
-          usuario,
-          senha,
-          nome,
-          perfil,
-          ativo: true
-        }, {
-          onConflict: "usuario"
-        });
-
-      if(error){
-        document.getElementById("msgUsuarios").innerText = "Erro ao salvar usuário: " + error.message;
-        return;
-      }
-
-      document.getElementById("msgUsuarios").innerText = "Usuário salvo com sucesso.";
-
-      limparFormularioUsuario();
-      await carregarUsuarios();
-      await carregarCompradoresParaAdmin();
-    }
-
-    async function carregarUsuarios(){
-      if(!usuarioEhAdmin()) return;
-
-      const alvo = document.getElementById("listaUsuarios");
-      alvo.innerHTML = "Carregando...";
-
-      const { data, error } = await client
-        .from("usuarios_cotacao")
-        .select("*")
-        .order("nome", { ascending: true });
-
-      if(error){
-        alvo.innerHTML = `<div class="salvo">Erro ao carregar usuários: ${error.message}</div>`;
-        return;
-      }
-
-      if(!data?.length){
-        alvo.innerHTML = `<div class="salvo">Nenhum usuário cadastrado.</div>`;
-        return;
-      }
-
-      alvo.innerHTML = "";
-
-      data.forEach(u => {
-        const div = document.createElement("div");
-        div.className = "salvo";
-        div.innerHTML = `
-          <strong>${escapeHtml(u.nome || "")}</strong>
-          <div>Usuário: ${escapeHtml(u.usuario || "")}</div>
-          <div>Perfil: ${escapeHtml(u.perfil || "")}</div>
-          <div>Status: ${u.ativo === false ? "Inativo" : "Ativo"}</div>
-        `;
-
-        alvo.appendChild(div);
-      });
-    }
-
-    function ativarEventosInputs(container){
-      container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
-        inp.addEventListener("blur", () => {
-          if(!podeEditarCotacao()) return;
-
-          inp.value = (inp.value || "").trim().toUpperCase();
-
-          atualizarListaFornecedoresLote();
-          marcarNaoSalvo();
-          salvarAutomatico();
-        });
-      });
-
-      container.querySelectorAll("input[type='text'], select").forEach(inp => {
-        inp.addEventListener("input", () => {
-          if(!podeEditarCotacao()) return;
-
-          marcarNaoSalvo();
-          salvarAutomatico();
-        });
-
-        inp.addEventListener("change", () => {
-          if(!podeEditarCotacao()) return;
-
-          marcarNaoSalvo();
-          salvarAutomatico();
-        });
-      });
-    }
-
-    function ativarEventosGlobais(){
-      document.getElementById("dataReferencia").addEventListener("change", async () => {
-        await carregarDadosDaData();
-      });
-
-      ["responsavel", "observacao", "compradorWhatsapp"].forEach(id => {
-        document.getElementById(id).addEventListener("input", () => {
-          if(!podeEditarCotacao()) return;
-          salvarAutomatico();
-        });
-      });
-    }
-
-    document.getElementById("dataReferencia").value = dataAtualISO();
-  </script>
 </body>
 </html>
