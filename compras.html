@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BSM Cotação</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
@@ -58,11 +60,11 @@
       color: #dbeafe;
     }
 
-    input, select, textarea {
+    input, select {
       width: 100%;
       border: none;
       border-radius: 12px;
-      padding: 10px 10px;
+      padding: 10px;
       font-size: 13px;
       margin-top: 4px;
       background: #fff;
@@ -71,32 +73,6 @@
     }
 
     input[readonly] { background: #e5eefc; }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .tab-btn {
-      background: #102944;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .tab-btn.active { background: #2563eb; }
-
-    .acoes {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
 
     button {
       border: none;
@@ -108,6 +84,13 @@
       color: white;
     }
 
+    button:disabled,
+    input:disabled,
+    select:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
     .btn-blue { background: #2563eb; }
     .btn-green { background: #15803d; }
     .btn-red { background: #b91c1c; }
@@ -117,12 +100,24 @@
 
     .btn-link {
       background: #1d4ed8;
-      color: #fff;
       padding: 9px 10px;
       font-size: 12px;
-      min-height: auto;
       white-space: nowrap;
     }
+
+    .tabs, .acoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      background: #102944;
+      color: white;
+    }
+
+    .tab-btn.active { background: #2563eb; }
 
     .status-save {
       display: inline-flex;
@@ -181,15 +176,13 @@
     .aviso-aprovada {
       margin-bottom: 14px;
       background: linear-gradient(180deg, #7f1d1d 0%, #dc2626 100%);
-      color: #ffffff;
-      border: 2px solid rgba(255,255,255,.18);
+      color: #fff;
       border-radius: 16px;
       padding: 14px 16px;
       font-size: 16px;
       font-weight: 800;
       text-align: center;
       box-shadow: 0 8px 24px rgba(0,0,0,.18);
-      letter-spacing: .3px;
     }
 
     .grid-produtos {
@@ -227,15 +220,14 @@
       padding: 0 4px 8px 4px;
       font-size: 12px;
       font-weight: 700;
-      color: #ffffff;
       text-align: center;
     }
 
-    .cab-mp {
+    .cab-mp, .linha-mp {
       grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
     }
 
-    .cab-cd {
+    .cab-cd, .linha-cd {
       grid-template-columns: 1.5fr .9fr .9fr 1.4fr .9fr 1fr .7fr;
     }
 
@@ -254,20 +246,11 @@
       border: 1px solid rgba(255,255,255,.06);
     }
 
-    .linha-mp {
-      grid-template-columns: 2.2fr 1fr 1fr 1.1fr 1.1fr 1.1fr .7fr;
-    }
-
-    .linha-cd {
-      grid-template-columns: 1.5fr .9fr .9fr 1.4fr .9fr 1fr .7fr;
-    }
-
     .fornecedor-linha input,
     .fornecedor-linha select {
       margin: 0;
       padding: 9px 8px;
       font-size: 12px;
-      min-width: 0;
     }
 
     .campo-link-wrap {
@@ -314,17 +297,25 @@
 
     .fornecedor-aprovado .total-box {
       background: rgba(37,99,235,.25);
-      color: #fff;
-      font-weight: 700;
     }
 
     .fornecedor-menor {
       box-shadow: inset 0 0 0 2px #f1c40f;
     }
 
-    .salvo { margin-bottom: 10px; }
-    .salvo strong { display: block; margin-bottom: 6px; }
-    .msg { margin-top: 10px; font-weight: 700; }
+    .salvo {
+      margin-bottom: 10px;
+    }
+
+    .salvo strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .msg {
+      margin-top: 10px;
+      font-weight: 700;
+    }
 
     .relatorio-box {
       overflow: auto;
@@ -367,7 +358,9 @@
     }
 
     @media (max-width: 900px) {
-      .acoes button, .acoes .status-save { flex: 1 1 calc(50% - 10px); }
+      .acoes button, .acoes .status-save {
+        flex: 1 1 calc(50% - 10px);
+      }
     }
 
     @media (max-width: 860px) {
@@ -375,13 +368,12 @@
         grid-template-columns: 1fr;
       }
 
-      .linha-cabecalho,
-      .fornecedor-linha {
-        grid-template-columns: 1fr !important;
-      }
-
       .linha-cabecalho {
         display: none;
+      }
+
+      .fornecedor-linha {
+        grid-template-columns: 1fr !important;
       }
 
       .campo-link-wrap {
@@ -391,20 +383,26 @@
     }
 
     @media (max-width: 520px) {
-      .acoes button, .acoes .status-save { flex: 1 1 100%; }
+      .acoes button, .acoes .status-save {
+        flex: 1 1 100%;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="topo">BSM SISTEMA DE COTAÇÃO</div>
 
   <div id="telaLogin" class="container">
     <div class="card login-wrap">
       <h2>Login do sistema</h2>
+
       <label>Usuário</label>
       <input type="text" id="loginUsuario" placeholder="Usuário">
+
       <label>Senha</label>
       <input type="password" id="loginSenha" placeholder="Senha">
+
       <button class="btn-blue" onclick="fazerLogin()">Entrar</button>
       <div class="msg" id="msgLogin"></div>
     </div>
@@ -431,31 +429,43 @@
 
     <div class="topbar">
       <div class="box">
+        <label>Buscar Nº da Cotação</label>
+        <input type="text" id="buscarNumeroCotacao" placeholder="Ex.: MP-20260423-0001">
+        <button class="btn-blue" style="margin-top:8px;width:100%;" onclick="buscarCotacaoPorNumero()">🔎 Buscar</button>
+      </div>
+
+      <div class="box">
         <label>Data</label>
         <input type="date" id="dataReferencia">
       </div>
+
       <div class="box">
         <label>Comprador</label>
         <input type="text" id="compradorNome" readonly>
       </div>
+
       <div class="box">
         <label>WhatsApp do comprador</label>
         <input type="text" id="compradorWhatsapp" placeholder="Ex.: 5531999999999">
       </div>
+
       <div class="box">
         <label>Responsável interno</label>
         <input type="text" id="responsavel" placeholder="Responsável">
       </div>
+
       <div class="box">
         <label>Observação</label>
         <input type="text" id="observacao" placeholder="Observação">
       </div>
+
       <div class="box">
         <label>Aprovar fornecedor em lote</label>
         <select id="fornecedorLote">
           <option value="">Selecione o fornecedor</option>
         </select>
       </div>
+
       <div class="box hidden" id="boxFiltroComprador">
         <label>Filtrar comprador</label>
         <select id="filtroComprador" onchange="carregarCotacaoDoCompradorAdmin()">
@@ -475,6 +485,7 @@
 
     <div class="card" style="margin-bottom:14px;">
       <div><strong>Usuário logado:</strong> <span id="usuarioLogadoInfo">-</span></div>
+      <div><strong>Nº da Cotação:</strong> <span id="numeroCotacao">-</span></div>
       <div><strong>Perfil:</strong> <span id="perfilLogadoInfo">-</span></div>
       <div><strong>Última aprovação:</strong> <span id="infoAprovacao">-</span></div>
       <div id="chipStatusCotacao" class="chip chip-pendente">PENDENTE</div>
@@ -499,19 +510,23 @@
 
     <div class="box hidden" id="painelUsuarios" style="margin-top:14px;">
       <h3 style="margin-top:0;">👥 Cadastro de usuários</h3>
+
       <div class="topbar">
         <div class="box">
           <label>Usuário</label>
           <input type="text" id="novoUsuario" placeholder="login">
         </div>
+
         <div class="box">
           <label>Senha</label>
           <input type="text" id="novaSenha" placeholder="senha">
         </div>
+
         <div class="box">
           <label>Nome</label>
           <input type="text" id="novoNome" placeholder="nome completo">
         </div>
+
         <div class="box">
           <label>Perfil</label>
           <select id="novoPerfil">
@@ -520,10 +535,12 @@
           </select>
         </div>
       </div>
+
       <div class="acoes">
         <button class="btn-blue" onclick="salvarUsuario()">💾 Salvar Usuário</button>
         <button class="btn-black" onclick="limparFormularioUsuario()">🧹 Limpar</button>
       </div>
+
       <div id="msgUsuarios" class="msg"></div>
       <div id="listaUsuarios"></div>
     </div>
@@ -562,6 +579,7 @@
     const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const FORNECEDORES = 6;
+
     let proximoProdutoId = 1;
     let usuarioSessao = null;
     let cotacaoAtual = null;
@@ -611,7 +629,9 @@
 
     function formatarDataHoraBR(dataISO){
       if(!dataISO) return "-";
-      return new Date(dataISO).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+      return new Date(dataISO).toLocaleString("pt-BR", {
+        timeZone: "America/Sao_Paulo"
+      });
     }
 
     function dataAtualISO(){
@@ -643,6 +663,37 @@
       window.open(link, "_blank");
     }
 
+    function gerarNumeroCotacao(tipo, data, sequencial){
+      const dataFormatada = data.replaceAll("-", "");
+      const seq = String(sequencial).padStart(4, "0");
+      return `${tipo}-${dataFormatada}-${seq}`;
+    }
+
+    async function obterProximoNumeroCotacao(data, tipo){
+      const dataFormatada = data.replaceAll("-", "");
+
+      const { data: registros, error } = await client
+        .from("cotacoes_bsm")
+        .select("numero_cotacao")
+        .like("numero_cotacao", `${tipo}-${dataFormatada}-%`);
+
+      if(error || !registros) {
+        return `${tipo}-${dataFormatada}-0001`;
+      }
+
+      let maior = 0;
+
+      registros.forEach(r => {
+        if(r.numero_cotacao){
+          const partes = r.numero_cotacao.split("-");
+          const num = parseInt(partes[2] || "0", 10);
+          if(num > maior) maior = num;
+        }
+      });
+
+      return gerarNumeroCotacao(tipo, data, maior + 1);
+    }
+
     function mostrarMsgLogin(texto, cor = "red"){
       const el = document.getElementById("msgLogin");
       el.innerText = texto;
@@ -653,6 +704,7 @@
       const el = document.getElementById("statusSalvar");
       el.innerText = "🟢 " + msg;
       el.style.background = "#14532d";
+
       setTimeout(() => {
         el.innerText = "🟢 Salvo";
         el.style.background = "#374151";
@@ -676,18 +728,11 @@
       const bloqueado = !podeEditarCotacao();
       const aviso = document.getElementById("avisoCotacaoAprovada");
 
-      if (aviso) {
+      if(aviso) {
         aviso.classList.toggle("hidden", !bloqueado);
       }
 
-      const idsBloquear = [
-        "compradorWhatsapp",
-        "responsavel",
-        "observacao",
-        "fornecedorLote"
-      ];
-
-      idsBloquear.forEach(id => {
+      ["compradorWhatsapp", "responsavel", "observacao", "fornecedorLote"].forEach(id => {
         const el = document.getElementById(id);
         if(el) el.disabled = bloqueado;
       });
@@ -702,12 +747,12 @@
       if(btnLote) btnLote.disabled = bloqueado;
       if(btnLimpar) btnLimpar.disabled = bloqueado;
 
-      document.querySelectorAll("#containerProdutos input, #containerProdutos select, #containerProdutos textarea").forEach(el => {
+      document.querySelectorAll("#containerProdutos input, #containerProdutos select").forEach(el => {
         el.disabled = bloqueado;
       });
 
       document.querySelectorAll("#containerProdutos button").forEach(btn => {
-        if (btn.classList.contains("btn-red") || btn.classList.contains("btn-link")) {
+        if(btn.classList.contains("btn-red") || btn.classList.contains("btn-link")){
           btn.disabled = bloqueado;
         }
       });
@@ -715,8 +760,10 @@
 
     async function trocarTipoCotacao(tipo){
       if(tipoCotacaoAtual === tipo) return;
+
       tipoCotacaoAtual = tipo;
       atualizarVisualAbas();
+
       await carregarDadosDaData();
       await atualizarListaCotacoesSalvas();
     }
@@ -748,6 +795,7 @@
       }
 
       usuarioSessao = data[0];
+
       if(usuarioSessao.ativo === false){
         mostrarMsgLogin("Usuário inativo.");
         return;
@@ -760,16 +808,18 @@
       document.getElementById("perfilLogadoInfo").innerText = usuarioSessao.perfil;
       document.getElementById("compradorNome").value = usuarioSessao.nome;
 
-      if(usuarioSessao.perfil === "admin"){
+      if(usuarioEhAdmin()){
         document.getElementById("btnAprovarCotacao").classList.remove("hidden");
         document.getElementById("btnRelatorioAprovados").classList.remove("hidden");
         document.getElementById("btnUsuarios").classList.remove("hidden");
         document.getElementById("boxFiltroComprador").classList.remove("hidden");
+
         await carregarCompradoresParaAdmin();
         await carregarUsuarios();
       }
 
       document.getElementById("dataReferencia").value = dataAtualISO();
+
       atualizarVisualAbas();
       await carregarDadosDaData();
       await atualizarListaCotacoesSalvas();
@@ -805,7 +855,12 @@
       chip.className = "chip " + (status === "APROVADA" ? "chip-aprovada" : "chip-pendente");
 
       document.getElementById("infoAprovacao").innerText =
-        cotacaoAtual?.aprovado_por ? `${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}` : "-";
+        cotacaoAtual?.aprovado_por
+          ? `${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}`
+          : "-";
+
+      document.getElementById("numeroCotacao").innerText =
+        cotacaoAtual?.numero_cotacao || "-";
     }
 
     function atualizarListaFornecedoresLote(){
@@ -819,6 +874,7 @@
       });
 
       select.innerHTML = `<option value="">Selecione o fornecedor</option>`;
+
       [...fornecedores].sort().forEach(nome => {
         const op = document.createElement("option");
         op.value = nome;
@@ -826,24 +882,31 @@
         select.appendChild(op);
       });
 
-      if([...fornecedores].includes(atual)) select.value = atual;
+      if([...fornecedores].includes(atual)) {
+        select.value = atual;
+      }
     }
 
     function destacarMenor(produtoId){
       let valores = [];
-      for(let i=1; i<=FORNECEDORES; i++){
+
+      for(let i = 1; i <= FORNECEDORES; i++){
         const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
         if(v > 0) valores.push(v);
       }
 
       const menor = valores.length ? Math.min(...valores) : 0;
 
-      for(let i=1; i<=FORNECEDORES; i++){
+      for(let i = 1; i <= FORNECEDORES; i++){
         const box = document.getElementById(`box_${produtoId}_${i}`);
         if(!box) continue;
+
         box.classList.remove("fornecedor-menor");
+
         const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
-        if(menor > 0 && v === menor) box.classList.add("fornecedor-menor");
+        if(menor > 0 && v === menor) {
+          box.classList.add("fornecedor-menor");
+        }
       }
     }
 
@@ -857,12 +920,19 @@
       destacarMenor(produtoId);
       atualizarListaFornecedoresLote();
       atualizarDashboard();
-      if(salvar && podeEditarCotacao()) salvarAutomatico();
+
+      if(salvar && podeEditarCotacao()) {
+        salvarAutomatico();
+      }
     }
 
     function recalcular(produtoId){
       if(!podeEditarCotacao()) return;
-      for(let i=1; i<=FORNECEDORES; i++) calcular(produtoId, i, false);
+
+      for(let i = 1; i <= FORNECEDORES; i++) {
+        calcular(produtoId, i, false);
+      }
+
       salvarAutomatico();
     }
 
@@ -877,8 +947,11 @@
       const box = document.getElementById(`box_${produtoId}_${fornecedorId}`);
       const chk = document.getElementById(`ok_${produtoId}_${fornecedorId}`);
 
-      if(chk.checked) box.classList.add("fornecedor-aprovado");
-      else box.classList.remove("fornecedor-aprovado");
+      if(chk.checked) {
+        box.classList.add("fornecedor-aprovado");
+      } else {
+        box.classList.remove("fornecedor-aprovado");
+      }
 
       atualizarDashboard();
       salvarAutomatico();
@@ -890,6 +963,7 @@
         alert("Somente o administrador pode informar a nota.");
         return;
       }
+
       salvarAutomatico();
     }
 
@@ -900,15 +974,18 @@
       }
 
       const fornecedor = document.getElementById("fornecedorLote").value;
+
       if(!fornecedor){
         alert("Selecione o fornecedor.");
         return;
       }
 
       let aprovados = 0;
+
       document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
-        const produtoId = card.id.replace("card_","");
-        for(let f=1; f<=FORNECEDORES; f++){
+        const produtoId = card.id.replace("card_", "");
+
+        for(let f = 1; f <= FORNECEDORES; f++){
           const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
           const valor = parseNumeroBR(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
           const chk = document.getElementById(`ok_${produtoId}_${f}`);
@@ -924,6 +1001,7 @@
 
       atualizarDashboard();
       salvarAutomatico();
+
       alert(`Fornecedor aprovado em ${aprovados} item(ns).`);
     }
 
@@ -970,16 +1048,20 @@
             <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
             <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque KG" oninput="calcular(${produtoId},${f})">
             <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+
             <div class="campo-link-wrap">
               <input type="text" id="link_${produtoId}_${f}" value="${escapeHtml(linkVal)}" placeholder="https://...">
               <button type="button" class="btn-link" onclick="abrirLink(document.getElementById('link_${produtoId}_${f}').value)">Abrir</button>
             </div>
+
             <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
+
             <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
               <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
               <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
               <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
             </select>
+
             <div class="ok-col">
               <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
             </div>
@@ -992,18 +1074,22 @@
           <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
           <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque KG" oninput="calcular(${produtoId},${f})">
           <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
+
           <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
+
           <select id="class_${produtoId}_${f}">
             <option value="">Classificação</option>
             <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
             <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
             <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
           </select>
+
           <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
             <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
             <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
             <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
           </select>
+
           <div class="ok-col">
             <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
           </div>
@@ -1018,14 +1104,18 @@
       }
 
       const produtoId = dados?.produtoId || proximoProdutoId++;
-      if(produtoId >= proximoProdutoId) proximoProdutoId = produtoId + 1;
+
+      if(produtoId >= proximoProdutoId) {
+        proximoProdutoId = produtoId + 1;
+      }
 
       const card = document.createElement("div");
       card.className = "card produto-card";
       card.id = `card_${produtoId}`;
 
       let linhas = "";
-      for(let f=1; f<=FORNECEDORES; f++){
+
+      for(let f = 1; f <= FORNECEDORES; f++){
         linhas += renderLinhaFornecedor(produtoId, f, dados?.fornecedores?.[f-1] || {});
       }
 
@@ -1049,7 +1139,10 @@
 
       document.getElementById("containerProdutos").appendChild(card);
 
-      for(let f=1; f<=FORNECEDORES; f++) calcular(produtoId, f, false);
+      for(let f = 1; f <= FORNECEDORES; f++) {
+        calcular(produtoId, f, false);
+      }
+
       ativarEventosInputs(card);
       atualizarListaFornecedoresLote();
       atualizarDashboard();
@@ -1061,8 +1154,11 @@
         alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
         return;
       }
+
       if(!confirm("Deseja remover este produto?")) return;
+
       document.getElementById(`card_${produtoId}`)?.remove();
+
       atualizarListaFornecedoresLote();
       atualizarDashboard();
       salvarAutomatico();
@@ -1070,13 +1166,15 @@
 
     function montarDadosTela(){
       const produtos = [];
+
       document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
-        const produtoId = parseInt(card.id.replace("card_",""), 10);
+        const produtoId = parseInt(card.id.replace("card_", ""), 10);
         const nome = document.getElementById(`prod_${produtoId}`).value || "";
         const kg = document.getElementById(`kg_${produtoId}`).value || "";
 
         const fornecedores = [];
-        for(let f=1; f<=FORNECEDORES; f++){
+
+        for(let f = 1; f <= FORNECEDORES; f++){
           fornecedores.push({
             nome: document.getElementById(`forn_${produtoId}_${f}`)?.value || "",
             estoque: document.getElementById(`estoque_${produtoId}_${f}`)?.value || "",
@@ -1105,18 +1203,27 @@
 
     async function salvarNaNuvem(){
       const data = document.getElementById("dataReferencia").value;
+
       if(!data) return false;
 
       const payload = montarDadosTela();
-      const compradorUsuario = usuarioSessao.perfil === "admin"
+
+      const compradorUsuario = usuarioEhAdmin()
         ? (document.getElementById("filtroComprador").value || usuarioSessao.usuario)
         : usuarioSessao.usuario;
 
-      const compradorNome = usuarioSessao.perfil === "admin"
+      const compradorNome = usuarioEhAdmin()
         ? (document.getElementById("compradorNome").value || usuarioSessao.nome)
         : usuarioSessao.nome;
 
+      let numeroCotacao = cotacaoAtual?.numero_cotacao;
+
+      if(!numeroCotacao){
+        numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
+      }
+
       const registro = {
+        numero_cotacao: numeroCotacao,
         tipo_cotacao: tipoCotacaoAtual,
         data_referencia: data,
         comprador_usuario: compradorUsuario,
@@ -1132,7 +1239,9 @@
 
       const { data: upsertData, error } = await client
         .from("cotacoes_bsm")
-        .upsert(registro, { onConflict: "tipo_cotacao,data_referencia,comprador_usuario" })
+        .upsert(registro, {
+          onConflict: "tipo_cotacao,data_referencia,comprador_usuario"
+        })
         .select()
         .maybeSingle();
 
@@ -1142,6 +1251,8 @@
       }
 
       cotacaoAtual = upsertData || cotacaoAtual;
+      document.getElementById("numeroCotacao").innerText = numeroCotacao;
+
       return true;
     }
 
@@ -1152,14 +1263,20 @@
         .eq("tipo_cotacao", tipoCotacaoAtual)
         .eq("data_referencia", data);
 
-      if(usuarioSessao.perfil === "admin"){
-        if(compradorUsuario) query = query.eq("comprador_usuario", compradorUsuario);
+      if(usuarioEhAdmin()){
+        if(compradorUsuario) {
+          query = query.eq("comprador_usuario", compradorUsuario);
+        }
       } else {
         query = query.eq("comprador_usuario", usuarioSessao.usuario);
       }
 
-      const { data: registros, error } = await query.order("created_at", { ascending: false });
+      const { data: registros, error } = await query.order("created_at", {
+        ascending: false
+      });
+
       if(error) return null;
+
       return registros?.[0] || null;
     }
 
@@ -1170,12 +1287,14 @@
         .eq("tipo_cotacao", tipoCotacaoAtual)
         .order("data_referencia", { ascending: false });
 
-      if(usuarioSessao.perfil !== "admin"){
+      if(!usuarioEhAdmin()){
         query = query.eq("comprador_usuario", usuarioSessao.usuario);
       }
 
       const { data, error } = await query;
+
       if(error) return [];
+
       return data || [];
     }
 
@@ -1183,6 +1302,7 @@
       if(!podeEditarCotacao()) return;
 
       const ok = await salvarNaNuvem();
+
       if(ok){
         await atualizarListaCotacoesSalvas();
         mostrarStatusSalvo(manual ? "Salvo com sucesso" : "Salvo automático");
@@ -1194,12 +1314,14 @@
         alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");
         return;
       }
+
       marcarNaoSalvo();
       await salvarAutomatico(true);
     }
 
     function limparTela(){
       document.getElementById("containerProdutos").innerHTML = "";
+      document.getElementById("numeroCotacao").innerText = "-";
       proximoProdutoId = 1;
       atualizarDashboard();
     }
@@ -1209,9 +1331,10 @@
       cotacaoAtual = null;
 
       const data = document.getElementById("dataReferencia").value;
+
       if(!data) return;
 
-      const compradorUsuario = usuarioSessao.perfil === "admin"
+      const compradorUsuario = usuarioEhAdmin()
         ? document.getElementById("filtroComprador").value
         : usuarioSessao.usuario;
 
@@ -1221,9 +1344,11 @@
         document.getElementById("responsavel").value = "";
         document.getElementById("observacao").value = "";
         document.getElementById("compradorWhatsapp").value = "";
-        if(usuarioSessao.perfil !== "admin"){
+
+        if(!usuarioEhAdmin()){
           document.getElementById("compradorNome").value = usuarioSessao.nome;
         }
+
         adicionarProduto();
         atualizarDashboard();
         aplicarBloqueioTela();
@@ -1231,8 +1356,10 @@
       }
 
       cotacaoAtual = registro;
+
       const dados = registro.dados || {};
 
+      document.getElementById("numeroCotacao").innerText = registro.numero_cotacao || "-";
       document.getElementById("compradorNome").value = registro.comprador_nome || "";
       document.getElementById("responsavel").value = registro.responsavel || "";
       document.getElementById("observacao").value = registro.observacao || "";
@@ -1260,12 +1387,13 @@
       }
 
       const data = document.getElementById("dataReferencia").value;
+
       if(!data){
         alert("Selecione uma data.");
         return;
       }
 
-      const compradorUsuario = usuarioSessao.perfil === "admin"
+      const compradorUsuario = usuarioEhAdmin()
         ? document.getElementById("filtroComprador").value
         : usuarioSessao.usuario;
 
@@ -1277,13 +1405,16 @@
         .eq("tipo_cotacao", tipoCotacaoAtual)
         .eq("data_referencia", data);
 
-      if(usuarioSessao.perfil === "admin"){
-        if(compradorUsuario) query = query.eq("comprador_usuario", compradorUsuario);
+      if(usuarioEhAdmin()){
+        if(compradorUsuario) {
+          query = query.eq("comprador_usuario", compradorUsuario);
+        }
       } else {
         query = query.eq("comprador_usuario", usuarioSessao.usuario);
       }
 
       const { error } = await query;
+
       if(error){
         alert("Erro ao excluir: " + error.message);
         return;
@@ -1296,11 +1427,57 @@
     async function abrirCotacao(data, compradorUsuario, compradorNome, tipoCotacao){
       tipoCotacaoAtual = tipoCotacao || "MP";
       atualizarVisualAbas();
+
       document.getElementById("dataReferencia").value = data;
 
-      if(usuarioSessao.perfil === "admin"){
+      if(usuarioEhAdmin()){
         document.getElementById("filtroComprador").value = compradorUsuario;
         document.getElementById("compradorNome").value = compradorNome || "";
+      }
+
+      await carregarDadosDaData();
+    }
+
+    async function buscarCotacaoPorNumero(){
+      const numero = document.getElementById("buscarNumeroCotacao").value.trim().toUpperCase();
+
+      if(!numero){
+        alert("Informe o número da cotação.");
+        return;
+      }
+
+      let query = client
+        .from("cotacoes_bsm")
+        .select("*")
+        .eq("numero_cotacao", numero)
+        .limit(1);
+
+      if(!usuarioEhAdmin()){
+        query = query.eq("comprador_usuario", usuarioSessao.usuario);
+      }
+
+      const { data, error } = await query;
+
+      if(error){
+        alert("Erro ao buscar cotação: " + error.message);
+        return;
+      }
+
+      if(!data || !data.length){
+        alert("Cotação não encontrada.");
+        return;
+      }
+
+      const reg = data[0];
+
+      tipoCotacaoAtual = reg.tipo_cotacao || "MP";
+      atualizarVisualAbas();
+
+      document.getElementById("dataReferencia").value = reg.data_referencia;
+
+      if(usuarioEhAdmin()){
+        document.getElementById("filtroComprador").value = reg.comprador_usuario;
+        document.getElementById("compradorNome").value = reg.comprador_nome || "";
       }
 
       await carregarDadosDaData();
@@ -1314,15 +1491,13 @@
 
       if(!confirm(`Deseja excluir a cotação de ${formatarDataBR(data)}?`)) return;
 
-      let query = client
+      const { error } = await client
         .from("cotacoes_bsm")
         .delete()
         .eq("tipo_cotacao", tipoCotacao)
-        .eq("data_referencia", data);
+        .eq("data_referencia", data)
+        .eq("comprador_usuario", compradorUsuario);
 
-      query = query.eq("comprador_usuario", compradorUsuario);
-
-      const { error } = await query;
       if(error){
         alert("Erro ao excluir: " + error.message);
         return;
@@ -1356,22 +1531,27 @@
           });
         });
 
-        const statusClass = reg.status_aprovacao === "APROVADA" ? "chip-aprovada" : "chip-pendente";
+        const statusClass = reg.status_aprovacao === "APROVADA"
+          ? "chip-aprovada"
+          : "chip-pendente";
 
         const div = document.createElement("div");
         div.className = "salvo";
         div.innerHTML = `
-          <strong>${formatarDataBR(reg.data_referencia)}</strong>
+          <strong>Nº: ${reg.numero_cotacao || "-"}</strong>
+          <div>Data: ${formatarDataBR(reg.data_referencia)}</div>
           <div>Tipo: ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}</div>
           <div>Comprador: ${escapeHtml(reg.comprador_nome || "-")}</div>
           <div>Produtos: ${produtos.length}</div>
           <div>Total aprovado: R$ ${formatarMoedaBR(total)}</div>
           <div class="chip ${statusClass}">${reg.status_aprovacao || "PENDENTE"}</div>
+
           <div style="margin-top:8px;">
             <button class="btn-blue" onclick="abrirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${escapeHtml(reg.comprador_nome || "")}','${reg.tipo_cotacao || "MP"}')">Abrir</button>
             ${usuarioEhAdmin() ? `<button class="btn-red" onclick="excluirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${reg.tipo_cotacao || "MP"}')">Excluir</button>` : ""}
           </div>
         `;
+
         alvo.appendChild(div);
       });
     }
@@ -1392,9 +1572,16 @@
 
       const payload = montarDadosTela();
 
+      let numeroCotacao = cotacaoAtual?.numero_cotacao;
+
+      if(!numeroCotacao){
+        numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
+      }
+
       const { data: registro, error } = await client
         .from("cotacoes_bsm")
         .upsert({
+          numero_cotacao: numeroCotacao,
           tipo_cotacao: tipoCotacaoAtual,
           data_referencia: data,
           comprador_usuario: compradorUsuario,
@@ -1406,7 +1593,9 @@
           aprovado_por: usuarioSessao.nome,
           aprovado_em: new Date().toISOString(),
           dados: payload
-        }, { onConflict: "tipo_cotacao,data_referencia,comprador_usuario" })
+        }, {
+          onConflict: "tipo_cotacao,data_referencia,comprador_usuario"
+        })
         .select()
         .maybeSingle();
 
@@ -1416,6 +1605,7 @@
       }
 
       cotacaoAtual = registro;
+
       atualizarDashboard();
       await atualizarListaCotacoesSalvas();
       aplicarBloqueioTela();
@@ -1425,6 +1615,7 @@
     async function abrirRelatorioAprovados(){
       const painel = document.getElementById("painelRelatorio");
       const alvo = document.getElementById("conteudoRelatorioAprovados");
+
       painel.classList.remove("hidden");
       alvo.innerHTML = "Carregando...";
 
@@ -1435,11 +1626,12 @@
         .eq("status_aprovacao", "APROVADA")
         .order("data_referencia", { ascending: false });
 
-      if(usuarioSessao.perfil !== "admin"){
+      if(!usuarioEhAdmin()){
         query = query.eq("comprador_usuario", usuarioSessao.usuario);
       }
 
       const { data, error } = await query;
+
       if(error){
         alvo.innerHTML = `<div class="msg" style="color:#ffb4b4;">Erro: ${error.message}</div>`;
         return;
@@ -1451,6 +1643,7 @@
       }
 
       let html = "";
+
       data.forEach(reg => {
         const produtos = reg.dados?.produtos || [];
         let totalGeral = 0;
@@ -1466,6 +1659,7 @@
 
               if(reg.tipo_cotacao === "CD"){
                 const link = garantirHttps(f.link || "");
+
                 linhas += `
                   <tr>
                     <td>${escapeHtml(prod.nome || "")}</td>
@@ -1502,6 +1696,7 @@
 
         html += `
           <div class="card" style="margin-bottom:12px;">
+            <strong>Nº da Cotação:</strong> ${reg.numero_cotacao || "-"}<br>
             <strong>Tipo:</strong> ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}<br>
             <strong>Data:</strong> ${formatarDataBR(reg.data_referencia)}<br>
             <strong>Comprador:</strong> ${escapeHtml(reg.comprador_nome || "-")}<br>
@@ -1520,7 +1715,9 @@
                   <th>Valor Unitário</th>
                   <th>Total</th>
                 </tr>
+
                 ${linhas}
+
                 <tr>
                   <td colspan="7" style="text-align:right;"><strong>Total Geral</strong></td>
                   <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
@@ -1562,6 +1759,7 @@
 
     async function carregarCotacaoDoCompradorAdmin(){
       const usuario = document.getElementById("filtroComprador").value;
+
       if(!usuario) return;
 
       const { data } = await client
@@ -1571,13 +1769,18 @@
         .maybeSingle();
 
       document.getElementById("compradorNome").value = data?.nome || "";
+
       await carregarDadosDaData();
     }
 
     function togglePainelUsuarios(){
       const painel = document.getElementById("painelUsuarios");
+
       painel.classList.toggle("hidden");
-      if(!painel.classList.contains("hidden")) carregarUsuarios();
+
+      if(!painel.classList.contains("hidden")) {
+        carregarUsuarios();
+      }
     }
 
     function limparFormularioUsuario(){
@@ -1606,7 +1809,15 @@
 
       const { error } = await client
         .from("usuarios_cotacao")
-        .upsert({ usuario, senha, nome, perfil, ativo: true }, { onConflict: "usuario" });
+        .upsert({
+          usuario,
+          senha,
+          nome,
+          perfil,
+          ativo: true
+        }, {
+          onConflict: "usuario"
+        });
 
       if(error){
         document.getElementById("msgUsuarios").innerText = "Erro ao salvar usuário: " + error.message;
@@ -1614,6 +1825,7 @@
       }
 
       document.getElementById("msgUsuarios").innerText = "Usuário salvo com sucesso.";
+
       limparFormularioUsuario();
       await carregarUsuarios();
       await carregarCompradoresParaAdmin();
@@ -1641,6 +1853,7 @@
       }
 
       alvo.innerHTML = "";
+
       data.forEach(u => {
         const div = document.createElement("div");
         div.className = "salvo";
@@ -1650,6 +1863,7 @@
           <div>Perfil: ${escapeHtml(u.perfil || "")}</div>
           <div>Status: ${u.ativo === false ? "Inativo" : "Ativo"}</div>
         `;
+
         alvo.appendChild(div);
       });
     }
@@ -1658,7 +1872,9 @@
       container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
         inp.addEventListener("blur", () => {
           if(!podeEditarCotacao()) return;
+
           inp.value = (inp.value || "").trim().toUpperCase();
+
           atualizarListaFornecedoresLote();
           marcarNaoSalvo();
           salvarAutomatico();
@@ -1668,11 +1884,14 @@
       container.querySelectorAll("input[type='text'], select").forEach(inp => {
         inp.addEventListener("input", () => {
           if(!podeEditarCotacao()) return;
+
           marcarNaoSalvo();
           salvarAutomatico();
         });
+
         inp.addEventListener("change", () => {
           if(!podeEditarCotacao()) return;
+
           marcarNaoSalvo();
           salvarAutomatico();
         });
@@ -1684,17 +1903,11 @@
         await carregarDadosDaData();
       });
 
-      document.getElementById("responsavel").addEventListener("input", () => {
-        if(!podeEditarCotacao()) return;
-        salvarAutomatico();
-      });
-      document.getElementById("observacao").addEventListener("input", () => {
-        if(!podeEditarCotacao()) return;
-        salvarAutomatico();
-      });
-      document.getElementById("compradorWhatsapp").addEventListener("input", () => {
-        if(!podeEditarCotacao()) return;
-        salvarAutomatico();
+      ["responsavel", "observacao", "compradorWhatsapp"].forEach(id => {
+        document.getElementById(id).addEventListener("input", () => {
+          if(!podeEditarCotacao()) return;
+          salvarAutomatico();
+        });
       });
     }
 
