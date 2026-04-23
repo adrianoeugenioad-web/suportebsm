@@ -8,376 +8,95 @@
 
   <style>
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0f2b4a;
-      color: #fff;
-      overflow-x: hidden;
-    }
-
-    .topo {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: #0c223a;
-      padding: 14px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: 700;
-      box-shadow: 0 2px 10px rgba(0,0,0,.25);
-    }
-
-    .container {
-      max-width: 1850px;
-      margin: 0 auto;
-      padding: 14px;
-    }
-
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #0f2b4a; color: #fff; overflow-x: hidden; }
+    .topo { position: sticky; top: 0; z-index: 20; background: #0c223a; padding: 14px; text-align: center; font-size: 22px; font-weight: 700; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+    .container { max-width: 1850px; margin: 0 auto; padding: 14px; }
     .hidden { display: none !important; }
-
-    .box, .card, .dash, .salvo {
-      background: linear-gradient(180deg, #173a63 0%, #123250 100%);
-      border-radius: 16px;
-      padding: 14px;
-      border: 1px solid rgba(255,255,255,.08);
-      box-shadow: 0 8px 24px rgba(0,0,0,.16);
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: #dbeafe;
-    }
-
-    input, select {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 10px;
-      font-size: 13px;
-      margin-top: 4px;
-      background: #fff;
-      color: #111827;
-      min-width: 0;
-    }
-
+    .box, .card, .dash, .salvo { background: linear-gradient(180deg, #173a63 0%, #123250 100%); border-radius: 16px; padding: 14px; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 8px 24px rgba(0,0,0,.16); }
+    label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #dbeafe; }
+    input, select { width: 100%; border: none; border-radius: 12px; padding: 10px; font-size: 13px; margin-top: 4px; background: #fff; color: #111827; min-width: 0; }
     input[readonly] { background: #e5eefc; }
-
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      color: white;
-    }
-
-    button:disabled,
-    input:disabled,
-    select:disabled {
-      opacity: .65;
-      cursor: not-allowed;
-    }
-
+    button { border: none; border-radius: 12px; padding: 12px 14px; font-size: 14px; font-weight: 700; cursor: pointer; color: white; }
+    button:disabled, input:disabled, select:disabled { opacity: .65; cursor: not-allowed; }
     .btn-blue { background: #2563eb; }
     .btn-green { background: #15803d; }
     .btn-red { background: #b91c1c; }
     .btn-yellow { background: #b45309; }
     .btn-gray { background: #374151; }
     .btn-black { background: #111827; }
-
-    .btn-link {
-      background: #1d4ed8;
-      padding: 9px 10px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .tabs, .acoes {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .tab-btn {
-      background: #102944;
-      color: white;
-    }
-
+    .btn-link { background: #1d4ed8; padding: 9px 10px; font-size: 12px; white-space: nowrap; }
+    .tabs, .acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tab-btn { background: #102944; color: white; }
     .tab-btn.active { background: #2563eb; }
-
-    .status-save {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: #374151;
-      min-height: 44px;
-      font-weight: 700;
-    }
-
-    .topbar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
+    .status-save { display: inline-flex; align-items: center; justify-content: center; padding: 12px 14px; border-radius: 12px; background: #374151; min-height: 44px; font-weight: 700; }
+    .topbar { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 14px; }
     .dash { text-align: center; }
-
-    .dash span {
-      display: block;
-      font-size: 12px;
-      color: #dbeafe;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .dash strong {
-      display: block;
-      font-size: 24px;
-    }
-
-    .chip {
-      display: inline-block;
-      margin-top: 8px;
-      margin-right: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
+    .dash span { display: block; font-size: 12px; color: #dbeafe; margin-bottom: 8px; font-weight: 700; }
+    .dash strong { display: block; font-size: 24px; }
+    .chip { display: inline-block; margin-top: 8px; margin-right: 8px; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
     .chip-pendente { background: #fef3c7; color: #92400e; }
     .chip-aprovada { background: #dbeafe; color: #1e40af; }
     .chip-tipo { background: #bfdbfe; color: #1e3a8a; }
-
-    .aviso-aprovada {
-      margin-bottom: 14px;
-      background: linear-gradient(180deg, #7f1d1d 0%, #dc2626 100%);
-      color: #fff;
-      border-radius: 16px;
-      padding: 14px 16px;
-      font-size: 16px;
-      font-weight: 800;
-      text-align: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,.18);
-    }
-
-    .grid-produtos {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 16px;
-      align-items: start;
-    }
-
-    .produto-card {
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .produto-topo {
-      display: grid;
-      grid-template-columns: 1fr 150px;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .card h3 {
-      margin: 0 0 12px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 18px;
-    }
-
-    .linha-cabecalho {
-      display: grid;
-      gap: 8px;
-      padding: 0 4px 8px 4px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #fff;
-      text-align: center;
-    }
-
-    .cab-mp, .linha-mp {
-      grid-template-columns: 2fr .9fr .9fr 1.3fr 1fr 1fr .6fr;
-    }
-
-    .cab-cd, .linha-cd {
-      grid-template-columns: 1.4fr .8fr .8fr 1.2fr 1.25fr .9fr .6fr;
-    }
-
-    .fornecedores-wrap {
-      display: grid;
-      gap: 8px;
-    }
-
-    .fornecedor-linha {
-      display: grid;
-      gap: 8px;
-      align-items: center;
-      padding: 8px;
-      border-radius: 12px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.06);
-    }
-
-    .fornecedor-linha input,
-    .fornecedor-linha select {
-      margin: 0;
-      padding: 9px 8px;
-      font-size: 12px;
-    }
-
-    .campo-link-wrap {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      min-width: 0;
-    }
-
-    .campo-link-wrap input {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .total-box {
-      background: rgba(0,0,0,.18);
-      border-radius: 10px;
-      padding: 10px 6px;
-      text-align: center;
-      font-weight: 800;
-      color: #fff;
-      font-size: 12px;
-      white-space: normal;
-      overflow: visible;
-      text-overflow: unset;
-      min-height: 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .ok-col {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .ok-check {
-      width: 20px !important;
-      height: 20px;
-      margin: 0;
-    }
-
-    .fornecedor-aprovado {
-      background: #08294d !important;
-      border: 1px solid #2563eb !important;
-    }
-
-    .fornecedor-aprovado .total-box {
-      background: rgba(37,99,235,.25);
-    }
-
-    .fornecedor-menor {
-      box-shadow: inset 0 0 0 2px #f1c40f;
-    }
-
+    .aviso-aprovada { margin-bottom: 14px; background: linear-gradient(180deg, #7f1d1d 0%, #dc2626 100%); color: #fff; border-radius: 16px; padding: 14px 16px; font-size: 16px; font-weight: 800; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+    .grid-produtos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; align-items: start; }
+    .produto-card { min-width: 0; overflow: hidden; }
+    .produto-topo { display: grid; grid-template-columns: 1fr 150px; gap: 10px; margin-bottom: 12px; }
+    .card h3 { margin: 0 0 12px 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 18px; }
+    .linha-cabecalho { display: grid; gap: 8px; padding: 0 4px 8px 4px; font-size: 12px; font-weight: 700; color: #fff; text-align: center; }
+    .cab-mp, .linha-mp { grid-template-columns: 2fr .9fr .9fr 1.3fr 1fr 1fr .6fr; }
+    .cab-cd, .linha-cd { grid-template-columns: 1.4fr .8fr .8fr 1.2fr 1.25fr .9fr .6fr; }
+    .fornecedores-wrap { display: grid; gap: 8px; }
+    .fornecedor-linha { display: grid; gap: 8px; align-items: center; padding: 8px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06); }
+    .fornecedor-linha input, .fornecedor-linha select { margin: 0; padding: 9px 8px; font-size: 12px; }
+    .campo-link-wrap { display: flex; gap: 6px; align-items: center; min-width: 0; }
+    .campo-link-wrap input { flex: 1; min-width: 0; }
+    .total-box { background: rgba(0,0,0,.18); border-radius: 10px; padding: 10px 6px; text-align: center; font-weight: 800; color: #fff; font-size: 12px; white-space: normal; overflow: visible; text-overflow: unset; min-height: 38px; display: flex; align-items: center; justify-content: center; }
+    .ok-col { display: flex; justify-content: center; align-items: center; }
+    .ok-check { width: 20px !important; height: 20px; margin: 0; }
+    .fornecedor-aprovado { background: #08294d !important; border: 1px solid #2563eb !important; }
+    .fornecedor-aprovado .total-box { background: rgba(37,99,235,.25); }
+    .fornecedor-menor { box-shadow: inset 0 0 0 2px #f1c40f; }
     .salvo { margin-bottom: 10px; }
     .salvo strong { display: block; margin-bottom: 6px; }
+    .msg { margin-top: 10px; font-weight: 700; }
+    .relatorio-box { overflow: auto; }
+    .relatorio-box table { width: 100%; min-width: 980px; border-collapse: collapse; }
+    .relatorio-box th, .relatorio-box td { border: 1px solid rgba(255,255,255,.08); padding: 8px; font-size: 12px; text-align: left; }
+    .relatorio-box th { background: rgba(0,0,0,.22); }
+    .link-relatorio { color: #93c5fd; text-decoration: underline; word-break: break-all; }
 
-    .msg {
-      margin-top: 10px;
-      font-weight: 700;
-    }
-
-    .relatorio-box {
-      overflow: auto;
-    }
-
-    .relatorio-box table {
-      width: 100%;
-      min-width: 980px;
-      border-collapse: collapse;
-    }
-
-    .relatorio-box th,
-    .relatorio-box td {
-      border: 1px solid rgba(255,255,255,.08);
-      padding: 8px;
-      font-size: 12px;
-      text-align: left;
-    }
-
-    .relatorio-box th {
-      background: rgba(0,0,0,.22);
-    }
-
-    .link-relatorio {
-      color: #93c5fd;
-      text-decoration: underline;
-      word-break: break-all;
+    @media print {
+      body { background: #fff; color: #000; }
+      .topo, .tabs, .acoes, .topbar, .dashboard, #containerProdutos, #listaCotacoesSalvas, #painelUsuarios, #avisoCotacaoAprovada { display: none !important; }
+      .container { max-width: 100%; padding: 0; }
+      .box, .card { box-shadow: none; border: 1px solid #ccc; background: #fff; color: #000; }
+      .relatorio-box table { min-width: 0; width: 100%; }
+      .relatorio-box th, .relatorio-box td { color: #000; border: 1px solid #999; }
+      .no-print { display: none !important; }
     }
 
     @media (min-width: 1650px) {
-      .grid-produtos {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+      .grid-produtos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
     @media (max-width: 1280px) {
-      .grid-produtos {
-        grid-template-columns: 1fr;
-      }
+      .grid-produtos { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 900px) {
-      .acoes button, .acoes .status-save {
-        flex: 1 1 calc(50% - 10px);
-      }
+      .acoes button, .acoes .status-save { flex: 1 1 calc(50% - 10px); }
     }
 
     @media (max-width: 860px) {
-      .produto-topo {
-        grid-template-columns: 1fr;
-      }
-
-      .linha-cabecalho {
-        display: none;
-      }
-
-      .fornecedor-linha {
-        grid-template-columns: 1fr !important;
-      }
-
-      .campo-link-wrap {
-        flex-direction: column;
-        align-items: stretch;
-      }
+      .produto-topo { grid-template-columns: 1fr; }
+      .linha-cabecalho { display: none; }
+      .fornecedor-linha { grid-template-columns: 1fr !important; }
+      .campo-link-wrap { flex-direction: column; align-items: stretch; }
     }
 
     @media (max-width: 520px) {
-      .acoes button, .acoes .status-save {
-        flex: 1 1 100%;
-      }
+      .acoes button, .acoes .status-save { flex: 1 1 100%; }
     }
   </style>
 </head>
@@ -388,13 +107,10 @@
   <div id="telaLogin" class="container">
     <div class="card" style="max-width:420px;margin:30px auto;">
       <h2>Login do sistema</h2>
-
       <label>Usuário</label>
       <input type="text" id="loginUsuario" placeholder="Usuário">
-
       <label>Senha</label>
       <input type="password" id="loginSenha" placeholder="Senha">
-
       <button class="btn-blue" onclick="fazerLogin()">Entrar</button>
       <div class="msg" id="msgLogin"></div>
     </div>
@@ -496,7 +212,7 @@
     </div>
 
     <div class="box hidden" id="painelRelatorio" style="margin-top:14px;">
-      <h3 style="margin-top:0;">📄 Relatório de aprovados</h3>
+      <h3 style="margin-top:0;">📄 Relatório de cotações</h3>
       <div id="conteudoRelatorioAprovados"></div>
     </div>
 
@@ -570,25 +286,11 @@
     let cotacaoAtual = null;
     let tipoCotacaoAtual = "MP";
 
-    function nomeTipoCotacao(tipo){
-      return tipo === "CD" ? "COMPRAS DIVERSAS" : "MATÉRIA-PRIMA";
-    }
-
-    function isComprasDiversas(){
-      return tipoCotacaoAtual === "CD";
-    }
-
-    function usuarioEhAdmin(){
-      return usuarioSessao?.perfil === "admin";
-    }
-
-    function cotacaoEstaAprovada(){
-      return cotacaoAtual?.status_aprovacao === "APROVADA";
-    }
-
-    function podeEditarCotacao(){
-      return usuarioEhAdmin() || !cotacaoEstaAprovada();
-    }
+    function nomeTipoCotacao(tipo){ return tipo === "CD" ? "COMPRAS DIVERSAS" : "MATÉRIA-PRIMA"; }
+    function isComprasDiversas(){ return tipoCotacaoAtual === "CD"; }
+    function usuarioEhAdmin(){ return usuarioSessao?.perfil === "admin"; }
+    function cotacaoEstaAprovada(){ return cotacaoAtual?.status_aprovacao === "APROVADA"; }
+    function podeEditarCotacao(){ return usuarioEhAdmin() || !cotacaoEstaAprovada(); }
 
     function parseNumeroBR(valor){
       if(valor === null || valor === undefined) return 0;
@@ -600,10 +302,7 @@
     }
 
     function formatarMoedaBR(valor){
-      return Number(valor || 0).toLocaleString("pt-BR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+      return Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function formatarDataBR(dataISO){
@@ -614,9 +313,7 @@
 
     function formatarDataHoraBR(dataISO){
       if(!dataISO) return "-";
-      return new Date(dataISO).toLocaleString("pt-BR", {
-        timeZone: "America/Sao_Paulo"
-      });
+      return new Date(dataISO).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
     }
 
     function dataAtualISO(){
@@ -641,10 +338,7 @@
 
     function abrirLink(url){
       const link = garantirHttps(url);
-      if(!link){
-        alert("Link não informado.");
-        return;
-      }
+      if(!link){ alert("Link não informado."); return; }
       window.open(link, "_blank");
     }
 
@@ -656,7 +350,6 @@
 
     async function obterProximoNumeroCotacao(data, tipo){
       const dataFormatada = data.replaceAll("-", "");
-
       const { data: registros, error } = await client
         .from("cotacoes_bsm")
         .select("numero_cotacao")
@@ -686,7 +379,6 @@
       const el = document.getElementById("statusSalvar");
       el.innerText = "🟢 " + msg;
       el.style.background = "#14532d";
-
       setTimeout(() => {
         el.innerText = "🟢 Salvo";
         el.style.background = "#374151";
@@ -709,7 +401,6 @@
     function aplicarBloqueioTela(){
       const bloqueado = !podeEditarCotacao();
       const aviso = document.getElementById("avisoCotacaoAprovada");
-
       if(aviso) aviso.classList.toggle("hidden", !bloqueado);
 
       ["compradorWhatsapp", "responsavel", "observacao", "fornecedorLote"].forEach(id => {
@@ -727,14 +418,10 @@
       if(btnLote) btnLote.disabled = bloqueado;
       if(btnLimpar) btnLimpar.disabled = bloqueado;
 
-      document.querySelectorAll("#containerProdutos input, #containerProdutos select").forEach(el => {
-        el.disabled = bloqueado;
-      });
+      document.querySelectorAll("#containerProdutos input, #containerProdutos select").forEach(el => el.disabled = bloqueado);
 
       document.querySelectorAll("#containerProdutos button").forEach(btn => {
-        if(btn.classList.contains("btn-red") || btn.classList.contains("btn-link")){
-          btn.disabled = bloqueado;
-        }
+        if(btn.classList.contains("btn-red") || btn.classList.contains("btn-link")) btn.disabled = bloqueado;
       });
     }
 
@@ -750,10 +437,7 @@
       const usuario = document.getElementById("loginUsuario").value.trim().toLowerCase();
       const senha = document.getElementById("loginSenha").value.trim();
 
-      if(!usuario || !senha){
-        mostrarMsgLogin("Informe usuário e senha.");
-        return;
-      }
+      if(!usuario || !senha){ mostrarMsgLogin("Informe usuário e senha."); return; }
 
       const { data, error } = await client
         .from("usuarios_cotacao")
@@ -762,30 +446,17 @@
         .eq("senha", senha)
         .limit(1);
 
-      if(error){
-        mostrarMsgLogin("Erro ao consultar usuário: " + error.message);
-        return;
-      }
-
-      if(!data || !data.length){
-        mostrarMsgLogin("Usuário ou senha inválidos.");
-        return;
-      }
+      if(error){ mostrarMsgLogin("Erro ao consultar usuário: " + error.message); return; }
+      if(!data || !data.length){ mostrarMsgLogin("Usuário ou senha inválidos."); return; }
 
       usuarioSessao = data[0];
-
-      if(usuarioSessao.ativo === false){
-        mostrarMsgLogin("Usuário inativo.");
-        return;
-      }
+      if(usuarioSessao.ativo === false){ mostrarMsgLogin("Usuário inativo."); return; }
 
       document.getElementById("telaLogin").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
-
       document.getElementById("usuarioLogadoInfo").innerText = usuarioSessao.nome;
       document.getElementById("perfilLogadoInfo").innerText = usuarioSessao.perfil;
       document.getElementById("compradorNome").value = usuarioSessao.nome;
-
       document.getElementById("btnRelatorioAprovados").classList.remove("hidden");
 
       if(usuarioEhAdmin()){
@@ -797,16 +468,13 @@
       }
 
       document.getElementById("dataReferencia").value = dataAtualISO();
-
       atualizarVisualAbas();
       await carregarDadosDaData();
       await atualizarListaCotacoesSalvas();
       ativarEventosGlobais();
     }
 
-    function logout(){
-      location.reload();
-    }
+    function logout(){ location.reload(); }
 
     function atualizarDashboard(){
       let total = 0;
@@ -833,12 +501,9 @@
       chip.className = "chip " + (status === "APROVADA" ? "chip-aprovada" : "chip-pendente");
 
       document.getElementById("infoAprovacao").innerText =
-        cotacaoAtual?.aprovado_por
-          ? `${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}`
-          : "-";
+        cotacaoAtual?.aprovado_por ? `${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}` : "-";
 
-      document.getElementById("numeroCotacao").innerText =
-        cotacaoAtual?.numero_cotacao || "-";
+      document.getElementById("numeroCotacao").innerText = cotacaoAtual?.numero_cotacao || "-";
     }
 
     function atualizarListaFornecedoresLote(){
@@ -865,7 +530,6 @@
 
     function destacarMenor(produtoId){
       let valores = [];
-
       for(let i = 1; i <= FORNECEDORES; i++){
         const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
         if(v > 0) valores.push(v);
@@ -876,9 +540,7 @@
       for(let i = 1; i <= FORNECEDORES; i++){
         const box = document.getElementById(`box_${produtoId}_${i}`);
         if(!box) continue;
-
         box.classList.remove("fornecedor-menor");
-
         const v = parseNumeroBR(document.getElementById(`total_${produtoId}_${i}`).innerText || 0);
         if(menor > 0 && v === menor) box.classList.add("fornecedor-menor");
       }
@@ -900,9 +562,7 @@
 
     function recalcular(produtoId){
       if(!podeEditarCotacao()) return;
-
       for(let i = 1; i <= FORNECEDORES; i++) calcular(produtoId, i, false);
-
       salvarAutomatico();
     }
 
@@ -930,28 +590,19 @@
         alert("Somente o administrador pode informar a nota.");
         return;
       }
-
       salvarAutomatico();
     }
 
     function aprovarFornecedorEmLote(){
-      if(!usuarioEhAdmin()){
-        alert("Somente o administrador pode aprovar em lote.");
-        return;
-      }
+      if(!usuarioEhAdmin()){ alert("Somente o administrador pode aprovar em lote."); return; }
 
       const fornecedor = document.getElementById("fornecedorLote").value;
-
-      if(!fornecedor){
-        alert("Selecione o fornecedor.");
-        return;
-      }
+      if(!fornecedor){ alert("Selecione o fornecedor."); return; }
 
       let aprovados = 0;
 
       document.querySelectorAll("#containerProdutos .produto-card").forEach(card => {
         const produtoId = card.id.replace("card_", "");
-
         for(let f = 1; f <= FORNECEDORES; f++){
           const forn = (document.getElementById(`forn_${produtoId}_${f}`)?.value || "").trim().toUpperCase();
           const valor = parseNumeroBR(document.getElementById(`vu_${produtoId}_${f}`)?.value || 0);
@@ -975,26 +626,14 @@
       if(isComprasDiversas()){
         return `
           <div class="linha-cabecalho cab-cd">
-            <div>Fornecedor</div>
-            <div>Estoque KG</div>
-            <div>V.Unit</div>
-            <div>Link</div>
-            <div>Total</div>
-            <div>Nota</div>
-            <div>OK</div>
+            <div>Fornecedor</div><div>Estoque KG</div><div>V.Unit</div><div>Link</div><div>Total</div><div>Nota</div><div>OK</div>
           </div>
         `;
       }
 
       return `
         <div class="linha-cabecalho cab-mp">
-          <div>Fornecedor</div>
-          <div>Estoque KG</div>
-          <div>V.Unit</div>
-          <div>Total</div>
-          <div>Classificação</div>
-          <div>Nota</div>
-          <div>OK</div>
+          <div>Fornecedor</div><div>Estoque KG</div><div>V.Unit</div><div>Total</div><div>Classificação</div><div>Nota</div><div>OK</div>
         </div>
       `;
     }
@@ -1014,20 +653,16 @@
             <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
             <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque" oninput="calcular(${produtoId},${f})">
             <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
-
             <div class="campo-link-wrap">
               <input type="text" id="link_${produtoId}_${f}" value="${escapeHtml(linkVal)}" placeholder="Link">
               <button type="button" class="btn-blue btn-link" onclick="abrirLink(document.getElementById('link_${produtoId}_${f}').value)">Abrir</button>
             </div>
-
             <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
-
             <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
               <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
               <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
               <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
             </select>
-
             <div class="ok-col">
               <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
             </div>
@@ -1040,22 +675,18 @@
           <input list="listaFornecedores" id="forn_${produtoId}_${f}" value="${escapeHtml(fornVal)}" placeholder="Fornecedor">
           <input type="text" id="estoque_${produtoId}_${f}" value="${escapeHtml(estoqueVal)}" placeholder="Estoque" oninput="calcular(${produtoId},${f})">
           <input type="text" id="vu_${produtoId}_${f}" value="${escapeHtml(vuVal)}" placeholder="V.Unit" oninput="calcular(${produtoId},${f})">
-
           <div class="total-box" id="total_${produtoId}_${f}">0,00</div>
-
           <select id="class_${produtoId}_${f}">
             <option value="">Classificação</option>
             <option value="PRIMEIRA" ${classVal === "PRIMEIRA" ? "selected" : ""}>Primeira</option>
             <option value="SEGUNDA" ${classVal === "SEGUNDA" ? "selected" : ""}>Segunda</option>
             <option value="TERCEIRA" ${classVal === "TERCEIRA" ? "selected" : ""}>Terceira</option>
           </select>
-
           <select id="nota_${produtoId}_${f}" onchange="alterarNotaRecebida(${produtoId},${f})">
             <option value="" ${notaVal === "" ? "selected" : ""}>-</option>
             <option value="SIM" ${notaVal === "SIM" ? "selected" : ""}>SIM</option>
             <option value="NAO" ${notaVal === "NAO" ? "selected" : ""}>NÃO</option>
           </select>
-
           <div class="ok-col">
             <input class="ok-check" type="checkbox" id="ok_${produtoId}_${f}" ${aprovado ? "checked" : ""} onchange="toggleAprovacao(${produtoId},${f})">
           </div>
@@ -1077,7 +708,6 @@
       card.id = `card_${produtoId}`;
 
       let linhas = "";
-
       for(let f = 1; f <= FORNECEDORES; f++){
         linhas += renderLinhaFornecedor(produtoId, f, dados?.fornecedores?.[f-1] || {});
       }
@@ -1087,17 +717,12 @@
           <span>Produto</span>
           <button class="btn-red" onclick="removerProduto(${produtoId})">🗑️</button>
         </h3>
-
         <div class="produto-topo">
           <input type="text" id="prod_${produtoId}" placeholder="Nome do produto" value="${escapeHtml(dados?.nome || "")}">
           <input type="text" id="kg_${produtoId}" placeholder="KG/QTD solicitado" value="${escapeHtml(dados?.kg || "")}" oninput="recalcular(${produtoId})">
         </div>
-
         ${renderLinhaCabecalho()}
-
-        <div class="fornecedores-wrap">
-          ${linhas}
-        </div>
+        <div class="fornecedores-wrap">${linhas}</div>
       `;
 
       document.getElementById("containerProdutos").appendChild(card);
@@ -1132,7 +757,6 @@
         const produtoId = parseInt(card.id.replace("card_", ""), 10);
         const nome = document.getElementById(`prod_${produtoId}`).value || "";
         const kg = document.getElementById(`kg_${produtoId}`).value || "";
-
         const fornecedores = [];
 
         for(let f = 1; f <= FORNECEDORES; f++){
@@ -1199,9 +823,7 @@
 
       const { data: upsertData, error } = await client
         .from("cotacoes_bsm")
-        .upsert(registro, {
-          onConflict: "tipo_cotacao,data_referencia,comprador_usuario"
-        })
+        .upsert(registro, { onConflict: "tipo_cotacao,data_referencia,comprador_usuario" })
         .select()
         .maybeSingle();
 
@@ -1230,9 +852,7 @@
       }
 
       const { data: registros, error } = await query.order("created_at", { ascending: false });
-
       if(error) return null;
-
       return registros?.[0] || null;
     }
 
@@ -1309,7 +929,6 @@
       }
 
       cotacaoAtual = registro;
-
       const dados = registro.dados || {};
 
       document.getElementById("numeroCotacao").innerText = registro.numero_cotacao || "-";
@@ -1318,15 +937,10 @@
       document.getElementById("observacao").value = registro.observacao || "";
       document.getElementById("compradorWhatsapp").value = registro.comprador_whatsapp || "";
 
-      if(dados.produtos?.length){
-        dados.produtos.forEach(p => adicionarProduto(p));
-      } else {
-        adicionarProduto();
-      }
+      if(dados.produtos?.length) dados.produtos.forEach(p => adicionarProduto(p));
+      else adicionarProduto();
 
-      if(dados.fornecedorLote){
-        document.getElementById("fornecedorLote").value = dados.fornecedorLote;
-      }
+      if(dados.fornecedorLote) document.getElementById("fornecedorLote").value = dados.fornecedorLote;
 
       atualizarListaFornecedoresLote();
       atualizarDashboard();
@@ -1403,9 +1017,7 @@
         .eq("numero_cotacao", numero)
         .limit(1);
 
-      if(!usuarioEhAdmin()){
-        query = query.eq("comprador_usuario", usuarioSessao.usuario);
-      }
+      if(!usuarioEhAdmin()) query = query.eq("comprador_usuario", usuarioSessao.usuario);
 
       const { data, error } = await query;
 
@@ -1423,7 +1035,6 @@
 
       tipoCotacaoAtual = reg.tipo_cotacao || "MP";
       atualizarVisualAbas();
-
       document.getElementById("dataReferencia").value = reg.data_referencia;
 
       if(usuarioEhAdmin()){
@@ -1476,9 +1087,7 @@
 
         produtos.forEach(prod => {
           (prod.fornecedores || []).forEach(f => {
-            if(f.aprovado){
-              total += parseNumeroBR(f.estoque || 0) * parseNumeroBR(f.valor || 0);
-            }
+            if(f.aprovado) total += parseNumeroBR(f.estoque || 0) * parseNumeroBR(f.valor || 0);
           });
         });
 
@@ -1494,7 +1103,6 @@
           <div>Produtos: ${produtos.length}</div>
           <div>Total aprovado: R$ ${formatarMoedaBR(total)}</div>
           <div class="chip ${statusClass}">${reg.status_aprovacao || "PENDENTE"}</div>
-
           <div style="margin-top:8px;">
             <button class="btn-blue" onclick="abrirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${escapeHtml(reg.comprador_nome || "")}','${reg.tipo_cotacao || "MP"}')">Abrir</button>
             ${usuarioEhAdmin() ? `<button class="btn-red" onclick="excluirCotacao('${reg.data_referencia}','${reg.comprador_usuario}','${reg.tipo_cotacao || "MP"}')">Excluir</button>` : ""}
@@ -1522,10 +1130,7 @@
       const payload = montarDadosTela();
 
       let numeroCotacao = cotacaoAtual?.numero_cotacao;
-
-      if(!numeroCotacao){
-        numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
-      }
+      if(!numeroCotacao) numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
 
       const { data: registro, error } = await client
         .from("cotacoes_bsm")
@@ -1572,12 +1177,9 @@
         .from("cotacoes_bsm")
         .select("*")
         .eq("tipo_cotacao", tipoCotacaoAtual)
-        .eq("status_aprovacao", "APROVADA")
         .order("data_referencia", { ascending: false });
 
-      if(!usuarioEhAdmin()){
-        query = query.eq("comprador_usuario", usuarioSessao.usuario);
-      }
+      if(!usuarioEhAdmin()) query = query.eq("comprador_usuario", usuarioSessao.usuario);
 
       const { data, error } = await query;
 
@@ -1587,61 +1189,66 @@
       }
 
       if(!data?.length){
-        alvo.innerHTML = `<div>Nenhuma cotação aprovada em ${nomeTipoCotacao(tipoCotacaoAtual)}.</div>`;
+        alvo.innerHTML = `<div>Nenhuma cotação encontrada em ${nomeTipoCotacao(tipoCotacaoAtual)}.</div>`;
         return;
       }
 
-      let html = "";
+      let textoWhats = `📊 RELATÓRIO DE COTAÇÃO - ${nomeTipoCotacao(tipoCotacaoAtual)}\n\n`;
+
+      let html = `
+        <div class="no-print" style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-green" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+          <button class="btn-blue" onclick="enviarWhatsAppRelatorio()">📲 Enviar resumo no WhatsApp</button>
+        </div>
+      `;
 
       data.forEach(reg => {
         const produtos = reg.dados?.produtos || [];
-        let totalGeral = 0;
-        let linhas = "";
+        let totalAprovado = 0;
+        let linhasAprovadas = "";
+        let linhasNaoAprovadas = "";
+
+        textoWhats += `Cotação: ${reg.numero_cotacao || "-"}\n`;
+        textoWhats += `Data: ${formatarDataBR(reg.data_referencia)}\n`;
+        textoWhats += `Comprador: ${reg.comprador_nome || "-"}\n\n`;
+        textoWhats += `✅ APROVADOS:\n`;
 
         produtos.forEach(prod => {
           (prod.fornecedores || []).forEach(f => {
+            const estoque = parseNumeroBR(f.estoque || 0);
+            const vu = parseNumeroBR(f.valor || 0);
+            const total = estoque * vu;
+            const link = garantirHttps(f.link || "");
+
+            const colExtra = reg.tipo_cotacao === "CD"
+              ? (link ? `<a class="link-relatorio" href="${escapeHtml(link)}" target="_blank">Abrir link</a>` : "-")
+              : escapeHtml(f.classificacao || "-");
+
+            const linha = `
+              <tr>
+                <td>${escapeHtml(prod.nome || "")}</td>
+                <td>${escapeHtml(prod.kg || "")}</td>
+                <td>${escapeHtml(f.nome || "")}</td>
+                <td>${escapeHtml(f.estoque || "-")}</td>
+                <td>${colExtra}</td>
+                <td>${escapeHtml(f.notaRecebida || "-")}</td>
+                <td>${formatarMoedaBR(vu)}</td>
+                <td>${formatarMoedaBR(total)}</td>
+              </tr>
+            `;
+
             if(f.aprovado){
-              const estoque = parseNumeroBR(f.estoque || 0);
-              const vu = parseNumeroBR(f.valor || 0);
-              const total = estoque * vu;
-              totalGeral += total;
-
-              if(reg.tipo_cotacao === "CD"){
-                const link = garantirHttps(f.link || "");
-
-                linhas += `
-                  <tr>
-                    <td>${escapeHtml(prod.nome || "")}</td>
-                    <td>${escapeHtml(prod.kg || "")}</td>
-                    <td>${escapeHtml(f.nome || "")}</td>
-                    <td>${escapeHtml(f.estoque || "-")}</td>
-                    <td>${link ? `<a class="link-relatorio" href="${escapeHtml(link)}" target="_blank">Abrir link</a>` : "-"}</td>
-                    <td>${escapeHtml(f.notaRecebida || "-")}</td>
-                    <td>${formatarMoedaBR(vu)}</td>
-                    <td>${formatarMoedaBR(total)}</td>
-                  </tr>
-                `;
-              } else {
-                linhas += `
-                  <tr>
-                    <td>${escapeHtml(prod.nome || "")}</td>
-                    <td>${escapeHtml(prod.kg || "")}</td>
-                    <td>${escapeHtml(f.nome || "")}</td>
-                    <td>${escapeHtml(f.estoque || "-")}</td>
-                    <td>${escapeHtml(f.classificacao || "")}</td>
-                    <td>${escapeHtml(f.notaRecebida || "-")}</td>
-                    <td>${formatarMoedaBR(vu)}</td>
-                    <td>${formatarMoedaBR(total)}</td>
-                  </tr>
-                `;
-              }
+              linhasAprovadas += linha;
+              totalAprovado += total;
+              textoWhats += `• ${prod.nome || "-"} | ${f.nome || "-"} | R$ ${formatarMoedaBR(total)}\n`;
+            } else {
+              linhasNaoAprovadas += linha;
             }
           });
         });
 
-        if(!linhas){
-          linhas = `<tr><td colspan="8">Nenhum fornecedor aprovado.</td></tr>`;
-        }
+        textoWhats += `Total aprovado: R$ ${formatarMoedaBR(totalAprovado)}\n\n`;
+        textoWhats += `❌ NÃO APROVADOS: Ver relatório completo.\n\n`;
 
         html += `
           <div class="card" style="margin-bottom:12px;">
@@ -1649,9 +1256,11 @@
             <strong>Tipo:</strong> ${nomeTipoCotacao(reg.tipo_cotacao || "MP")}<br>
             <strong>Data:</strong> ${formatarDataBR(reg.data_referencia)}<br>
             <strong>Comprador:</strong> ${escapeHtml(reg.comprador_nome || "-")}<br>
+            <strong>Status da Cotação:</strong> ${escapeHtml(reg.status_aprovacao || "PENDENTE")}<br>
             <strong>Aprovado por:</strong> ${escapeHtml(reg.aprovado_por || "-")}<br>
             <strong>Data aprovação:</strong> ${formatarDataHoraBR(reg.aprovado_em)}<br><br>
 
+            <h3>✅ APROVADOS</h3>
             <div class="relatorio-box">
               <table>
                 <tr>
@@ -1664,20 +1273,48 @@
                   <th>V.Unit</th>
                   <th>Total</th>
                 </tr>
-
-                ${linhas}
-
+                ${linhasAprovadas || `<tr><td colspan="8">Nenhum fornecedor aprovado.</td></tr>`}
                 <tr>
-                  <td colspan="7" style="text-align:right;"><strong>Total Geral</strong></td>
-                  <td><strong>${formatarMoedaBR(totalGeral)}</strong></td>
+                  <td colspan="7" style="text-align:right;"><strong>Total aprovado</strong></td>
+                  <td><strong>${formatarMoedaBR(totalAprovado)}</strong></td>
                 </tr>
+              </table>
+            </div>
+
+            <h3 style="margin-top:16px;">❌ NÃO APROVADOS</h3>
+            <div class="relatorio-box">
+              <table>
+                <tr>
+                  <th>Produto</th>
+                  <th>KG/QTD</th>
+                  <th>Fornecedor</th>
+                  <th>Estoque KG</th>
+                  ${reg.tipo_cotacao === "CD" ? "<th>Link</th>" : "<th>Classificação</th>"}
+                  <th>Nota</th>
+                  <th>V.Unit</th>
+                  <th>Total</th>
+                </tr>
+                ${linhasNaoAprovadas || `<tr><td colspan="8">Nenhum fornecedor não aprovado.</td></tr>`}
               </table>
             </div>
           </div>
         `;
       });
 
+      window.textoRelatorioWhats = textoWhats;
       alvo.innerHTML = html;
+    }
+
+    function enviarWhatsAppRelatorio(){
+      const numero = document.getElementById("compradorWhatsapp").value.trim();
+
+      if(!numero){
+        alert("Informe o WhatsApp do comprador.");
+        return;
+      }
+
+      const texto = encodeURIComponent(window.textoRelatorioWhats || "Relatório de cotação");
+      window.open(`https://wa.me/${numero}?text=${texto}`, "_blank");
     }
 
     async function carregarCompradoresParaAdmin(){
@@ -1708,7 +1345,6 @@
 
     async function carregarCotacaoDoCompradorAdmin(){
       const usuario = document.getElementById("filtroComprador").value;
-
       if(!usuario) return;
 
       const { data } = await client
@@ -1718,7 +1354,6 @@
         .maybeSingle();
 
       document.getElementById("compradorNome").value = data?.nome || "";
-
       await carregarDadosDaData();
     }
 
@@ -1755,15 +1390,7 @@
 
       const { error } = await client
         .from("usuarios_cotacao")
-        .upsert({
-          usuario,
-          senha,
-          nome,
-          perfil,
-          ativo: true
-        }, {
-          onConflict: "usuario"
-        });
+        .upsert({ usuario, senha, nome, perfil, ativo: true }, { onConflict: "usuario" });
 
       if(error){
         document.getElementById("msgUsuarios").innerText = "Erro ao salvar usuário: " + error.message;
@@ -1818,9 +1445,7 @@
       container.querySelectorAll('input[list="listaFornecedores"]').forEach(inp => {
         inp.addEventListener("blur", () => {
           if(!podeEditarCotacao()) return;
-
           inp.value = (inp.value || "").trim().toUpperCase();
-
           atualizarListaFornecedoresLote();
           marcarNaoSalvo();
           salvarAutomatico();
