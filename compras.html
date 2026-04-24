@@ -1,259 +1,61 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BSM Cotação</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0f2b4a;color:#fff;overflow-x:hidden}.topo{position:sticky;top:0;z-index:20;background:#0c223a;padding:14px;text-align:center;font-size:22px;font-weight:700}.container{max-width:1850px;margin:0 auto;padding:14px}.hidden{display:none!important}.box,.card,.dash,.salvo{background:linear-gradient(180deg,#173a63,#123250);border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,.08)}label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:#dbeafe}input,select{width:100%;border:none;border-radius:12px;padding:10px;font-size:13px;margin-top:4px;background:#fff;color:#111827;min-width:0}input[readonly]{background:#e5eefc}button{border:none;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;cursor:pointer;color:#fff}button:disabled,input:disabled,select:disabled{opacity:.65;cursor:not-allowed}.btn-blue{background:#2563eb}.btn-green{background:#15803d}.btn-red{background:#b91c1c}.btn-yellow{background:#b45309}.btn-gray{background:#374151}.btn-black{background:#111827}.btn-link{background:#1d4ed8;padding:9px 10px;font-size:12px}.tabs,.acoes{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}.tab-btn{background:#102944}.tab-btn.active{background:#2563eb}.status-save{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:12px;background:#374151;font-weight:700}.topbar,.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px}.dashboard{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.dash{text-align:center}.dash span{display:block;font-size:12px;color:#dbeafe;margin-bottom:8px;font-weight:700}.dash strong{display:block;font-size:24px}.chip{display:inline-block;margin-top:8px;margin-right:8px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}.chip-pendente{background:#fef3c7;color:#92400e}.chip-aprovada{background:#dbeafe;color:#1e40af}.chip-tipo{background:#bfdbfe;color:#1e3a8a}.aviso-aprovada{margin-bottom:14px;background:#dc2626;border-radius:16px;padding:14px;font-size:16px;font-weight:800;text-align:center}.grid-produtos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px}.produto-card{min-width:0;overflow:hidden}.produto-topo{display:grid;grid-template-columns:1fr 150px;gap:10px;margin-bottom:12px}.card h3{margin:0 0 12px;display:flex;justify-content:space-between;align-items:center}.linha-cabecalho{display:grid;gap:8px;padding:0 4px 8px;font-size:12px;font-weight:700;text-align:center}.cab-mp,.linha-mp{grid-template-columns:2fr .9fr .9fr 1.3fr 1fr 1fr .6fr}.cab-cd,.linha-cd{grid-template-columns:1.4fr .8fr .8fr 1.2fr 1.25fr .9fr .6fr}.fornecedores-wrap{display:grid;gap:8px}.fornecedor-linha{display:grid;gap:8px;align-items:center;padding:8px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);position:relative}.fornecedor-linha input,.fornecedor-linha select{margin:0;padding:9px 8px;font-size:12px}.campo-link-wrap{display:flex;gap:6px;align-items:center}.campo-link-wrap input{flex:1}.total-box{background:rgba(0,0,0,.18);border-radius:10px;padding:10px 6px;text-align:center;font-weight:800;font-size:12px;min-height:38px;display:flex;align-items:center;justify-content:center}.ok-col{display:flex;justify-content:center}.ok-check{width:20px!important;height:20px}.fornecedor-aprovado{background:#08294d!important;border:1px solid #2563eb!important}.fornecedor-menor{box-shadow:inset 0 0 0 2px #f1c40f}.fornecedor-menor::after{content:"🏆 Melhor preço";position:absolute;top:-10px;right:10px;background:#facc15;color:#111827;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:900}.salvo{margin-bottom:10px}.relatorio-box{overflow:auto}.relatorio-box table{width:100%;min-width:980px;border-collapse:collapse}.relatorio-box th,.relatorio-box td{border:1px solid rgba(255,255,255,.12);padding:8px;font-size:12px}.badge-melhor{background:#facc15;color:#111827;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:900}@media print{body{background:#fff;color:#000}.topo,.tabs,.acoes,.topbar,.dashboard,#containerProdutos,#listaCotacoesSalvas,#painelUsuarios,#avisoCotacaoAprovada{display:none!important}.container{max-width:100%;padding:0}.box,.card{box-shadow:none;border:1px solid #ccc;background:#fff;color:#000}.relatorio-box table{min-width:0;width:100%}.relatorio-box th,.relatorio-box td{color:#000;border:1px solid #999}.no-print{display:none!important}}@media(min-width:1650px){.grid-produtos{grid-template-columns:repeat(3,1fr)}}@media(max-width:1280px){.grid-produtos{grid-template-columns:1fr}}@media(max-width:860px){.produto-topo{grid-template-columns:1fr}.linha-cabecalho{display:none}.fornecedor-linha{grid-template-columns:1fr!important}.campo-link-wrap{flex-direction:column;align-items:stretch}}
-</style>
-</head>
-<body>
-<div class="topo">BSM SISTEMA DE COTAÇÃO</div>
-
-<div id="telaLogin" class="container">
-  <div class="card" style="max-width:420px;margin:30px auto">
-    <h2>Login do sistema</h2>
-    <label>Usuário</label><input id="loginUsuario" placeholder="Usuário">
-    <label>Senha</label><input id="loginSenha" type="password" placeholder="Senha">
-    <button class="btn-blue" onclick="fazerLogin()">Entrar</button>
-    <div class="msg" id="msgLogin"></div>
-  </div>
-</div>
-
-<div id="app" class="container hidden">
-  <div class="tabs">
-    <button id="tabMP" class="tab-btn active" onclick="trocarTipoCotacao('MP')">🥩 Matéria-Prima</button>
-    <button id="tabCD" class="tab-btn" onclick="trocarTipoCotacao('CD')">🛒 Compras Diversas</button>
-  </div>
-
-  <div class="acoes">
-    <button class="btn-gray" onclick="logout()">Sair</button>
-    <button class="btn-blue" onclick="novaCotacao()">🆕 Nova Cotação</button>
-    <button class="btn-blue" onclick="adicionarProduto()">➕ Adicionar Produto</button>
-    <button class="btn-green" onclick="salvarManual()">💾 Salvar</button>
-    <button class="btn-yellow" onclick="aprovarFornecedorEmLote()">✅ Aprovar Lote</button>
-    <button class="btn-black" onclick="carregarDadosDaData()">🔄 Recarregar</button>
-    <button class="btn-red" onclick="limparDadosDaData()">🗑️ Limpar Data</button>
-    <button class="btn-green hidden" id="btnAprovarCotacao" onclick="aprovarCotacaoAdmin()">✅ Aprovar Cotação</button>
-    <button class="btn-gray hidden" id="btnRelatorioAprovados" onclick="abrirRelatorioAprovados()">📄 Relatório</button>
-    <button class="btn-gray hidden" id="btnUsuarios" onclick="togglePainelUsuarios()">👥 Usuários</button>
-    <span id="statusSalvar" class="status-save">🟢 Salvo</span>
-  </div>
-
-  <div class="topbar">
-    <div class="box"><label>Buscar Nº da Cotação</label><input id="buscarNumeroCotacao" placeholder="Ex.: MP-20260423-0001"><button class="btn-blue" style="margin-top:8px;width:100%" onclick="buscarCotacaoPorNumero()">🔎 Buscar</button></div>
-    <div class="box"><label>Data</label><input type="date" id="dataReferencia"></div>
-    <div class="box"><label>Comprador</label><input id="compradorNome" readonly></div>
-    <div class="box"><label>WhatsApp do comprador</label><input id="compradorWhatsapp" placeholder="Ex.: 5531999999999"></div>
-    <div class="box"><label>Responsável interno</label><input id="responsavel" placeholder="Responsável"></div>
-    <div class="box"><label>Observação</label><input id="observacao" placeholder="Observação"></div>
-    <div class="box"><label>Aprovar fornecedor em lote</label><select id="fornecedorLote"><option value="">Selecione o fornecedor</option></select></div>
-    <div class="box hidden" id="boxFiltroComprador"><label>Filtrar comprador</label><select id="filtroComprador" onchange="carregarCotacaoDoCompradorAdmin()"><option value="">Selecione</option></select></div>
-  </div>
-
-  <div class="dashboard">
-    <div class="dash"><span>Tipo</span><strong id="dashTipo">MP</strong></div>
-    <div class="dash"><span>Data</span><strong id="dashData">-</strong></div>
-    <div class="dash"><span>Produtos</span><strong id="dashProdutos">0</strong></div>
-    <div class="dash"><span>Aprovados</span><strong id="dashAprovados">0</strong></div>
-    <div class="dash"><span>Total aprovado</span><strong id="dashTotal">0,00</strong></div>
-    <div class="dash"><span>Status</span><strong id="dashStatus">PENDENTE</strong></div>
-  </div>
-
-  <div class="card" style="margin-bottom:14px">
-    <div><strong>Usuário logado:</strong> <span id="usuarioLogadoInfo">-</span></div>
-    <div><strong>Nº da Cotação:</strong> <span id="numeroCotacao">-</span></div>
-    <div><strong>Perfil:</strong> <span id="perfilLogadoInfo">-</span></div>
-    <div><strong>Última aprovação:</strong> <span id="infoAprovacao">-</span></div>
-    <div id="chipStatusCotacao" class="chip chip-pendente">PENDENTE</div>
-    <div id="chipTipoCotacao" class="chip chip-tipo">MATÉRIA-PRIMA</div>
-  </div>
-
-  <div id="avisoCotacaoAprovada" class="aviso-aprovada hidden">🔒 COTAÇÃO APROVADA — SOMENTE O ADMINISTRADOR PODE ALTERAR</div>
-  <div class="grid-produtos" id="containerProdutos"></div>
-
-  <div class="box"><h3>📂 Cotações salvas</h3><div id="listaCotacoesSalvas"></div></div>
-  <div class="box hidden" id="painelRelatorio" style="margin-top:14px"><h3>📄 Relatório de cotações</h3><div id="conteudoRelatorioAprovados"></div></div>
-
-  <div class="box hidden" id="painelUsuarios" style="margin-top:14px">
-    <h3>👥 Cadastro de usuários</h3>
-    <div class="topbar">
-      <div class="box"><label>Usuário</label><input id="novoUsuario"></div>
-      <div class="box"><label>Senha</label><input id="novaSenha"></div>
-      <div class="box"><label>Nome</label><input id="novoNome"></div>
-      <div class="box"><label>Perfil</label><select id="novoPerfil"><option value="usuario">Usuário</option><option value="admin">Administrador</option></select></div>
-    </div>
-    <button class="btn-blue" onclick="salvarUsuario()">💾 Salvar Usuário</button>
-    <button class="btn-black" onclick="limparFormularioUsuario()">🧹 Limpar</button>
-    <div id="msgUsuarios" class="msg"></div><div id="listaUsuarios"></div>
-  </div>
-</div>
-
-<datalist id="listaFornecedores">
-<option value="3 B COMERCIAL LTDA"><option value="ATACADAO S.A"><option value="AVIVAR ALIMENTOS LTDA"><option value="BRF S.A."><option value="COMERCIAL FRAGA LTDA"><option value="DMA DISTRIBUIDORA S/A"><option value="FRIGORIFICO CALAFATE LTDA"><option value="MART MINAS DISTRIBUIDORA LTDA"><option value="PLENA ALIMENTOS LTDA"><option value="SEARA COMERCIO DE ALIMENTOS LTDA"><option value="SUPERMERCADOS BH COMERCIO DE ALIMENTOS S/A"><option value="VENTURA ALIMENTOS DO BRASIL LTDA">
-</datalist>
-
-<script>
-const SUPABASE_URL="https://xzxcxalmarshffueylxw.supabase.co";
-const SUPABASE_KEY="sb_publishable_Q1EXGzQ7WjCXwdgLjyGhFQ_pTu5QFYX";
-const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const FORNECEDORES=6;
-let proximoProdutoId=1,usuarioSessao=null,cotacaoAtual=null,tipoCotacaoAtual="MP";
-
-function nomeTipoCotacao(t){return t==="CD"?"COMPRAS DIVERSAS":"MATÉRIA-PRIMA"}
-function isComprasDiversas(){return tipoCotacaoAtual==="CD"}
-function usuarioEhAdmin(){return usuarioSessao?.perfil==="admin"}
-function cotacaoEstaAprovada(){return cotacaoAtual?.status_aprovacao==="APROVADA"}
-function podeEditarCotacao(){return usuarioEhAdmin()||!cotacaoEstaAprovada()}
-function parseNumeroBR(v){if(v==null)return 0;v=String(v).trim();if(!v)return 0;v=v.replace(/\./g,"").replace(",",".");let n=parseFloat(v);return isNaN(n)?0:n}
-function formatarMoedaBR(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
-function formatarDataBR(d){if(!d)return "-";let p=d.split("-");return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d}
-function formatarDataHoraBR(d){if(!d)return "-";return new Date(d).toLocaleString("pt-BR",{timeZone:"America/Sao_Paulo"})}
-function dataAtualISO(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-function escapeHtml(t){return String(t??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
-function garantirHttps(u){u=String(u||"").trim();if(!u)return"";return /^https?:\/\//i.test(u)?u:"https://"+u}
-function abrirLink(u){u=garantirHttps(u);if(!u){alert("Link não informado.");return}window.open(u,"_blank")}
-function gerarNumeroCotacao(t,d,s){return `${t}-${d.replaceAll("-","")}-${String(s).padStart(4,"0")}`}
-async function obterProximoNumeroCotacao(d,t){let df=d.replaceAll("-","");let {data}=await client.from("cotacoes_bsm").select("numero_cotacao").like("numero_cotacao",`${t}-${df}-%`);let maior=0;(data||[]).forEach(r=>{let n=parseInt((r.numero_cotacao||"").split("-")[2]||"0");if(n>maior)maior=n});return gerarNumeroCotacao(t,d,maior+1)}
-function mostrarMsgLogin(t,c="red"){let e=document.getElementById("msgLogin");e.innerText=t;e.style.color=c}
-function mostrarStatusSalvo(t){let e=document.getElementById("statusSalvar");e.innerText="🟢 "+t;e.style.background="#14532d";setTimeout(()=>{e.innerText="🟢 Salvo";e.style.background="#374151"},2000)}
-function marcarNaoSalvo(){let e=document.getElementById("statusSalvar");e.innerText="🟡 Alterações não salvas";e.style.background="#92400e"}
-
-function atualizarVisualAbas(){
-document.getElementById("tabMP").classList.toggle("active",tipoCotacaoAtual==="MP");
-document.getElementById("tabCD").classList.toggle("active",tipoCotacaoAtual==="CD");
-document.getElementById("dashTipo").innerText=tipoCotacaoAtual;
-document.getElementById("chipTipoCotacao").innerText=nomeTipoCotacao(tipoCotacaoAtual);
-}
-
-function aplicarBloqueioTela(){
-let b=!podeEditarCotacao();
-document.getElementById("avisoCotacaoAprovada").classList.toggle("hidden",!b);
-["compradorWhatsapp","responsavel","observacao","fornecedorLote"].forEach(id=>{let e=document.getElementById(id);if(e)e.disabled=b});
-["adicionarProduto()","salvarManual()","aprovarFornecedorEmLote()","limparDadosDaData()"].forEach(fn=>{let bt=document.querySelector(`button[onclick="${fn}"]`);if(bt)bt.disabled=b});
-document.querySelectorAll("#containerProdutos input,#containerProdutos select").forEach(e=>e.disabled=b);
-document.querySelectorAll("#containerProdutos button").forEach(bt=>{if(bt.classList.contains("btn-red")||bt.classList.contains("btn-link"))bt.disabled=b});
-}
-
-async function fazerLogin(){
-let usuario=document.getElementById("loginUsuario").value.trim().toLowerCase(),senha=document.getElementById("loginSenha").value.trim();
-if(!usuario||!senha){mostrarMsgLogin("Informe usuário e senha.");return}
-let {data,error}=await client.from("usuarios_cotacao").select("*").eq("usuario",usuario).eq("senha",senha).limit(1);
-if(error){mostrarMsgLogin("Erro: "+error.message);return}
-if(!data?.length){mostrarMsgLogin("Usuário ou senha inválidos.");return}
-usuarioSessao=data[0];if(usuarioSessao.ativo===false){mostrarMsgLogin("Usuário inativo.");return}
-document.getElementById("telaLogin").classList.add("hidden");document.getElementById("app").classList.remove("hidden");
-document.getElementById("usuarioLogadoInfo").innerText=usuarioSessao.nome;document.getElementById("perfilLogadoInfo").innerText=usuarioSessao.perfil;document.getElementById("compradorNome").value=usuarioSessao.nome;document.getElementById("btnRelatorioAprovados").classList.remove("hidden");
-if(usuarioEhAdmin()){document.getElementById("btnAprovarCotacao").classList.remove("hidden");document.getElementById("btnUsuarios").classList.remove("hidden");document.getElementById("boxFiltroComprador").classList.remove("hidden");await carregarCompradoresParaAdmin();await carregarUsuarios()}
-document.getElementById("dataReferencia").value=dataAtualISO();atualizarVisualAbas();await carregarDadosDaData();await atualizarListaCotacoesSalvas();ativarEventosGlobais();
-}
-
-function logout(){location.reload()}
-async function trocarTipoCotacao(t){if(tipoCotacaoAtual===t)return;tipoCotacaoAtual=t;atualizarVisualAbas();await carregarDadosDaData();await atualizarListaCotacoesSalvas()}
-
-function atualizarDashboard(){
-let total=0,ap=0,prod=document.querySelectorAll("#containerProdutos .produto-card").length;
-document.querySelectorAll(".fornecedor-aprovado").forEach(b=>{total+=parseNumeroBR(b.querySelector(".total-box")?.innerText||0);ap++});
-document.getElementById("dashData").innerText=formatarDataBR(document.getElementById("dataReferencia").value);
-document.getElementById("dashProdutos").innerText=prod;document.getElementById("dashAprovados").innerText=ap;document.getElementById("dashTotal").innerText=formatarMoedaBR(total);
-let st=cotacaoAtual?.status_aprovacao||"PENDENTE";document.getElementById("dashStatus").innerText=st;let chip=document.getElementById("chipStatusCotacao");chip.innerText=st;chip.className="chip "+(st==="APROVADA"?"chip-aprovada":"chip-pendente");
-document.getElementById("infoAprovacao").innerText=cotacaoAtual?.aprovado_por?`${cotacaoAtual.aprovado_por} em ${formatarDataHoraBR(cotacaoAtual.aprovado_em)}`:"-";
-document.getElementById("numeroCotacao").innerText=cotacaoAtual?.numero_cotacao||"-";
-}
-
-function atualizarListaFornecedoresLote(){let s=document.getElementById("fornecedorLote"),a=s.value,set=new Set();document.querySelectorAll('input[list="listaFornecedores"]').forEach(i=>{let v=(i.value||"").trim().toUpperCase();if(v)set.add(v)});s.innerHTML='<option value="">Selecione o fornecedor</option>';[...set].sort().forEach(n=>{let o=document.createElement("option");o.value=n;o.textContent=n;s.appendChild(o)});if(set.has(a))s.value=a}
-
-function destacarMenor(id){let vals=[];for(let i=1;i<=FORNECEDORES;i++){let v=parseNumeroBR(document.getElementById(`total_${id}_${i}`).innerText);if(v>0)vals.push(v)}let m=vals.length?Math.min(...vals):0;for(let i=1;i<=FORNECEDORES;i++){let b=document.getElementById(`box_${id}_${i}`);if(!b)continue;b.classList.remove("fornecedor-menor");let v=parseNumeroBR(document.getElementById(`total_${id}_${i}`).innerText);if(m>0&&v===m)b.classList.add("fornecedor-menor")}}
-function calcular(id,f,salvar=true){let e=parseNumeroBR(document.getElementById(`estoque_${id}_${f}`).value),vu=parseNumeroBR(document.getElementById(`vu_${id}_${f}`).value),t=e*vu;document.getElementById(`total_${id}_${f}`).innerText=formatarMoedaBR(t);destacarMenor(id);atualizarListaFornecedoresLote();atualizarDashboard();if(salvar&&podeEditarCotacao())salvarAutomatico()}
-function recalcular(id){if(!podeEditarCotacao())return;for(let i=1;i<=FORNECEDORES;i++)calcular(id,i,false);salvarAutomatico()}
-
-function renderLinhaCabecalho(){return isComprasDiversas()?`<div class="linha-cabecalho cab-cd"><div>Fornecedor</div><div>Estoque KG</div><div>V.Unit</div><div>Link</div><div>Total</div><div>Nota</div><div>OK</div></div>`:`<div class="linha-cabecalho cab-mp"><div>Fornecedor</div><div>Estoque KG</div><div>V.Unit</div><div>Total</div><div>Classificação</div><div>Nota</div><div>OK</div></div>`}
-function renderLinhaFornecedor(id,f,d={}){
-let aprovado=d.aprovado||false;
-if(isComprasDiversas())return `<div id="box_${id}_${f}" class="fornecedor-linha linha-cd ${aprovado?"fornecedor-aprovado":""}"><input list="listaFornecedores" id="forn_${id}_${f}" value="${escapeHtml(d.nome||"")}" placeholder="Fornecedor"><input id="estoque_${id}_${f}" value="${escapeHtml(d.estoque||"")}" placeholder="Estoque" oninput="calcular(${id},${f})"><input id="vu_${id}_${f}" value="${escapeHtml(d.valor||"")}" placeholder="V.Unit" oninput="calcular(${id},${f})"><div class="campo-link-wrap"><input id="link_${id}_${f}" value="${escapeHtml(d.link||"")}" placeholder="Link"><button type="button" class="btn-blue btn-link" onclick="abrirLink(document.getElementById('link_${id}_${f}').value)">Abrir</button></div><div class="total-box" id="total_${id}_${f}">0,00</div><select id="nota_${id}_${f}" onchange="alterarNotaRecebida(${id},${f})"><option value="">-</option><option value="SIM" ${d.notaRecebida==="SIM"?"selected":""}>SIM</option><option value="NAO" ${d.notaRecebida==="NAO"?"selected":""}>NÃO</option></select><div class="ok-col"><input class="ok-check" type="checkbox" id="ok_${id}_${f}" ${aprovado?"checked":""} onchange="toggleAprovacao(${id},${f})"></div></div>`;
-return `<div id="box_${id}_${f}" class="fornecedor-linha linha-mp ${aprovado?"fornecedor-aprovado":""}"><input list="listaFornecedores" id="forn_${id}_${f}" value="${escapeHtml(d.nome||"")}" placeholder="Fornecedor"><input id="estoque_${id}_${f}" value="${escapeHtml(d.estoque||"")}" placeholder="Estoque" oninput="calcular(${id},${f})"><input id="vu_${id}_${f}" value="${escapeHtml(d.valor||"")}" placeholder="V.Unit" oninput="calcular(${id},${f})"><div class="total-box" id="total_${id}_${f}">0,00</div><select id="class_${id}_${f}"><option value="">Classificação</option><option value="PRIMEIRA" ${d.classificacao==="PRIMEIRA"?"selected":""}>Primeira</option><option value="SEGUNDA" ${d.classificacao==="SEGUNDA"?"selected":""}>Segunda</option><option value="TERCEIRA" ${d.classificacao==="TERCEIRA"?"selected":""}>Terceira</option></select><select id="nota_${id}_${f}" onchange="alterarNotaRecebida(${id},${f})"><option value="">-</option><option value="SIM" ${d.notaRecebida==="SIM"?"selected":""}>SIM</option><option value="NAO" ${d.notaRecebida==="NAO"?"selected":""}>NÃO</option></select><div class="ok-col"><input class="ok-check" type="checkbox" id="ok_${id}_${f}" ${aprovado?"checked":""} onchange="toggleAprovacao(${id},${f})"></div></div>`;
-}
-
-function adicionarProduto(d=null,carregando=false){
-if(!carregando&&!podeEditarCotacao()){alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");return}
-let id=d?.produtoId||proximoProdutoId++;if(id>=proximoProdutoId)proximoProdutoId=id+1;
-let card=document.createElement("div");card.className="card produto-card";card.id=`card_${id}`;
-let linhas="";for(let f=1;f<=FORNECEDORES;f++)linhas+=renderLinhaFornecedor(id,f,d?.fornecedores?.[f-1]||{});
-card.innerHTML=`<h3><span>Produto</span><button class="btn-red" onclick="removerProduto(${id})">🗑️</button></h3><div class="produto-topo"><input id="prod_${id}" placeholder="Nome do produto" value="${escapeHtml(d?.nome||"")}"><input id="kg_${id}" placeholder="KG/QTD solicitado" value="${escapeHtml(d?.kg||"")}" oninput="recalcular(${id})"></div>${renderLinhaCabecalho()}<div class="fornecedores-wrap">${linhas}</div>`;
-document.getElementById("containerProdutos").appendChild(card);for(let f=1;f<=FORNECEDORES;f++)calcular(id,f,false);ativarEventosInputs(card);atualizarListaFornecedoresLote();atualizarDashboard();aplicarBloqueioTela();
-}
-function removerProduto(id){if(!podeEditarCotacao()){alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");return}if(confirm("Deseja remover este produto?")){document.getElementById(`card_${id}`)?.remove();salvarAutomatico();atualizarDashboard()}}
-function toggleAprovacao(id,f){if(!usuarioEhAdmin()){let c=document.getElementById(`ok_${id}_${f}`);c.checked=!c.checked;alert("Somente o administrador pode aprovar.");return}let b=document.getElementById(`box_${id}_${f}`),c=document.getElementById(`ok_${id}_${f}`);b.classList.toggle("fornecedor-aprovado",c.checked);atualizarDashboard();salvarAutomatico()}
-function alterarNotaRecebida(id,f){if(!usuarioEhAdmin()){document.getElementById(`nota_${id}_${f}`).value="";alert("Somente o administrador pode informar a nota.");return}salvarAutomatico()}
-
-function montarDadosTela(){let produtos=[];document.querySelectorAll("#containerProdutos .produto-card").forEach(card=>{let id=parseInt(card.id.replace("card_","")),fornecedores=[];for(let f=1;f<=FORNECEDORES;f++)fornecedores.push({nome:document.getElementById(`forn_${id}_${f}`)?.value||"",estoque:document.getElementById(`estoque_${id}_${f}`)?.value||"",valor:document.getElementById(`vu_${id}_${f}`)?.value||"",link:document.getElementById(`link_${id}_${f}`)?.value||"",classificacao:document.getElementById(`class_${id}_${f}`)?.value||"",notaRecebida:document.getElementById(`nota_${id}_${f}`)?.value||"",aprovado:document.getElementById(`ok_${id}_${f}`)?.checked||false});produtos.push({produtoId:id,nome:document.getElementById(`prod_${id}`).value||"",kg:document.getElementById(`kg_${id}`).value||"",fornecedores})});return{tipoCotacao:tipoCotacaoAtual,dataReferencia:document.getElementById("dataReferencia").value,compradorNome:document.getElementById("compradorNome").value,compradorWhatsapp:document.getElementById("compradorWhatsapp").value,responsavel:document.getElementById("responsavel").value,observacao:document.getElementById("observacao").value,fornecedorLote:document.getElementById("fornecedorLote").value,produtos}}
 async function salvarNaNuvem(){
-let data=document.getElementById("dataReferencia").value;if(!data)return false;
-let payload=montarDadosTela(),compradorUsuario=usuarioEhAdmin()?(document.getElementById("filtroComprador").value||usuarioSessao.usuario):usuarioSessao.usuario,compradorNome=usuarioEhAdmin()?(document.getElementById("compradorNome").value||usuarioSessao.nome):usuarioSessao.nome;
-let numero=cotacaoAtual?.numero_cotacao||await obterProximoNumeroCotacao(data,tipoCotacaoAtual);
-let registro={numero_cotacao:numero,tipo_cotacao:tipoCotacaoAtual,data_referencia:data,comprador_usuario:compradorUsuario,comprador_nome:compradorNome,comprador_whatsapp:payload.compradorWhatsapp||"",responsavel:payload.responsavel||"",observacao:payload.observacao||"",status_aprovacao:cotacaoAtual?.status_aprovacao||"PENDENTE",aprovado_por:cotacaoAtual?.aprovado_por||null,aprovado_em:cotacaoAtual?.aprovado_em||null,dados:payload};
-let result;
-if(cotacaoAtual?.id)result=await client.from("cotacoes_bsm").update(registro).eq("id",cotacaoAtual.id).select().maybeSingle();
-else result=await client.from("cotacoes_bsm").insert(registro).select().maybeSingle();
-if(result.error){alert("Erro ao salvar: "+result.error.message);return false}
-cotacaoAtual=result.data;document.getElementById("numeroCotacao").innerText=numero;return true;
-}
-async function salvarAutomatico(m=false){if(!podeEditarCotacao())return;let ok=await salvarNaNuvem();if(ok){await atualizarListaCotacoesSalvas();mostrarStatusSalvo(m?"Salvo com sucesso":"Salvo automático")}}
-async function salvarManual(){if(!podeEditarCotacao()){alert("Esta cotação já foi aprovada. Somente o administrador pode alterar.");return}marcarNaoSalvo();await salvarAutomatico(true)}
+  const data = document.getElementById("dataReferencia").value;
+  if(!data) return false;
 
-function limparTela(){document.getElementById("containerProdutos").innerHTML="";document.getElementById("numeroCotacao").innerText="-";proximoProdutoId=1;atualizarDashboard()}
-function novaCotacao(){cotacaoAtual=null;limparTela();document.getElementById("responsavel").value="";document.getElementById("observacao").value="";document.getElementById("compradorWhatsapp").value="";if(!usuarioEhAdmin())document.getElementById("compradorNome").value=usuarioSessao.nome;adicionarProduto(null,true);aplicarBloqueioTela();mostrarStatusSalvo("Nova cotação criada")}
-async function carregarDadosDaData(){
-limparTela();cotacaoAtual=null;let data=document.getElementById("dataReferencia").value;if(!data)return;
-let comprador=usuarioEhAdmin()?document.getElementById("filtroComprador").value:usuarioSessao.usuario;
-let q=client.from("cotacoes_bsm").select("*").eq("tipo_cotacao",tipoCotacaoAtual).eq("data_referencia",data);
-if(usuarioEhAdmin()){if(comprador)q=q.eq("comprador_usuario",comprador)}else q=q.eq("comprador_usuario",usuarioSessao.usuario);
-let {data:regs}=await q.order("created_at",{ascending:false});
-let reg=regs?.[0];if(!reg){novaCotacao();return}
-cotacaoAtual=reg;let d=reg.dados||{};
-document.getElementById("compradorNome").value=reg.comprador_nome||"";document.getElementById("responsavel").value=reg.responsavel||"";document.getElementById("observacao").value=reg.observacao||"";document.getElementById("compradorWhatsapp").value=reg.comprador_whatsapp||"";
-(d.produtos?.length?d.produtos:[null]).forEach(p=>adicionarProduto(p,true));
-atualizarDashboard();aplicarBloqueioTela();
-}
-async function atualizarListaCotacoesSalvas(){
-let alvo=document.getElementById("listaCotacoesSalvas");alvo.innerHTML="";
-let q=client.from("cotacoes_bsm").select("*").eq("tipo_cotacao",tipoCotacaoAtual).order("data_referencia",{ascending:false});
-if(!usuarioEhAdmin())q=q.eq("comprador_usuario",usuarioSessao.usuario);
-let {data}=await q;if(!data?.length){alvo.innerHTML=`<div class="salvo">Nenhuma cotação salva em ${nomeTipoCotacao(tipoCotacaoAtual)} ainda.</div>`;return}
-data.forEach(reg=>{let produtos=reg.dados?.produtos||[],total=0;produtos.forEach(p=>(p.fornecedores||[]).forEach(f=>{if(f.aprovado)total+=parseNumeroBR(f.estoque)*parseNumeroBR(f.valor)}));let div=document.createElement("div");div.className="salvo";div.innerHTML=`<strong>Nº: ${reg.numero_cotacao||"-"}</strong><div>Data: ${formatarDataBR(reg.data_referencia)}</div><div>Comprador: ${escapeHtml(reg.comprador_nome||"-")}</div><div>Produtos: ${produtos.length}</div><div>Total aprovado: R$ ${formatarMoedaBR(total)}</div><div class="chip ${reg.status_aprovacao==="APROVADA"?"chip-aprovada":"chip-pendente"}">${reg.status_aprovacao||"PENDENTE"}</div><div style="margin-top:8px"><button class="btn-blue" onclick="abrirCotacaoPorId(${reg.id})">Abrir</button></div>`;alvo.appendChild(div)})
-}
-async function abrirCotacaoPorId(id){let {data}=await client.from("cotacoes_bsm").select("*").eq("id",id).maybeSingle();if(!data)return;tipoCotacaoAtual=data.tipo_cotacao||"MP";atualizarVisualAbas();document.getElementById("dataReferencia").value=data.data_referencia;if(usuarioEhAdmin()){document.getElementById("filtroComprador").value=data.comprador_usuario;document.getElementById("compradorNome").value=data.comprador_nome||""}limparTela();cotacaoAtual=data;let d=data.dados||{};document.getElementById("responsavel").value=data.responsavel||"";document.getElementById("observacao").value=data.observacao||"";document.getElementById("compradorWhatsapp").value=data.comprador_whatsapp||"";(d.produtos||[]).forEach(p=>adicionarProduto(p,true));atualizarDashboard();aplicarBloqueioTela()}
-async function buscarCotacaoPorNumero(){let n=document.getElementById("buscarNumeroCotacao").value.trim().toUpperCase();if(!n){alert("Informe o número da cotação.");return}let q=client.from("cotacoes_bsm").select("*").eq("numero_cotacao",n).limit(1);if(!usuarioEhAdmin())q=q.eq("comprador_usuario",usuarioSessao.usuario);let {data}=await q;if(!data?.length){alert("Cotação não encontrada.");return}abrirCotacaoPorId(data[0].id)}
+  const payload = montarDadosTela();
 
-async function aprovarCotacaoAdmin(){if(!usuarioEhAdmin()){alert("Somente o administrador pode aprovar.");return}if(!cotacaoAtual?.id)await salvarNaNuvem();cotacaoAtual.status_aprovacao="APROVADA";cotacaoAtual.aprovado_por=usuarioSessao.nome;cotacaoAtual.aprovado_em=new Date().toISOString();await salvarNaNuvem();atualizarDashboard();aplicarBloqueioTela();await atualizarListaCotacoesSalvas();mostrarStatusSalvo("Cotação aprovada")}
-function aprovarFornecedorEmLote(){if(!usuarioEhAdmin()){alert("Somente o administrador pode aprovar em lote.");return}let forn=document.getElementById("fornecedorLote").value;if(!forn){alert("Selecione o fornecedor.");return}document.querySelectorAll("#containerProdutos .produto-card").forEach(c=>{let id=c.id.replace("card_","");for(let f=1;f<=FORNECEDORES;f++){let n=(document.getElementById(`forn_${id}_${f}`)?.value||"").trim().toUpperCase();if(n===forn.trim().toUpperCase()){document.getElementById(`ok_${id}_${f}`).checked=true;document.getElementById(`box_${id}_${f}`).classList.add("fornecedor-aprovado")}}});salvarAutomatico();atualizarDashboard()}
-async function limparDadosDaData(){if(!usuarioEhAdmin()){alert("Somente o administrador pode limpar.");return}if(!confirm("Deseja apagar TODAS as cotações desta data?"))return;let data=document.getElementById("dataReferencia").value;let {error}=await client.from("cotacoes_bsm").delete().eq("tipo_cotacao",tipoCotacaoAtual).eq("data_referencia",data);if(error)alert(error.message);await carregarDadosDaData();await atualizarListaCotacoesSalvas()}
+  const compradorUsuario = cotacaoAtual?.comprador_usuario 
+    || (usuarioEhAdmin() ? document.getElementById("filtroComprador").value : usuarioSessao.usuario);
 
-async function abrirRelatorioAprovados(){
-let painel=document.getElementById("painelRelatorio"),alvo=document.getElementById("conteudoRelatorioAprovados");painel.classList.remove("hidden");alvo.innerHTML="Carregando...";
-let dataSel=document.getElementById("dataReferencia").value;
-let q=client.from("cotacoes_bsm").select("*").eq("tipo_cotacao",tipoCotacaoAtual).eq("data_referencia",dataSel).order("created_at",{ascending:false});
-if(!usuarioEhAdmin())q=q.eq("comprador_usuario",usuarioSessao.usuario);
-let {data,error}=await q;if(error){alvo.innerHTML=error.message;return}
-if(!data?.length){alvo.innerHTML="Nenhuma cotação encontrada nesta data.";return}
-let texto=`📊 RELATÓRIO DE COTAÇÃO - ${formatarDataBR(dataSel)}\n\n`;
-let html=`<div class="no-print" style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn-green" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button><button class="btn-blue" onclick="enviarWhatsAppRelatorio()">📲 Enviar resumo no WhatsApp</button></div>`;
-data.forEach(reg=>{let total=0,ap="",nap="",produtos=reg.dados?.produtos||[];texto+=`Cotação: ${reg.numero_cotacao||"-"}\n`;produtos.forEach(prod=>{let melhor=Infinity;(prod.fornecedores||[]).forEach(f=>{let preenchido=(f.nome&&f.nome.trim())||(f.estoque&&String(f.estoque).trim())||(f.valor&&String(f.valor).trim())||(f.link&&String(f.link).trim());if(!preenchido)return;let t=parseNumeroBR(f.estoque)*parseNumeroBR(f.valor);if(t>0&&t<melhor)melhor=t});(prod.fornecedores||[]).forEach(f=>{let preenchido=(f.nome&&f.nome.trim())||(f.estoque&&String(f.estoque).trim())||(f.valor&&String(f.valor).trim())||(f.link&&String(f.link).trim());if(!preenchido)return;let est=parseNumeroBR(f.estoque),vu=parseNumeroBR(f.valor),tt=est*vu,m=tt>0&&tt===melhor,extra=reg.tipo_cotacao==="CD"?(f.link?`<a href="${garantirHttps(f.link)}" target="_blank">Abrir</a>`:"-"):escapeHtml(f.classificacao||"-");let linha=`<tr><td>${escapeHtml(prod.nome||"")} ${m?'<span class="badge-melhor">🏆 Melhor preço</span>':""}</td><td>${escapeHtml(prod.kg||"")}</td><td>${escapeHtml(f.nome||"")}</td><td>${escapeHtml(f.estoque||"-")}</td><td>${extra}</td><td>${escapeHtml(f.notaRecebida||"-")}</td><td>${formatarMoedaBR(vu)}</td><td>${formatarMoedaBR(tt)}</td></tr>`;if(f.aprovado){ap+=linha;total+=tt;texto+=`• ${prod.nome} | ${f.nome} | R$ ${formatarMoedaBR(tt)}${m?" 🏆":""}\n`}else nap+=linha})});texto+=`Total: R$ ${formatarMoedaBR(total)}\n\n`;html+=`<div class="card" style="margin-bottom:12px"><strong>Nº da Cotação:</strong> ${reg.numero_cotacao||"-"}<br><strong>Data:</strong> ${formatarDataBR(reg.data_referencia)}<br><strong>Comprador:</strong> ${escapeHtml(reg.comprador_nome||"-")}<br><strong>Status:</strong> ${escapeHtml(reg.status_aprovacao||"PENDENTE")}<br><br><h3>✅ APROVADOS</h3><div class="relatorio-box"><table><tr><th>Produto</th><th>KG/QTD</th><th>Fornecedor</th><th>Estoque KG</th><th>${reg.tipo_cotacao==="CD"?"Link":"Classificação"}</th><th>Nota</th><th>V.Unit</th><th>Total</th></tr>${ap||'<tr><td colspan="8">Nenhum aprovado.</td></tr>'}<tr><td colspan="7" style="text-align:right"><strong>Total aprovado</strong></td><td><strong>${formatarMoedaBR(total)}</strong></td></tr></table></div>${nap?`<div class="no-print"><h3>❌ NÃO APROVADOS</h3><div class="relatorio-box"><table><tr><th>Produto</th><th>KG/QTD</th><th>Fornecedor</th><th>Estoque KG</th><th>${reg.tipo_cotacao==="CD"?"Link":"Classificação"}</th><th>Nota</th><th>V.Unit</th><th>Total</th></tr>${nap}</table></div></div>`:""}</div>`});
-window.textoRelatorioWhats=texto;alvo.innerHTML=html;
+  const compradorNome = cotacaoAtual?.comprador_nome
+    || document.getElementById("compradorNome").value
+    || usuarioSessao.nome;
+
+  let numeroCotacao = cotacaoAtual?.numero_cotacao;
+
+  if(!numeroCotacao){
+    numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
+  }
+
+  const registro = {
+    numero_cotacao: numeroCotacao,
+    tipo_cotacao: tipoCotacaoAtual,
+    data_referencia: data,
+    comprador_usuario: compradorUsuario,
+    comprador_nome: compradorNome,
+    comprador_whatsapp: payload.compradorWhatsapp || "",
+    responsavel: payload.responsavel || "",
+    observacao: payload.observacao || "",
+    status_aprovacao: cotacaoAtual?.status_aprovacao || "PENDENTE",
+    aprovado_por: cotacaoAtual?.aprovado_por || null,
+    aprovado_em: cotacaoAtual?.aprovado_em || null,
+    dados: payload
+  };
+
+  let result;
+
+  if(cotacaoAtual?.id){
+    result = await client
+      .from("cotacoes_bsm")
+      .update(registro)
+      .eq("id", cotacaoAtual.id)
+      .select()
+      .maybeSingle();
+  } else {
+    result = await client
+      .from("cotacoes_bsm")
+      .insert(registro)
+      .select()
+      .maybeSingle();
+  }
+
+  if(result.error){
+    alert("Erro ao salvar: " + result.error.message);
+    return false;
+  }
+
+  cotacaoAtual = result.data;
+  document.getElementById("numeroCotacao").innerText = cotacaoAtual.numero_cotacao;
+
+  return true;
 }
-function enviarWhatsAppRelatorio(){let n=document.getElementById("compradorWhatsapp").value.trim();if(!n){alert("Informe o WhatsApp do comprador.");return}window.open(`https://wa.me/${n}?text=${encodeURIComponent(window.textoRelatorioWhats||"Relatório")}`,"_blank")}
-
-async function carregarCompradoresParaAdmin(){let {data}=await client.from("usuarios_cotacao").select("*").eq("perfil","usuario").eq("ativo",true).order("nome",{ascending:true});let s=document.getElementById("filtroComprador");s.innerHTML='<option value="">Selecione</option>';(data||[]).forEach(u=>{let o=document.createElement("option");o.value=u.usuario;o.textContent=u.nome;s.appendChild(o)});if(data?.length){s.value=data[0].usuario;document.getElementById("compradorNome").value=data[0].nome}}
-async function carregarCotacaoDoCompradorAdmin(){await carregarDadosDaData()}
-function togglePainelUsuarios(){let p=document.getElementById("painelUsuarios");p.classList.toggle("hidden");if(!p.classList.contains("hidden"))carregarUsuarios()}
-function limparFormularioUsuario(){["novoUsuario","novaSenha","novoNome"].forEach(id=>document.getElementById(id).value="");document.getElementById("novoPerfil").value="usuario";document.getElementById("msgUsuarios").innerText=""}
-async function salvarUsuario(){if(!usuarioEhAdmin())return;let usuario=document.getElementById("novoUsuario").value.trim().toLowerCase(),senha=document.getElementById("novaSenha").value.trim(),nome=document.getElementById("novoNome").value.trim(),perfil=document.getElementById("novoPerfil").value;if(!usuario||!senha||!nome){document.getElementById("msgUsuarios").innerText="Preencha usuário, senha e nome.";return}let {error}=await client.from("usuarios_cotacao").upsert({usuario,senha,nome,perfil,ativo:true},{onConflict:"usuario"});document.getElementById("msgUsuarios").innerText=error?error.message:"Usuário salvo com sucesso.";await carregarUsuarios();await carregarCompradoresParaAdmin()}
-async function carregarUsuarios(){if(!usuarioEhAdmin())return;let alvo=document.getElementById("listaUsuarios");let {data}=await client.from("usuarios_cotacao").select("*").order("nome",{ascending:true});alvo.innerHTML="";(data||[]).forEach(u=>{let d=document.createElement("div");d.className="salvo";d.innerHTML=`<strong>${escapeHtml(u.nome)}</strong><div>Usuário: ${escapeHtml(u.usuario)}</div><div>Perfil: ${escapeHtml(u.perfil)}</div>`;alvo.appendChild(d)})}
-function ativarEventosInputs(c){c.querySelectorAll('input[list="listaFornecedores"]').forEach(i=>i.addEventListener("blur",()=>{if(!podeEditarCotacao())return;i.value=(i.value||"").trim().toUpperCase();atualizarListaFornecedoresLote();salvarAutomatico()}));c.querySelectorAll("input,select").forEach(i=>{i.addEventListener("change",()=>{if(!podeEditarCotacao())return;salvarAutomatico()})})}
-function ativarEventosGlobais(){document.getElementById("dataReferencia").addEventListener("change",async()=>{await carregarDadosDaData();await atualizarListaCotacoesSalvas()});["responsavel","observacao","compradorWhatsapp"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{if(podeEditarCotacao())salvarAutomatico()}))}
-document.getElementById("dataReferencia").value=dataAtualISO();
-</script>
-</body>
-</html>
