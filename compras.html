@@ -1,61 +1,182 @@
-async function salvarNaNuvem(){
-  const data = document.getElementById("dataReferencia").value;
-  if(!data) return false;
+<script>
+/* ===============================
+   CONTROLE DE COTAÇÃO (ANTI DUPLICAÇÃO)
+================================ */
 
-  const payload = montarDadosTela();
+let cotacaoAtual = null;
 
-  const compradorUsuario = cotacaoAtual?.comprador_usuario 
-    || (usuarioEhAdmin() ? document.getElementById("filtroComprador").value : usuarioSessao.usuario);
+/* ===============================
+   SALVAR (FIX DUPLICAÇÃO)
+================================ */
+async function salvarNaNuvem() {
+    let data = document.getElementById("dataReferencia").value;
+    if (!data) return false;
 
-  const compradorNome = cotacaoAtual?.comprador_nome
-    || document.getElementById("compradorNome").value
-    || usuarioSessao.nome;
+    let payload = montarDadosTela();
 
-  let numeroCotacao = cotacaoAtual?.numero_cotacao;
+    let compradorUsuario = usuarioSessao.usuario;
+    let compradorNome = usuarioSessao.nome;
 
-  if(!numeroCotacao){
-    numeroCotacao = await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
-  }
+    // 🔥 REGRA PRINCIPAL: SEMPRE BUSCAR SE JÁ EXISTE
+    let { data: existente } = await client
+        .from("cotacoes_bsm")
+        .select("*")
+        .eq("tipo_cotacao", tipoCotacaoAtual)
+        .eq("data_referencia", data)
+        .eq("comprador_usuario", compradorUsuario)
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-  const registro = {
-    numero_cotacao: numeroCotacao,
-    tipo_cotacao: tipoCotacaoAtual,
-    data_referencia: data,
-    comprador_usuario: compradorUsuario,
-    comprador_nome: compradorNome,
-    comprador_whatsapp: payload.compradorWhatsapp || "",
-    responsavel: payload.responsavel || "",
-    observacao: payload.observacao || "",
-    status_aprovacao: cotacaoAtual?.status_aprovacao || "PENDENTE",
-    aprovado_por: cotacaoAtual?.aprovado_por || null,
-    aprovado_em: cotacaoAtual?.aprovado_em || null,
-    dados: payload
-  };
+    let registroExistente = existente?.[0];
 
-  let result;
+    let numero =
+        registroExistente?.numero_cotacao ||
+        cotacaoAtual?.numero_cotacao ||
+        await obterProximoNumeroCotacao(data, tipoCotacaoAtual);
 
-  if(cotacaoAtual?.id){
-    result = await client
-      .from("cotacoes_bsm")
-      .update(registro)
-      .eq("id", cotacaoAtual.id)
-      .select()
-      .maybeSingle();
-  } else {
-    result = await client
-      .from("cotacoes_bsm")
-      .insert(registro)
-      .select()
-      .maybeSingle();
-  }
+    let registro = {
+        numero_cotacao: numero,
+        tipo_cotacao: tipoCotacaoAtual,
+        data_referencia: data,
+        comprador_usuario: compradorUsuario,
+        comprador_nome: compradorNome,
+        comprador_whatsapp: payload.compradorWhatsapp || "",
+        responsavel: payload.responsavel || "",
+        observacao: payload.observacao || "",
+        status_aprovacao: registroExistente?.status_aprovacao || "PENDENTE",
+        aprovado_por: registroExistente?.aprovado_por || null,
+        aprovado_em: registroExistente?.aprovado_em || null,
+        dados: payload
+    };
 
-  if(result.error){
-    alert("Erro ao salvar: " + result.error.message);
-    return false;
-  }
+    let result;
 
-  cotacaoAtual = result.data;
-  document.getElementById("numeroCotacao").innerText = cotacaoAtual.numero_cotacao;
+    if (registroExistente?.id) {
+        // 🔥 UPDATE (NÃO DUPLICA)
+        result = await client
+            .from("cotacoes_bsm")
+            .update(registro)
+            .eq("id", registroExistente.id)
+            .select()
+            .maybeSingle();
+    } else {
+        // 🔥 INSERT (SÓ SE NÃO EXISTIR)
+        result = await client
+            .from("cotacoes_bsm")
+            .insert(registro)
+            .select()
+            .maybeSingle();
+    }
 
-  return true;
+    if (result.error) {
+        alert("Erro ao salvar: " + result.error.message);
+        return false;
+    }
+
+    cotacaoAtual = result.data;
+
+    document.getElementById("numeroCotacao").innerText =
+        cotacaoAtual.numero_cotacao;
+
+    return true;
 }
+
+/* ===============================
+   CARREGAR (GARANTE NÃO DUPLICAR)
+================================ */
+async function carregarDadosDaData() {
+    limparTela();
+    cotacaoAtual = null;
+
+    let data = document.getElementById("dataReferencia").value;
+    if (!data) return;
+
+    let { data: registros } = await client
+        .from("cotacoes_bsm")
+        .select("*")
+        .eq("tipo_cotacao", tipoCotacaoAtual)
+        .eq("data_referencia", data)
+        .eq("comprador_usuario", usuarioSessao.usuario)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+    let reg = registros?.[0];
+
+    if (!reg) {
+        novaCotacao();
+        return;
+    }
+
+    cotacaoAtual = reg;
+
+    let d = reg.dados || {};
+
+    document.getElementById("compradorNome").value =
+        reg.comprador_nome || "";
+
+    document.getElementById("responsavel").value =
+        reg.responsavel || "";
+
+    document.getElementById("observacao").value =
+        reg.observacao || "";
+
+    document.getElementById("compradorWhatsapp").value =
+        reg.comprador_whatsapp || "";
+
+    (d.produtos || []).forEach(p => adicionarProduto(p, true));
+
+    atualizarDashboard();
+    aplicarBloqueioTela();
+}
+
+/* ===============================
+   NOVA COTAÇÃO (FORÇA NOVO)
+================================ */
+function novaCotacao() {
+    cotacaoAtual = null;
+
+    limparTela();
+
+    document.getElementById("numeroCotacao").innerText = "-";
+
+    document.getElementById("responsavel").value = "";
+    document.getElementById("observacao").value = "";
+    document.getElementById("compradorWhatsapp").value = "";
+
+    adicionarProduto(null, true);
+
+    mostrarStatusSalvo("Nova cotação iniciada");
+}
+
+/* ===============================
+   APROVAR (SEM DUPLICAR)
+================================ */
+async function aprovarCotacaoAdmin() {
+    if (!usuarioEhAdmin()) {
+        alert("Somente o administrador pode aprovar.");
+        return;
+    }
+
+    if (!cotacaoAtual?.id) {
+        await salvarNaNuvem();
+    }
+
+    cotacaoAtual.status_aprovacao = "APROVADA";
+    cotacaoAtual.aprovado_por = usuarioSessao.nome;
+    cotacaoAtual.aprovado_em = new Date().toISOString();
+
+    await client
+        .from("cotacoes_bsm")
+        .update({
+            status_aprovacao: "APROVADA",
+            aprovado_por: usuarioSessao.nome,
+            aprovado_em: cotacaoAtual.aprovado_em
+        })
+        .eq("id", cotacaoAtual.id);
+
+    atualizarDashboard();
+    aplicarBloqueioTela();
+
+    mostrarStatusSalvo("Cotação aprovada");
+}
+</script>
