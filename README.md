@@ -1,28 +1,24 @@
-# ADSB v6.2 — Agenda Regional
+# ADSB v7.0 — Nova Tela Inicial
 
-## Como atualizar no GitHub Pages
-1. Extraia o ZIP.
+## Atualizar no GitHub Pages
+
+1. Extraia este ZIP.
 2. Abra o repositório `suportebsm`.
 3. Clique em **Add file > Upload files**.
-4. Envie `index.html`, `manifest.json`, `service-worker.js` e a pasta `icons`.
-5. Confirme a substituição dos arquivos.
+4. Envie todos os arquivos e pastas deste pacote.
+5. Substitua os arquivos antigos quando o GitHub solicitar.
 6. Clique em **Commit changes**.
-7. Aguarde alguns minutos e atualize o site.
+7. Aguarde de 1 a 3 minutos.
+8. Abra o endereço do ADSB e atualize a página.
 
 Endereço:
 https://adrianoeugenioad-web.github.io/suportebsm/
 
-Login inicial:
-Ariel / 2101
+## Login inicial
 
-## Agenda Regional
-- Calendário mensal
-- Cadastro, edição e exclusão de eventos
-- Cultos, congressos, festividades, reuniões, vigílias e treinamentos
-- Data inicial e final, horário, responsável, pastor, preletor e cantor
-- Compartilhamento pelo WhatsApp
-- Botão Como chegar no Google Maps
-- Instagram
-- Status Agendado, Confirmado ou Cancelado
-- Eventos visíveis no painel inicial
-- Cada congregação visualiza seus próprios eventos
+Usuário: Ariel  
+Senha: 2101
+
+## Importante sobre atualização no celular
+
+Caso a tela antiga continue aparecendo, feche o aplicativo, abra novamente e atualize. Se ainda continuar, limpe apenas o cache do site ou remova e instale novamente o atalho do ADSB.
