@@ -1,13 +1,12 @@
 {
   "name": "ADSB - Gestão Ministerial",
   "short_name": "ADSB",
-  "description": "Sistema de Gestão Ministerial da Regional São Benedito",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#00142e",
-  "theme_color": "#00142e",
+  "background_color": "#061a35",
+  "theme_color": "#061a35",
   "icons": [
     {
       "src": "icons/icon-192.png",
