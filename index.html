@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADSB - Gestão Ministerial v7.0</title>
+<title>ADSB - Gestão Ministerial v7.1</title>
 <style>
 :root{--n:#061a35;--n2:#0b2f5a;--g:#e6b64b;--bg:#eef3f8;--ok:#067647;--no:#b42318}
 *{box-sizing:border-box}body{margin:0;font-family:Arial;background:var(--bg);color:#172033}button,input,select,textarea{font:inherit}.hidden{display:none!important}
@@ -130,6 +130,14 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
  .report-section{box-shadow:none;break-inside:avoid}
 }
 
+
+.scale-month-card{border-left:4px solid #e6b64b;background:#fff}
+.scale-month-card h3{margin:0 0 6px;color:var(--n)}
+.scale-empty{border-left-color:#98a2b3;opacity:.75}
+@media print{
+ #regionalScale{display:block!important;padding:0}
+ #regionalScale .head button,#regionalScale .agenda-toolbar button{display:none!important}
+}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
@@ -237,6 +245,20 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 <div id="userList" class="cards"></div>
 </section>
 
+
+<section id="regionalScale" class="page">
+<div class="head">
+  <div><h2>Escala Regional</h2><p style="margin:4px 0;color:#667085;font-size:13px">Escalas fixas de todas as terças-feiras do mês.</p></div>
+  <button id="printScale" class="primary">Imprimir Escala</button>
+</div>
+<div class="agenda-toolbar">
+  <button id="prevScaleMonth" class="secondary">‹</button>
+  <div id="scaleMonthTitle" class="agenda-month"></div>
+  <button id="nextScaleMonth" class="secondary">›</button>
+</div>
+<div id="regionalScaleList" class="cards"></div>
+</section>
+
 <section id="reports" class="page">
 <div class="head">
  <div><h2>Relatório Geral</h2><p style="margin:4px 0;color:#667085;font-size:13px">Todos os dados cadastrados no ADSB.</p></div>
@@ -246,7 +268,7 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 <div id="reportContent"></div>
 </section>
 
-<section id="more" class="page"><div class="panel"><button id="openMembersPage" class="secondary" style="width:100%;margin-bottom:10px">👥 Cadastro de Membros</button><button id="openReportsPage" class="secondary" style="width:100%;margin-bottom:10px">📊 Relatório Geral</button><button id="openUsersPage" class="secondary" style="width:100%;margin-bottom:10px">👤 Gerenciar Usuários</button><button id="backup" class="secondary" style="width:100%">Baixar backup</button><button id="reset" class="danger" style="width:100%;margin-top:10px">Limpar dados</button></div></section>
+<section id="more" class="page"><div class="panel"><button id="openMembersPage" class="secondary" style="width:100%;margin-bottom:10px">👥 Cadastro de Membros</button><button id="openRegionalScalePage" class="secondary" style="width:100%;margin-bottom:10px">⛪ Escala Regional</button><button id="openReportsPage" class="secondary" style="width:100%;margin-bottom:10px">📊 Relatório Geral</button><button id="openUsersPage" class="secondary" style="width:100%;margin-bottom:10px">👤 Gerenciar Usuários</button><button id="backup" class="secondary" style="width:100%">Baixar backup</button><button id="reset" class="danger" style="width:100%;margin-top:10px">Limpar dados</button></div></section>
 </main>
 <nav class="bottom"><button data-page="home" class="active">⌂<br>Início</button><button data-page="agenda">📅<br>Agenda</button><button data-page="fest">★<br>Festas</button><button id="approveNav" data-page="approve">✓<br>Aprovar</button><button data-page="workers">♟<br>Obreiros</button><button data-page="congs">⌂<br>Igrejas</button><button data-page="more">☰<br>Mais</button></nav>
 </div>
@@ -288,13 +310,10 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 <input type="hidden" id="cid"><label>Nome<input id="cname" required></label><label>Endereço<input id="caddress"></label><div class="grid2"><label>Pastor<input id="cpastor"></label><label>2º Dirigente<input id="csecond"></label></div><div class="grid2"><label>Telefone 1<input id="cphone1"></label><label>Telefone 2<input id="cphone2"></label></div><label>Instagram<input id="cinstagram"></label>
 
 <h4 style="margin:16px 0 6px;color:#0b5c8e">Escala Fixa na Sede Regional</h4>
-<div class="grid2">
- <label>Dia da semana<select id="scaleWeekday">
-  <option value="2">Terça-feira</option><option value="1">Segunda-feira</option><option value="3">Quarta-feira</option><option value="4">Quinta-feira</option><option value="5">Sexta-feira</option><option value="6">Sábado</option><option value="0">Domingo</option>
+<div class="grid2"><label>Escala fixa<select id="scaleOccurrence">
+  <option value="1">Toda 1ª terça-feira do mês</option><option value="2">Toda 2ª terça-feira do mês</option><option value="3">Toda 3ª terça-feira do mês</option><option value="4">Toda 4ª terça-feira do mês</option><option value="5">Toda 5ª terça-feira do mês, quando existir</option>
  </select></label>
- <label>Semana do mês<select id="scaleOccurrence">
-  <option value="1">1ª do mês</option><option value="2">2ª do mês</option><option value="3">3ª do mês</option><option value="4">4ª do mês</option><option value="5">5ª do mês, quando existir</option>
- </select></label>
+<label>Participa da escala?<select id="scaleActive"><option value="sim">Sim</option><option value="nao">Não</option></select></label>
 </div>
 <div class="grid2">
  <label>Horário<input id="scaleTime" type="time"></label>
@@ -645,11 +664,12 @@ function nthWeekdayOfMonth(year,month,weekday,nth){
 }
 function nextFixedScale(c,fromDate=new Date()){
  const s=c.fixedScale;
- if(!s)return null;
+ if(!s||s.active==='nao')return null;
  for(let add=0;add<18;add++){
-  const y=fromDate.getFullYear(),m=fromDate.getMonth()+add;
-  const year=y+Math.floor(m/12),month=((m%12)+12)%12;
-  const d=nthWeekdayOfMonth(year,month,Number(s.weekday),Number(s.occurrence));
+  const baseMonth=fromDate.getMonth()+add;
+  const year=fromDate.getFullYear()+Math.floor(baseMonth/12);
+  const month=((baseMonth%12)+12)%12;
+  const d=nthWeekdayOfMonth(year,month,2,Number(s.occurrence));
   if(d){
    const start=new Date(fromDate.getFullYear(),fromDate.getMonth(),fromDate.getDate());
    if(d>=start)return d;
@@ -658,9 +678,8 @@ function nextFixedScale(c,fromDate=new Date()){
  return null;
 }
 function fixedScaleLabel(s){
- if(!s)return '';
- const days=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
- return `${s.occurrence}ª ${days[Number(s.weekday)]} do mês`;
+ if(!s||s.active==='nao')return 'Sem escala fixa';
+ return `Toda ${s.occurrence}ª terça-feira do mês`;
 }
 function renderNextRegionalScales(){
  const el=$('nextRegionalScales');if(!el)return;
@@ -701,7 +720,7 @@ function renderReports(){
   ['Não dizimistas',members.length-tithe],['Festividades',fests.length],['Agenda',agendas.length],['Usuários',isAdmin()?data.users.length:1]
  ].map(x=>`<article><small>${x[0]}</small><strong>${x[1]}</strong></article>`).join('');
  let parts=[];
- parts.push(reportTable('Congregações',['Nome','Pastor','2º Dirigente','Telefone','Instagram','Escala fixa'],congs.map(c=>[c.name,c.pastor||'',c.second||'',c.phone1||'',c.instagram||'',c.fixedScale?fixedScaleLabel(c.fixedScale)+' '+(c.fixedScale.time||''):''])));
+ parts.push(reportTable('Congregações',['Nome','Pastor','2º Dirigente','Telefone','Instagram','Escala fixa'],congs.map(c=>[c.name,c.pastor||'',c.second||'',c.phone1||'',c.instagram||'',c.fixedScale&&c.fixedScale.active!=='nao'?fixedScaleLabel(c.fixedScale)+' '+(c.fixedScale.time||''):'Sem escala'])));
  parts.push(reportTable('Obreiros',['Nome','Cargo','Congregação','Telefone','Nascimento','Consagração'],workers.map(w=>[w.name,w.role,cname(w.congregationId),w.phone||'',fmt(w.birth)||'',fmt(w.consecration)||''])));
  parts.push(reportTable('Membros',['Nome','Congregação','Dizimista','Telefone','Nascimento','Batismo','Endereço'],members.map(m=>[m.name,cname(m.congregationId),m.tither==='sim'?'Sim':'Não',m.phone||'',fmt(m.birth)||'',fmt(m.baptism)||'',m.address||''])));
  parts.push(reportTable('Festividades',['Nome','Congregação','Período','Status','Total'],fests.map(f=>[f.name,cname(f.congregationId),fmt(f.start)+' a '+fmt(f.end),st(f.status),money(total(f))])));
@@ -721,10 +740,10 @@ function exportGeneralCsv(){
  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));link.download='relatorio-geral-adsb.csv';link.click();
 }
 
-function render(){$('welcome').textContent='Bem-vindo(a), '+current.name+'!';$('access').textContent=current.profile==='admin'?'Administrador geral — acesso total':'Acesso à sua congregação';$('sc').textContent=allowedC().length;$('sf').textContent=allowedF().length;$('sp').textContent=allowedF().filter(f=>f.status==='pending').length;$('sw').textContent=allowedWorkersList().length;$('sm').textContent=allowedMembers().length;$('approveNav').style.display=current.profile==='admin'?'':'none';secureUi();renderC();renderF();renderA();renderW();renderUsers();renderBirthWeek();renderAgenda();renderNextAgenda();renderNextRegionalScales();renderMembers();renderReports();let ups=allowedF().slice().sort((a,b)=>a.start.localeCompare(b.start)).slice(0,5);$('next').innerHTML=ups.length?ups.map(f=>`<div class="person"><b>${fmt(f.start)} a ${fmt(f.end)} — ${f.name}</b><p>${cname(f.congregationId)} • <span class="status ${sc(f.status)}">${st(f.status)}</span></p></div>`).join(''):'<div class="empty">Nenhuma festividade.</div>'}
-function renderC(){$('congList').innerHTML=allowedC().length?allowedC().map(c=>`<article class="card"><h3>${c.name}</h3><p>${c.address||'-'}</p><p>Pastor: ${c.pastor||'-'} | 2º Dirigente: ${c.second||'-'}</p><p>${c.phone1||''} ${c.instagram||''}</p>${c.fixedScale?`<div class="fixed-scale"><h4>Escala fixa: ${fixedScaleLabel(c.fixedScale)}</h4><p>${c.fixedScale.time||''} • ${c.fixedScale.responsible||'-'}</p>${c.fixedScale.notes?`<p>${c.fixedScale.notes}</p>`:''}</div>`:''}${current.profile==='admin'?`<div class="actions"><button class="mini" onclick="editC('${c.id}')">Editar</button><button class="danger" onclick="delC('${c.id}')">Excluir</button></div>`:''}</article>`).join(''):'<div class="empty">Nenhuma congregação.</div>'}
-$('newCong').onclick=()=>{if(!isAdmin())return;$('congForm').reset();$('cid').value='';$('congDlg').showModal()};$('congForm').onsubmit=e=>{e.preventDefault();let c={id:$('cid').value||id(),name:$('cname').value,address:$('caddress').value,pastor:$('cpastor').value,second:$('csecond').value,phone1:$('cphone1').value,phone2:$('cphone2').value,instagram:$('cinstagram').value,fixedScale:{weekday:$('scaleWeekday').value,occurrence:$('scaleOccurrence').value,time:$('scaleTime').value,responsible:$('scaleResponsible').value,notes:$('scaleNotes').value}};let i=data.congregations.findIndex(x=>x.id===c.id);i>=0?data.congregations[i]=c:data.congregations.push(c);save();$('congDlg').close();render()}
-window.editC=i=>{if(!isAdmin())return;let c=data.congregations.find(x=>x.id===i);$('cid').value=c.id;$('cname').value=c.name;$('caddress').value=c.address||'';$('cpastor').value=c.pastor||'';$('csecond').value=c.second||'';$('cphone1').value=c.phone1||'';$('cphone2').value=c.phone2||'';$('cinstagram').value=c.instagram||'';const fs=c.fixedScale||{};$('scaleWeekday').value=fs.weekday??'2';$('scaleOccurrence').value=fs.occurrence??'1';$('scaleTime').value=fs.time||'';$('scaleResponsible').value=fs.responsible||'';$('scaleNotes').value=fs.notes||'';$('congDlg').showModal()};window.delC=i=>{if(!isAdmin())return;if(confirm('Excluir congregação?')){data.congregations=data.congregations.filter(c=>c.id!==i);save();render()}}
+function render(){$('welcome').textContent='Bem-vindo(a), '+current.name+'!';$('access').textContent=current.profile==='admin'?'Administrador geral — acesso total':'Acesso à sua congregação';$('sc').textContent=allowedC().length;$('sf').textContent=allowedF().length;$('sp').textContent=allowedF().filter(f=>f.status==='pending').length;$('sw').textContent=allowedWorkersList().length;$('sm').textContent=allowedMembers().length;$('approveNav').style.display=current.profile==='admin'?'':'none';secureUi();renderC();renderF();renderA();renderW();renderUsers();renderBirthWeek();renderAgenda();renderNextAgenda();renderNextRegionalScales();renderMembers();renderReports();renderRegionalScale();let ups=allowedF().slice().sort((a,b)=>a.start.localeCompare(b.start)).slice(0,5);$('next').innerHTML=ups.length?ups.map(f=>`<div class="person"><b>${fmt(f.start)} a ${fmt(f.end)} — ${f.name}</b><p>${cname(f.congregationId)} • <span class="status ${sc(f.status)}">${st(f.status)}</span></p></div>`).join(''):'<div class="empty">Nenhuma festividade.</div>'}
+function renderC(){$('congList').innerHTML=allowedC().length?allowedC().map(c=>`<article class="card"><h3>${c.name}</h3><p>${c.address||'-'}</p><p>Pastor: ${c.pastor||'-'} | 2º Dirigente: ${c.second||'-'}</p><p>${c.phone1||''} ${c.instagram||''}</p>${c.fixedScale&&c.fixedScale.active!=='nao'?`<div class="fixed-scale"><h4>Escala fixa: ${fixedScaleLabel(c.fixedScale)}</h4><p>${c.fixedScale.time||''} • ${c.fixedScale.responsible||'-'}</p>${c.fixedScale.notes?`<p>${c.fixedScale.notes}</p>`:''}</div>`:''}${current.profile==='admin'?`<div class="actions"><button class="mini" onclick="editC('${c.id}')">Editar</button><button class="danger" onclick="delC('${c.id}')">Excluir</button></div>`:''}</article>`).join(''):'<div class="empty">Nenhuma congregação.</div>'}
+$('newCong').onclick=()=>{if(!isAdmin())return;$('congForm').reset();$('cid').value='';$('congDlg').showModal()};$('congForm').onsubmit=e=>{e.preventDefault();let c={id:$('cid').value||id(),name:$('cname').value,address:$('caddress').value,pastor:$('cpastor').value,second:$('csecond').value,phone1:$('cphone1').value,phone2:$('cphone2').value,instagram:$('cinstagram').value,fixedScale:{active:$('scaleActive').value,occurrence:$('scaleOccurrence').value,time:$('scaleTime').value,responsible:$('scaleResponsible').value,notes:$('scaleNotes').value}};let i=data.congregations.findIndex(x=>x.id===c.id);i>=0?data.congregations[i]=c:data.congregations.push(c);save();$('congDlg').close();render()}
+window.editC=i=>{if(!isAdmin())return;let c=data.congregations.find(x=>x.id===i);$('cid').value=c.id;$('cname').value=c.name;$('caddress').value=c.address||'';$('cpastor').value=c.pastor||'';$('csecond').value=c.second||'';$('cphone1').value=c.phone1||'';$('cphone2').value=c.phone2||'';$('cinstagram').value=c.instagram||'';const fs=c.fixedScale||{};$('scaleActive').value=fs.active??'sim';$('scaleOccurrence').value=fs.occurrence??'1';$('scaleTime').value=fs.time||'';$('scaleResponsible').value=fs.responsible||'';$('scaleNotes').value=fs.notes||'';$('congDlg').showModal()};window.delC=i=>{if(!isAdmin())return;if(confirm('Excluir congregação?')){data.congregations=data.congregations.filter(c=>c.id!==i);save();render()}}
 $('newFest').onclick=()=>{$('festForm').reset();$('fid').value='';guests=[];fill($('fcong'));if(current.profile!=='admin')$('fcong').value=current.congregationId;renderGD();$('festDlg').showModal()}
 $('addGuest').onclick=()=>{if(!$('gname').value)return toast('Informe o nome');guests.push({id:id(),type:$('gtype').value,name:$('gname').value,denomination:$('gden').value,church:$('gchurch').value,fee:n($('gfee').value),transport:n($('gtransport').value),hotel:n($('ghotel').value),food:n($('gfood').value),status:'pending',note:''});['gname','gden','gchurch','gfee','gtransport','ghotel','gfood'].forEach(x=>$(x).value='');renderGD()}
 function renderGD(){$('guestDraft').innerHTML=guests.length?guests.map((g,i)=>`<div class="person"><h4>${g.type}: ${g.name}</h4><p>${g.denomination||'-'} • ${money(gt(g))}</p><button type="button" class="danger" onclick="rg(${i})">Remover</button></div>`).join(''):'Nenhum convidado.'}window.rg=i=>{guests.splice(i,1);renderGD()}
@@ -1080,6 +1099,40 @@ window.editMember=mi=>{const m=data.members.find(x=>x.id===mi);if(!m)return;$('m
 window.deleteMember=mi=>{const m=data.members.find(x=>x.id===mi);if(m&&confirm('Excluir o membro '+m.name+'?')){data.members=data.members.filter(x=>x.id!==mi);save();render()}};
 $('printReport').onclick=()=>{renderReports();window.print()};
 $('exportReport').onclick=exportGeneralCsv;
+
+
+let scaleViewDate=new Date();
+
+function buildMonthlyScale(year,month){
+ const entries=[];
+ for(let occurrence=1;occurrence<=5;occurrence++){
+  const date=nthWeekdayOfMonth(year,month,2,occurrence);
+  if(!date)continue;
+  const congregation=data.congregations.find(c=>c.fixedScale&&c.fixedScale.active!=='nao'&&Number(c.fixedScale.occurrence)===occurrence);
+  entries.push({occurrence,date,congregation});
+ }
+ return entries;
+}
+
+function renderRegionalScale(){
+ const el=$('regionalScaleList');if(!el)return;
+ const months=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+ const year=scaleViewDate.getFullYear(),month=scaleViewDate.getMonth();
+ $('scaleMonthTitle').textContent=months[month]+' de '+year;
+ const entries=buildMonthlyScale(year,month);
+ el.innerHTML=entries.map(e=>{
+  const c=e.congregation;
+  return `<article class="card scale-month-card ${c?'':'scale-empty'}">
+   <h3>${String(e.date.getDate()).padStart(2,'0')}/${String(month+1).padStart(2,'0')}/${year} — ${e.occurrence}ª terça-feira</h3>
+   ${c?`<p><b>Congregação:</b> ${c.name}</p><p><b>Horário:</b> ${c.fixedScale.time||'-'}</p><p><b>Responsável:</b> ${c.fixedScale.responsible||'-'}</p>${c.fixedScale.notes?`<p>${c.fixedScale.notes}</p>`:''}`:'<p>Nenhuma congregação escalada.</p>'}
+  </article>`;
+ }).join('');
+}
+
+if($('openRegionalScalePage'))$('openRegionalScalePage').onclick=()=>{openPage('regionalScale');renderRegionalScale()};
+if($('prevScaleMonth'))$('prevScaleMonth').onclick=()=>{scaleViewDate=new Date(scaleViewDate.getFullYear(),scaleViewDate.getMonth()-1,1);renderRegionalScale()};
+if($('nextScaleMonth'))$('nextScaleMonth').onclick=()=>{scaleViewDate=new Date(scaleViewDate.getFullYear(),scaleViewDate.getMonth()+1,1);renderRegionalScale()};
+if($('printScale'))$('printScale').onclick=()=>{renderRegionalScale();window.print()};
 
 $('backup').onclick=()=>{let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='backup-adsb.json';a.click()};$('reset').onclick=()=>{if(confirm('Apagar dados?')){localStorage.removeItem(K);location.reload()}}
 </script>
