@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADSB - Gestão Ministerial v6.5</title>
+<title>ADSB - Gestão Ministerial v6.6</title>
 <style>
 :root{--n:#061a35;--n2:#0b2f5a;--g:#e6b64b;--bg:#eef3f8;--ok:#067647;--no:#b42318}
 *{box-sizing:border-box}body{margin:0;font-family:Arial;background:var(--bg);color:#172033}button,input,select,textarea{font:inherit}.hidden{display:none!important}
@@ -95,7 +95,8 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 .user-card.inactive{opacity:.68;border-left-color:#98a2b3}
 .user-login{font-family:monospace;background:#f4f7fb;padding:4px 7px;border-radius:7px}
 .permission-badge{display:inline-block;background:#eef2f6;color:#344054;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}
-.active-badge{background:#dcfae6;color:#067647}.inactive-badge{background:#fee4e2;color:#b42318}
+.active-badge{background:#dcfae6;color:#067647}
+.inactive-badge{background:#fee4e2;color:#b42318}
 .admin-banner{background:#fff0c2;color:#8a4b00;padding:9px 12px;text-align:center;font-size:13px;font-weight:800}
 @media(max-width:430px){.user-toolbar{grid-template-columns:1fr}.user-summary{grid-template-columns:1fr 1fr}}
 
@@ -171,7 +172,10 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 </section>
 <section id="users" class="page">
 <div class="head">
-  <div><h2>Gerenciar Usuários</h2><p style="margin:4px 0;color:#667085;font-size:13px">Crie e edite os acessos de cada congregação.</p></div>
+  <div>
+    <h2>Gerenciar Usuários</h2>
+    <p style="margin:4px 0;color:#667085;font-size:13px">Crie, edite e controle os acessos de cada congregação.</p>
+  </div>
   <button id="newUser" class="primary">+ Novo Usuário</button>
 </div>
 <div class="user-summary">
@@ -181,7 +185,9 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 </div>
 <div class="user-toolbar">
   <input id="userSearch" class="search" style="margin:0" placeholder="Pesquisar nome ou usuário...">
-  <select id="userCongFilter" class="search" style="margin:0"><option value="">Todas as congregações</option></select>
+  <select id="userCongFilter" class="search" style="margin:0">
+    <option value="">Todas as congregações</option>
+  </select>
 </div>
 <div id="userList" class="cards"></div>
 </section>
@@ -261,25 +267,33 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 
 <dialog id="userDlg"><form id="userForm" class="form">
 <input type="hidden" id="uid">
-<div class="formhead"><h3 id="userDialogTitle">Cadastro de Usuário</h3><button type="button" class="x" data-close="userDlg">×</button></div>
+<div class="formhead">
+  <h3 id="userDialogTitle">Cadastro de Usuário</h3>
+  <button type="button" class="x" data-close="userDlg">×</button>
+</div>
 <label>Nome completo<input id="uname" required></label>
 <div class="grid2">
-<label>Usuário de acesso<input id="ulogin" required autocomplete="off"></label>
-<label>Perfil<select id="uprofile">
-<option value="congregacao">Pastor / Congregação</option>
-<option value="secretario">Secretário</option>
-<option value="consulta">Somente consulta</option>
-<option value="admin">Administrador</option>
-</select></label>
+  <label>Usuário de acesso<input id="ulogin" required autocomplete="off"></label>
+  <label>Perfil<select id="uprofile">
+    <option value="congregacao">Pastor / Congregação</option>
+    <option value="secretario">Secretário</option>
+    <option value="consulta">Somente consulta</option>
+    <option value="admin">Administrador</option>
+  </select></label>
 </div>
 <label>Congregação<select id="ucong"></select></label>
 <div class="grid2">
-<label>Nova senha<input id="upass" type="password" autocomplete="new-password" placeholder="Preencha para criar ou trocar"></label>
-<label>Confirmar senha<input id="upass2" type="password" autocomplete="new-password"></label>
+  <label>Nova senha<input id="upass" type="password" autocomplete="new-password" placeholder="Preencha para criar ou trocar"></label>
+  <label>Confirmar senha<input id="upass2" type="password" autocomplete="new-password"></label>
 </div>
-<label style="display:flex;gap:8px;align-items:center"><input id="uactive" type="checkbox" checked style="width:auto"> Usuário ativo</label>
+<label style="display:flex;gap:8px;align-items:center">
+  <input id="uactive" type="checkbox" checked style="width:auto"> Usuário ativo
+</label>
 <p style="font-size:12px;color:#667085">Ao editar, deixe a senha em branco para manter a senha atual.</p>
-<div class="formactions"><button type="button" class="secondary" data-close="userDlg">Cancelar</button><button class="primary">Salvar Usuário</button></div>
+<div class="formactions">
+  <button type="button" class="secondary" data-close="userDlg">Cancelar</button>
+  <button class="primary">Salvar Usuário</button>
+</div>
 </form></dialog>
 
 <script>
@@ -292,7 +306,7 @@ function n(v){return Number(String(v||'0').replace(/\./g,'').replace(',','.'))||
 function allowedC_old(){return []}function allowedF_old(){return []}
 function cname(i){return data.congregations.find(c=>c.id===i)?.name||'Sem congregação'}function st(s){return s==='approved'?'Aprovada':s==='rejected'?'Reprovada':'Aguardando'}function sc(s){return s==='approved'?'approved':s==='rejected'?'rejected':'pending'}
 function gt(g){return n(g.fee)+n(g.transport)+n(g.hotel)+n(g.food)}function ot(c){return n(c.decoration)+n(c.sound)+n(c.food)+n(c.ads)+n(c.gifts)+n(c.other)}function total(f){return f.guests.reduce((s,g)=>s+gt(g),0)+ot(f.costs)}function approvedTotal(f){return f.guests.filter(g=>g.status==='approved').reduce((s,g)=>s+gt(g),0)+ot(f.costs)}
-$('loginForm').onsubmit=e=>{e.preventDefault();let u=data.users.find(x=>x.login.toLowerCase()===$('lu').value.trim().toLowerCase()&&x.password===$('lp').value);if(!u)return toast('Usuário ou senha inválidos');if(u.active===false)return toast('Usuário inativo');if(!u.profile)u.profile='congregacao';current=u;$('login').classList.add('hidden');$('app').classList.remove('hidden');render()}
+$('loginForm').onsubmit=e=>{e.preventDefault();let u=data.users.find(x=>x.login.toLowerCase()===$('lu').value.trim().toLowerCase()&&x.password===$('lp').value);if(!u)return toast('Usuário ou senha inválidos');if(u.active===false)return toast('Usuário inativo');current=u;$('login').classList.add('hidden');$('app').classList.remove('hidden');render()}
 $('logout').onclick=()=>location.reload();document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).close());document.querySelectorAll('.bottom button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));$(b.dataset.page).classList.add('active');b.classList.add('active')})
 function fill(sel){sel.innerHTML='<option value="">Selecione...</option>'+allowedC().map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
 
@@ -638,43 +652,50 @@ window.delW=wi=>{
    data.workers=data.workers.filter(x=>x.id!==wi);save();render();toast('Obreiro excluído');
  }
 }
-;$('userForm').onsubmit=e=>{e.preventDefault();data.users.push({id:id(),name:$('uname').value,login:$('ulogin').value,password:$('upass').value,profile:$('uprofile').value,congregationId:$('ucong').value});s
-if($('openUsersPage'))$('openUsersPage').onclick=()=>{
- if(!isAdmin())return toast('Acesso exclusivo do administrador');
- document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
- document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
- $('users').classList.add('active');
- renderUsers();
-};
-
-ave();$('userDlg').close();render()}
-
 
 let realAdminUser=null;
 
 function profileLabel(profile){
- const labels={admin:'Administrador',congregacao:'Pastor / Congregação',secretario:'Secretário',consulta:'Somente consulta'};
+ const labels={
+  admin:'Administrador',
+  congregacao:'Pastor / Congregação',
+  secretario:'Secretário',
+  consulta:'Somente consulta'
+ };
  return labels[profile]||profile;
 }
+
+function openPage(pageId){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
+ const page=$(pageId);
+ if(page)page.classList.add('active');
+}
+
 function fillUserCongFilter(){
  const sel=$('userCongFilter');
  if(!sel)return;
- const currentValue=sel.value;
- sel.innerHTML='<option value="">Todas as congregações</option>'+data.congregations.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
- sel.value=currentValue;
+ const value=sel.value;
+ sel.innerHTML='<option value="">Todas as congregações</option>'+
+   data.congregations.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+ sel.value=value;
 }
+
 function renderUsers(){
  if(!isAdmin()){
-   if($('userList'))$('userList').innerHTML='<div class="empty">Acesso exclusivo do administrador.</div>';
-   return;
+  $('userList').innerHTML='<div class="empty">Acesso exclusivo do administrador.</div>';
+  return;
  }
  fillUserCongFilter();
- const q=($('userSearch')?.value||'').trim().toLowerCase();
- const congregation=$('userCongFilter')?.value||'';
+
+ const q=($('userSearch').value||'').trim().toLowerCase();
+ const cong=$('userCongFilter').value||'';
+
  let list=data.users.filter(u=>
-   (!q||(u.name||'').toLowerCase().includes(q)||(u.login||'').toLowerCase().includes(q))&&
-   (!congregation||u.congregationId===congregation)
+   (!q||(u.name||'').toLowerCase().includes(q)||(u.login||'').toLowerCase().includes(q)) &&
+   (!cong||u.congregationId===cong)
  );
+
  list.sort((a,b)=>(a.name||'').localeCompare(b.name||'','pt-BR'));
 
  $('userTotal').textContent=data.users.length;
@@ -682,30 +703,28 @@ function renderUsers(){
  $('userInactiveTotal').textContent=data.users.filter(u=>u.active===false).length;
 
  $('userList').innerHTML=list.length?list.map(u=>{
-   const c=data.congregations.find(x=>x.id===u.congregationId);
-   const isAriel=(u.login||'').toLowerCase()==='ariel';
-   return `<article class="card user-card ${u.active===false?'inactive':''}">
-     <div class="personhead">
-       <div>
-         <h3>${u.name||'-'}</h3>
-         <p>Usuário: <span class="user-login">${u.login}</span></p>
-       </div>
-       <span class="permission-badge ${u.active===false?'inactive-badge':'active-badge'}">${u.active===false?'Inativo':'Ativo'}</span>
-     </div>
-     <p><b>Perfil:</b> ${profileLabel(u.profile)}</p>
-     <p><b>Congregação:</b> ${c?c.name:(u.profile==='admin'?'Acesso geral':'Não vinculada')}</p>
-     <div class="actions">
-       <button class="mini" onclick="editUser('${u.id}')">✏️ Editar</button>
-       <button class="secondary" onclick="openPasswordChange('${u.id}')">🔑 Trocar senha</button>
-       ${!isAriel?`<button class="${u.active===false?'approve':'reject'}" onclick="toggleUser('${u.id}')">${u.active===false?'Ativar':'Inativar'}</button>`:''}
-       ${!isAriel?`<button class="secondary" onclick="impersonateUser('${u.id}')">👁 Testar acesso</button>`:''}
-       ${!isAriel?`<button class="danger" onclick="deleteUser('${u.id}')">🗑 Excluir</button>`:''}
-     </div>
-   </article>`;
+  const c=data.congregations.find(x=>x.id===u.congregationId);
+  const isAriel=(u.login||'').toLowerCase()==='ariel';
+  return `<article class="card user-card ${u.active===false?'inactive':''}">
+    <div class="personhead">
+      <div>
+        <h3>${u.name||'-'}</h3>
+        <p>Usuário: <span class="user-login">${u.login}</span></p>
+      </div>
+      <span class="permission-badge ${u.active===false?'inactive-badge':'active-badge'}">${u.active===false?'Inativo':'Ativo'}</span>
+    </div>
+    <p><b>Perfil:</b> ${profileLabel(u.profile)}</p>
+    <p><b>Congregação:</b> ${c?c.name:(u.profile==='admin'?'Acesso geral':'Não vinculada')}</p>
+    <div class="actions">
+      <button class="mini" onclick="editUser('${u.id}')">✏️ Editar</button>
+      <button class="secondary" onclick="openPasswordChange('${u.id}')">🔑 Trocar senha</button>
+      ${!isAriel?`<button class="${u.active===false?'approve':'reject'}" onclick="toggleUser('${u.id}')">${u.active===false?'Ativar':'Inativar'}</button>`:''}
+      ${!isAriel?`<button class="secondary" onclick="impersonateUser('${u.id}')">👁 Testar acesso</button>`:''}
+      ${!isAriel?`<button class="danger" onclick="deleteUser('${u.id}')">🗑 Excluir</button>`:''}
+    </div>
+  </article>`;
  }).join(''):'<div class="empty">Nenhum usuário encontrado.</div>';
 }
-if($('userSearch'))$('userSearch').oninput=renderUsers;
-if($('userCongFilter'))$('userCongFilter').onchange=renderUsers;
 
 function clearUserForm(){
  $('userForm').reset();
@@ -714,20 +733,36 @@ function clearUserForm(){
  fill($('ucong'));
  $('uactive').checked=true;
  $('uprofile').value='congregacao';
+ $('ucong').disabled=false;
 }
+
+if($('openUsersPage')){
+ $('openUsersPage').onclick=()=>{
+  if(!isAdmin())return toast('Acesso exclusivo do administrador');
+  openPage('users');
+  renderUsers();
+ };
+}
+
 $('newUser').onclick=()=>{
- if(!isAdmin())return;
+ if(!isAdmin())return toast('Acesso exclusivo do administrador');
  clearUserForm();
  $('userDlg').showModal();
 };
+
+$('userSearch').oninput=renderUsers;
+$('userCongFilter').onchange=renderUsers;
+
 $('uprofile').onchange=()=>{
  const profile=$('uprofile').value;
  $('ucong').disabled=profile==='admin';
  if(profile==='admin')$('ucong').value='';
 };
+
 $('userForm').onsubmit=e=>{
  e.preventDefault();
  if(!isAdmin())return;
+
  const uid=$('uid').value;
  const login=$('ulogin').value.trim();
  const pass=$('upass').value;
@@ -737,32 +772,42 @@ $('userForm').onsubmit=e=>{
 
  if(!login)return toast('Informe o usuário de acesso');
  if(profile!=='admin'&&!congregationId)return toast('Selecione a congregação');
- if(data.users.some(u=>(u.login||'').toLowerCase()===login.toLowerCase()&&u.id!==uid))return toast('Este usuário já está cadastrado');
+ if(data.users.some(u=>(u.login||'').toLowerCase()===login.toLowerCase()&&u.id!==uid)){
+  return toast('Este usuário já está cadastrado');
+ }
  if(!uid&&!pass)return toast('Informe uma senha para o novo usuário');
  if(pass!==pass2)return toast('As senhas não são iguais');
  if(pass&&pass.length<4)return toast('A senha deve ter pelo menos 4 caracteres');
 
  const old=data.users.find(u=>u.id===uid);
  const user={
-   id:uid||id(),
-   name:$('uname').value.trim(),
-   login,
-   password:pass||(old?.password||''),
-   profile,
-   congregationId,
-   active:$('uactive').checked,
-   updatedAt:new Date().toISOString()
+  id:uid||id(),
+  name:$('uname').value.trim(),
+  login,
+  password:pass||(old?.password||''),
+  profile,
+  congregationId,
+  active:$('uactive').checked,
+  updatedAt:new Date().toISOString()
  };
- let ix=data.users.findIndex(u=>u.id===user.id);
- if(ix>=0)data.users[ix]=user;else data.users.push(user);
+
+ const ix=data.users.findIndex(u=>u.id===user.id);
+ if(ix>=0)data.users[ix]=user;
+ else data.users.push(user);
+
  save();
  $('userDlg').close();
  render();
+ openPage('users');
+ renderUsers();
  toast(ix>=0?'Usuário atualizado':'Usuário criado');
 };
+
 window.editUser=ui=>{
  if(!isAdmin())return;
- const u=data.users.find(x=>x.id===ui);if(!u)return;
+ const u=data.users.find(x=>x.id===ui);
+ if(!u)return;
+
  $('userForm').reset();
  $('uid').value=u.id;
  $('userDialogTitle').textContent='Editar Usuário';
@@ -777,44 +822,58 @@ window.editUser=ui=>{
  $('uactive').checked=u.active!==false;
  $('userDlg').showModal();
 };
+
 window.openPasswordChange=ui=>{
- if(!isAdmin())return;
- const u=data.users.find(x=>x.id===ui);if(!u)return;
  editUser(ui);
- $('userDialogTitle').textContent='Trocar Senha — '+u.login;
- $('upass').focus();
+ const u=data.users.find(x=>x.id===ui);
+ if(u)$('userDialogTitle').textContent='Trocar Senha — '+u.login;
+ setTimeout(()=>$('upass').focus(),100);
 };
+
 window.toggleUser=ui=>{
  if(!isAdmin())return;
- const u=data.users.find(x=>x.id===ui);if(!u||(u.login||'').toLowerCase()==='ariel')return;
+ const u=data.users.find(x=>x.id===ui);
+ if(!u||(u.login||'').toLowerCase()==='ariel')return;
+
  u.active=u.active===false;
  u.updatedAt=new Date().toISOString();
- save();render();toast(u.active?'Usuário ativado':'Usuário inativado');
+ save();
+ renderUsers();
+ toast(u.active?'Usuário ativado':'Usuário inativado');
 };
+
 window.deleteUser=ui=>{
  if(!isAdmin())return;
- const u=data.users.find(x=>x.id===ui);if(!u||(u.login||'').toLowerCase()==='ariel')return;
+ const u=data.users.find(x=>x.id===ui);
+ if(!u||(u.login||'').toLowerCase()==='ariel')return;
+
  if(confirm('Deseja realmente excluir o usuário '+u.login+'?')){
-   data.users=data.users.filter(x=>x.id!==ui);
-   save();render();toast('Usuário excluído');
+  data.users=data.users.filter(x=>x.id!==ui);
+  save();
+  renderUsers();
+  toast('Usuário excluído');
  }
 };
+
 window.impersonateUser=ui=>{
  if(!isAdmin())return;
- const u=data.users.find(x=>x.id===ui);if(!u||u.active===false)return toast('Este usuário está inativo');
+ const u=data.users.find(x=>x.id===ui);
+ if(!u||u.active===false)return toast('Este usuário está inativo');
+
  realAdminUser=current;
  current=u;
  $('impersonationBanner').classList.remove('hidden');
- document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
- $('home').classList.add('active');
+ openPage('home');
  render();
  toast('Visualizando como '+u.login);
 };
+
 $('returnAdminBtn').onclick=()=>{
  if(!realAdminUser)return;
  current=realAdminUser;
  realAdminUser=null;
  $('impersonationBanner').classList.add('hidden');
+ openPage('home');
  render();
  toast('Acesso de administrador restaurado');
 };

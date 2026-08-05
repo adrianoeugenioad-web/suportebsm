@@ -1,19 +1,22 @@
-# ADSB v6.5 — Painel de Usuários
+# ADSB v6.6 — Painel de Usuários Corrigido
 
-## Painel exclusivo do administrador
+## Corrigido
+- Botão Gerenciar Usuários abre corretamente
+- Botão Novo Usuário aparece
 - Criar usuário e senha
-- Editar nome, login, perfil e congregação
+- Editar usuário
 - Trocar senha
 - Ativar ou inativar
-- Excluir usuário
+- Excluir
 - Pesquisar e filtrar
-- Testar o acesso da congregação
-- O usuário Ariel não pode ser excluído nem inativado
-
-## Regras
-Cada igreja vê somente seus próprios dados. Todos visualizam a Agenda Regional, que só o administrador pode editar.
+- Testar acesso da congregação
 
 ## Atualizar no GitHub
-Substitua `index.html`, `manifest.json`, `service-worker.js` e a pasta `icons`.
+Substitua:
+- index.html
+- manifest.json
+- service-worker.js
+- pasta icons
 
-Login inicial: Ariel / 2101
+Login inicial:
+Ariel / 2101
