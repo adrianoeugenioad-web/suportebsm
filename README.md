@@ -1,34 +1,21 @@
-# ADSB - GitHub Pages
+# ADSB v6.1 — GitHub Pages
 
-Este pacote já está pronto para publicação no GitHub Pages.
-
-## Arquivos que devem ficar na raiz do repositório
-
-- index.html
-- manifest.json
-- service-worker.js
-- pasta icons
-
-## Como publicar
-
-1. Extraia o arquivo ZIP.
-2. Abra o repositório `suportebsm` no GitHub.
+1. Extraia o ZIP.
+2. Entre no repositório `suportebsm`.
 3. Clique em **Add file > Upload files**.
-4. Envie todos os arquivos e a pasta `icons`.
-5. Clique em **Commit changes**.
-6. Acesse **Settings > Pages**.
-7. Em **Source**, selecione **Deploy from a branch**.
-8. Selecione a branch **main** e a pasta **/(root)**.
-9. Clique em **Save**.
-10. Aguarde alguns minutos e acesse:
+4. Envie `index.html`, `manifest.json`, `service-worker.js` e a pasta `icons`.
+5. Confirme a substituição dos arquivos.
+6. Clique em **Commit changes**.
+7. Aguarde de 1 a 3 minutos.
+8. Acesse: https://adrianoeugenioad-web.github.io/suportebsm/
 
-https://adrianoeugenioad-web.github.io/suportebsm/
+Login inicial: Ariel / 2101
 
-## Login inicial
-
-Usuário: Ariel  
-Senha: 2101
-
-## Importante
-
-Esta versão salva os dados no navegador do aparelho. Para compartilhar os mesmos dados entre várias congregações, será necessário conectar um banco online, como Firebase ou Supabase.
+Novidades:
+- Editar e excluir obreiros
+- Foto do obreiro
+- Pesquisa e filtro por cargo
+- Nascimento, consagração, estado civil, e-mail, endereço e Instagram
+- Ligar e abrir WhatsApp
+- Alerta de aniversariantes da semana
+- Mensagem bíblica automática em nome do Pr. Ariel Eugênio e Família

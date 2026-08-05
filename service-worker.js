@@ -1,47 +1,5 @@
-const CACHE_NAME = 'adsb-cache-v1';
-
-const FILES_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
-];
-
-self.addEventListener('install', function (event) {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(FILES_TO_CACHE);
-    })
-  );
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', function (event) {
-  event.waitUntil(
-    caches.keys().then(function (keys) {
-      return Promise.all(
-        keys.filter(function (key) {
-          return key !== CACHE_NAME;
-        }).map(function (key) {
-          return caches.delete(key);
-        })
-      );
-    })
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', function (event) {
-  if (event.request.method !== 'GET') return;
-
-  event.respondWith(
-    caches.match(event.request).then(function (cached) {
-      return cached || fetch(event.request).then(function (response) {
-        return response;
-      }).catch(function () {
-        return caches.match('./index.html');
-      });
-    })
-  );
-});
+const CACHE='adsb-v61-cache-v1';
+const FILES=['./','./index.html','./manifest.json','./icons/icon-192.png','./icons/icon-512.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)));self.skipWaiting()});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(r=>{let cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))))});

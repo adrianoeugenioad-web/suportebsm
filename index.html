@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADSB - Gestão Ministerial</title>
+<title>ADSB - Gestão Ministerial v6.1</title>
 <style>
 :root{--n:#061a35;--n2:#0b2f5a;--g:#e6b64b;--bg:#eef3f8;--ok:#067647;--no:#b42318}
 *{box-sizing:border-box}body{margin:0;font-family:Arial;background:var(--bg);color:#172033}button,input,select,textarea{font:inherit}.hidden{display:none!important}
@@ -22,12 +22,26 @@ main{max-width:950px;margin:auto;padding:16px 16px 85px}.page{display:none}.page
 dialog{border:0;border-radius:17px;padding:0;width:min(96vw,680px)}dialog::backdrop{background:#00152faa}.form{padding:16px;max-height:88vh;overflow:auto}.formhead{display:flex;justify-content:space-between;align-items:center}.formhead h3{margin:0}.x{border:0;border-radius:50%;width:36px;height:36px;font-size:21px}
 label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,label select,label textarea{width:100%;padding:11px;margin-top:4px;border:1px solid #d4dde7;border-radius:9px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.formactions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.draft{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:9px;margin-top:9px}.empty{text-align:center;color:#667085;padding:20px}.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:#101828;color:white;padding:10px 14px;border-radius:9px;display:none;z-index:99}
 @media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:430px){.grid2{grid-template-columns:1fr}}
+
+.worker-tools{display:grid;grid-template-columns:1fr 170px;gap:8px;margin-bottom:12px}
+.worker-photo{width:76px;height:76px;border-radius:50%;object-fit:cover;border:3px solid var(--g);background:#e8eef5}
+.worker-top{display:flex;gap:12px;align-items:center}
+.worker-info{flex:1;min-width:0}
+.worker-info h3{margin:0 0 5px}
+.worker-detail{font-size:13px;color:#667085;overflow-wrap:anywhere}
+.birthday-actions{margin-top:9px;display:flex;gap:7px;flex-wrap:wrap}
+.whatsapp{background:#128c4c;color:#fff;border:0;border-radius:9px;padding:9px 11px;font-weight:800;text-decoration:none;display:inline-block}
+.call{background:#175cd3;color:#fff;border:0;border-radius:9px;padding:9px 11px;font-weight:800;text-decoration:none;display:inline-block}
+.instagram{background:#c13584;color:#fff;border:0;border-radius:9px;padding:9px 11px;font-weight:800;text-decoration:none;display:inline-block}
+.photo-preview{width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--g);display:block;margin:8px auto;background:#e8eef5}
+.birthday-today{border-left:4px solid #e6b64b;background:#fff8e7}
+@media(max-width:430px){.worker-tools{grid-template-columns:1fr}}
+
 </style>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="theme-color" content="#061a35">
-
 </head>
 <body>
 <div id="toast" class="toast"></div>
@@ -47,7 +61,17 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 <section id="fest" class="page"><div class="head"><h2>Festividades</h2><button id="newFest" class="primary">+ Nova</button></div><div id="festList" class="cards"></div></section>
 <section id="approve" class="page"><div class="head"><h2>Aprovações</h2></div><div id="approveList" class="cards"></div></section>
 <section id="congs" class="page"><div class="head"><h2>Congregações</h2><button id="newCong" class="primary">+ Nova</button></div><div id="congList" class="cards"></div></section>
-<section id="workers" class="page"><div class="head"><h2>Obreiros</h2><button id="newWorker" class="primary">+ Novo</button></div><div id="workerList" class="cards"></div></section>
+<section id="workers" class="page">
+<div class="head"><div><h2>Obreiros</h2><p style="margin:4px 0;color:#667085;font-size:13px">Cadastre, pesquise e edite os obreiros.</p></div><button id="newWorker" class="primary">+ Novo</button></div>
+<div class="worker-tools">
+<input id="workerSearch" class="search" style="margin:0" placeholder="Pesquisar por nome...">
+<select id="workerRoleFilter" class="search" style="margin:0">
+<option value="">Todos os cargos</option>
+<option>Pastor</option><option>Evangelista</option><option>Presbítero</option><option>Diácono</option><option>Cooperador</option>
+</select>
+</div>
+<div id="workerList" class="cards"></div>
+</section>
 <section id="users" class="page"><div class="head"><h2>Usuários</h2><button id="newUser" class="primary">+ Novo</button></div><div id="userList" class="cards"></div></section>
 <section id="more" class="page"><div class="panel"><button id="backup" class="secondary" style="width:100%">Baixar backup</button><button id="reset" class="danger" style="width:100%;margin-top:10px">Limpar dados</button></div></section>
 </main>
@@ -64,7 +88,31 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 <h4>Outros gastos da congregação</h4><div class="grid2"><label>Decoração<input id="decoration" placeholder="0,00"></label><label>Sonorização<input id="sound" placeholder="0,00"></label></div><div class="grid2"><label>Alimentação geral<input id="food" placeholder="0,00"></label><label>Divulgação<input id="ads" placeholder="0,00"></label></div><div class="grid2"><label>Brindes<input id="gifts" placeholder="0,00"></label><label>Outros<input id="other" placeholder="0,00"></label></div>
 <div class="formactions"><button type="button" class="secondary" data-close="festDlg">Cancelar</button><button class="primary">Enviar para aprovação</button></div></form></dialog>
 
-<dialog id="workerDlg"><form id="workerForm" class="form"><input type="hidden" id="wid"><div class="formhead"><h3>Obreiro</h3><button type="button" class="x" data-close="workerDlg">×</button></div><label>Nome<input id="wname" required></label><div class="grid2"><label>Cargo<select id="wrole"><option>Pastor</option><option>Evangelista</option><option>Presbítero</option><option>Diácono</option><option>Cooperador</option></select></label><label>Congregação<select id="wcong"></select></label></div><div class="grid2"><label>Telefone<input id="wphone"></label><label>Data de nascimento<input id="wbirth" type="date"></label></div><div class="formactions"><button type="button" class="secondary" data-close="workerDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
+<dialog id="workerDlg"><form id="workerForm" class="form">
+<input type="hidden" id="wid">
+<input type="hidden" id="wphotoData">
+<div class="formhead"><h3>Cadastro de Obreiro</h3><button type="button" class="x" data-close="workerDlg">×</button></div>
+<img id="wphotoPreview" class="photo-preview" alt="Foto do obreiro">
+<label>Foto<input id="wphoto" type="file" accept="image/*"></label>
+<label>Nome completo<input id="wname" required></label>
+<div class="grid2">
+<label>Cargo<select id="wrole"><option>Pastor</option><option>Evangelista</option><option>Presbítero</option><option>Diácono</option><option>Cooperador</option></select></label>
+<label>Congregação<select id="wcong" required></select></label>
+</div>
+<div class="grid2">
+<label>Telefone / WhatsApp<input id="wphone" inputmode="tel"></label>
+<label>Data de nascimento<input id="wbirth" type="date"></label>
+</div>
+<div class="grid2">
+<label>Data de consagração<input id="wconsecration" type="date"></label>
+<label>Estado civil<select id="wmarital"><option value="">Selecione...</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Viúvo(a)</option><option>Divorciado(a)</option></select></label>
+</div>
+<label>E-mail<input id="wemail" type="email"></label>
+<label>Endereço<input id="waddress"></label>
+<label>Instagram<input id="winstagram" placeholder="@perfil ou link completo"></label>
+<label>Observações<textarea id="wnotes" rows="3"></textarea></label>
+<div class="formactions"><button type="button" class="secondary" data-close="workerDlg">Cancelar</button><button class="primary">Salvar alterações</button></div>
+</form></dialog>
 
 <dialog id="userDlg"><form id="userForm" class="form"><div class="formhead"><h3>Usuário</h3><button type="button" class="x" data-close="userDlg">×</button></div><label>Nome<input id="uname" required></label><label>Login<input id="ulogin" required></label><label>Senha<input id="upass" required></label><label>Perfil<select id="uprofile"><option value="congregacao">Congregação</option><option value="admin">Administrador</option></select></label><label>Congregação<select id="ucong"></select></label><div class="formactions"><button type="button" class="secondary" data-close="userDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
 
@@ -91,10 +139,45 @@ function nextBirthdayInfo(birth){
  let diff=Math.round((next-start)/86400000);
  return {date:next,diff};
 }
+function birthdayMessage(w){
+ const primeiro=(w.name||'').trim().split(/\s+/)[0]||'irmão(ã)';
+ return `🎉 *Feliz Aniversário, ${primeiro}!* 🎉
+
+Hoje louvamos a Deus pela sua vida e agradecemos por sua dedicação à obra do Senhor.
+
+Que esta nova etapa seja marcada pela presença de Deus, com saúde, paz, sabedoria, alegria e muitas vitórias. Que o Senhor continue fortalecendo sua fé e usando sua vida para abençoar muitas pessoas.
+
+📖 *“O Senhor te abençoe e te guarde; o Senhor faça resplandecer o seu rosto sobre ti e tenha misericórdia de ti; o Senhor sobre ti levante o seu rosto e te dê a paz.”*
+_Números 6:24-26_
+
+Receba o nosso carinho e as nossas orações.
+
+*Pr. Ariel Eugênio e Família*
+*Regional São Benedito* 🙏`;
+}
+function whatsappLink(phone,message){
+ let p=(phone||'').replace(/\D/g,'');
+ if(!p)return '';
+ if(p.length<=11)p='55'+p;
+ return 'https://wa.me/'+p+'?text='+encodeURIComponent(message);
+}
+function instagramLink(v){
+ v=(v||'').trim();
+ if(!v)return '';
+ return v.startsWith('http')?v:'https://instagram.com/'+v.replace('@','');
+}
 function renderBirthWeek(){
  let ws=current.profile==='admin'?data.workers:data.workers.filter(w=>w.congregationId===current.congregationId);
  let arr=ws.map(w=>({w,info:nextBirthdayInfo(w.birth)})).filter(x=>x.info&&x.info.diff>=0&&x.info.diff<=6).sort((a,b)=>a.info.diff-b.info.diff);
- $('birthWeek').innerHTML=arr.length?arr.map(x=>`<div class="person"><h4>🎉 ${x.info.diff===0?'Hoje':x.info.diff===1?'Amanhã':'Em '+x.info.diff+' dias'} — ${x.w.name}</h4><p>${x.w.role} • ${cname(x.w.congregationId)} • ${String(x.info.date.getDate()).padStart(2,'0')}/${String(x.info.date.getMonth()+1).padStart(2,'0')}</p></div>`).join(''):'<div class="empty">Nenhum aniversariante nos próximos 7 dias.</div>';
+ $('birthWeek').innerHTML=arr.length?arr.map(x=>{
+   const label=x.info.diff===0?'Hoje':x.info.diff===1?'Amanhã':'Em '+x.info.diff+' dias';
+   const wa=x.w.phone?whatsappLink(x.w.phone,birthdayMessage(x.w)):'';
+   return `<div class="person ${x.info.diff===0?'birthday-today':''}">
+     <h4>🎉 ${label} — ${x.w.name}</h4>
+     <p>${x.w.role} • ${cname(x.w.congregationId)} • ${String(x.info.date.getDate()).padStart(2,'0')}/${String(x.info.date.getMonth()+1).padStart(2,'0')}</p>
+     <div class="birthday-actions">${wa?`<a class="whatsapp" target="_blank" href="${wa}">Enviar parabéns pelo WhatsApp</a>`:'<small>Cadastre o telefone para enviar a mensagem.</small>'}</div>
+   </div>`;
+ }).join(''):'<div class="empty">Nenhum aniversariante nos próximos 7 dias.</div>';
 }
 function render(){$('welcome').textContent='Bem-vindo(a), '+current.name+'!';$('access').textContent=current.profile==='admin'?'Administrador geral — acesso total':'Acesso à sua congregação';$('sc').textContent=allowedC().length;$('sf').textContent=allowedF().length;$('sp').textContent=allowedF().filter(f=>f.status==='pending').length;$('sw').textContent=(current.profile==='admin'?data.workers:data.workers.filter(w=>w.congregationId===current.congregationId)).length;$('approveNav').style.display=current.profile==='admin'?'':'none';renderC();renderF();renderA();renderW();renderU();renderBirthWeek();let ups=allowedF().slice().sort((a,b)=>a.start.localeCompare(b.start)).slice(0,5);$('next').innerHTML=ups.length?ups.map(f=>`<div class="person"><b>${fmt(f.start)} a ${fmt(f.end)} — ${f.name}</b><p>${cname(f.congregationId)} • <span class="status ${sc(f.status)}">${st(f.status)}</span></p></div>`).join(''):'<div class="empty">Nenhuma festividade.</div>'}
 function renderC(){$('congList').innerHTML=allowedC().length?allowedC().map(c=>`<article class="card"><h3>${c.name}</h3><p>${c.address||'-'}</p><p>Pastor: ${c.pastor||'-'} | 2º Dirigente: ${c.second||'-'}</p><p>${c.phone1||''} ${c.instagram||''}</p>${current.profile==='admin'?`<div class="actions"><button class="mini" onclick="editC('${c.id}')">Editar</button><button class="danger" onclick="delC('${c.id}')">Excluir</button></div>`:''}</article>`).join(''):'<div class="empty">Nenhuma congregação.</div>'}
@@ -108,20 +191,118 @@ function fcard(f,adm){return `<article class="card"><h3>${f.name}</h3><p>${cname
 window.editF=fi=>{let f=data.festivities.find(x=>x.id===fi);if(!f)return;$('festForm').reset();$('fid').value=f.id;fill($('fcong'));$('fcong').value=f.congregationId;$('fname').value=f.name||'';$('fstart').value=f.start||'';$('fend').value=f.end||'';$('ftheme').value=f.theme||'';$('decoration').value=f.costs?.decoration||'';$('sound').value=f.costs?.sound||'';$('food').value=f.costs?.food||'';$('ads').value=f.costs?.ads||'';$('gifts').value=f.costs?.gifts||'';$('other').value=f.costs?.other||'';guests=JSON.parse(JSON.stringify(f.guests||[]));guests.forEach(g=>{g.status='pending';g.note=''});renderGD();$('festDlg').showModal()}
 function renderF(){$('festList').innerHTML=allowedF().length?allowedF().map(f=>fcard(f,false)).join(''):'<div class="empty">Nenhuma festividade.</div>'}function renderA(){$('approveList').innerHTML=current.profile==='admin'?(data.festivities.length?data.festivities.map(f=>fcard(f,true)).join(''):'<div class="empty">Nenhuma solicitação.</div>'):'Acesso restrito'}
 window.ag=(fi,gi)=>{let f=data.festivities.find(x=>x.id===fi),g=f.guests.find(x=>x.id===gi);g.status='approved';g.note='';save();render()};window.rgj=(fi,gi)=>{let f=data.festivities.find(x=>x.id===fi),g=f.guests.find(x=>x.id===gi);g.status='rejected';g.note=prompt('Motivo:')||'Não aprovado';save();render()};window.ae=fi=>{let f=data.festivities.find(x=>x.id===fi);if(f.guests.some(g=>g.status==='pending'))return toast('Analise todos os convidados');f.status='approved';f.note=prompt('Observação opcional:')||'';save();render()};window.re=fi=>{let f=data.festivities.find(x=>x.id===fi);f.status='rejected';f.note=prompt('Motivo:')||'Evento não aprovado';save();render()}
-function renderW(){let ws=current.profile==='admin'?data.workers:data.workers.filter(w=>w.congregationId===current.congregationId);$('workerList').innerHTML=ws.length?ws.map(w=>`<article class="card"><h3>${w.name}</h3><p>${w.role} • ${cname(w.congregationId)}</p></article>`).join(''):'<div class="empty">Nenhum obreiro.</div>'}
-$('newWorker').onclick=()=>{$('workerForm').reset();fill($('wcong'));$('workerDlg').showModal()};$('workerForm').onsubmit=e=>{e.preventDefault();data.workers.push({id:id(),name:$('wname').value,role:$('wrole').value,congregationId:$('wcong').value,phone:$('wphone').value});save();$('workerDlg').close();render()}
+function defaultWorkerPhoto(){
+ return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="160" height="160" fill="#e8eef5"/><circle cx="80" cy="60" r="30" fill="#0b2f5a"/><path d="M30 150c5-38 25-55 50-55s45 17 50 55" fill="#0b2f5a"/><circle cx="80" cy="80" r="74" fill="none" stroke="#e6b64b" stroke-width="6"/></svg>`);
+}
+function workerCanEdit(w){
+ return current.profile==='admin'||w.congregationId===current.congregationId;
+}
+function renderW(){
+ let ws=current.profile==='admin'?data.workers:data.workers.filter(w=>w.congregationId===current.congregationId);
+ const q=($('workerSearch')?.value||'').trim().toLowerCase();
+ const role=$('workerRoleFilter')?.value||'';
+ ws=ws.filter(w=>(!q||(w.name||'').toLowerCase().includes(q))&&(!role||w.role===role));
+ ws.sort((a,b)=>(a.name||'').localeCompare(b.name||'','pt-BR'));
+ $('workerList').innerHTML=ws.length?ws.map(w=>{
+   const photo=w.photo||defaultWorkerPhoto();
+   const wa=w.phone?whatsappLink(w.phone,'Olá, '+(w.name||'')+'!'):'';
+   const call=w.phone?'tel:'+w.phone.replace(/\D/g,''):'';
+   const insta=instagramLink(w.instagram);
+   return `<article class="card">
+     <div class="worker-top">
+       <img class="worker-photo" src="${photo}" alt="Foto de ${w.name||'Obreiro'}">
+       <div class="worker-info">
+         <h3>${w.name||'-'}</h3>
+         <p>${w.role||'-'} • ${cname(w.congregationId)}</p>
+         <div class="worker-detail">🎂 ${fmt(w.birth)||'Nascimento não informado'}${w.consecration?' • Consagração: '+fmt(w.consecration):''}</div>
+         <div class="worker-detail">${w.marital||''}${w.email?' • '+w.email:''}</div>
+       </div>
+     </div>
+     ${w.address?`<p class="worker-detail">📍 ${w.address}</p>`:''}
+     ${w.notes?`<p class="worker-detail"><b>Observações:</b> ${w.notes}</p>`:''}
+     <div class="actions">
+       ${call?`<a class="call" href="${call}">Ligar</a>`:''}
+       ${wa?`<a class="whatsapp" target="_blank" href="${wa}">WhatsApp</a>`:''}
+       ${insta?`<a class="instagram" target="_blank" href="${insta}">Instagram</a>`:''}
+       ${workerCanEdit(w)?`<button class="mini" onclick="editW('${w.id}')">✏️ Editar</button><button class="danger" onclick="delW('${w.id}')">🗑️ Excluir</button>`:''}
+     </div>
+   </article>`;
+ }).join(''):'<div class="empty">Nenhum obreiro encontrado.</div>';
+}
+$('workerSearch').oninput=renderW;
+$('workerRoleFilter').onchange=renderW;
+function clearWorkerForm(){
+ $('workerForm').reset();
+ $('wid').value='';
+ $('wphotoData').value='';
+ $('wphotoPreview').src=defaultWorkerPhoto();
+ fill($('wcong'));
+ if(current.profile!=='admin')$('wcong').value=current.congregationId;
+}
+$('newWorker').onclick=()=>{clearWorkerForm();$('workerDlg').showModal()}
+$('wphoto').onchange=e=>{
+ const file=e.target.files&&e.target.files[0];
+ if(!file)return;
+ if(file.size>2*1024*1024){toast('Escolha uma foto com até 2 MB');e.target.value='';return}
+ const reader=new FileReader();
+ reader.onload=()=>{$('wphotoData').value=reader.result;$('wphotoPreview').src=reader.result};
+ reader.readAsDataURL(file);
+};
+$('workerForm').onsubmit=e=>{
+ e.preventDefault();
+ let w={
+   id:$('wid').value||id(),
+   name:$('wname').value.trim(),
+   role:$('wrole').value,
+   congregationId:$('wcong').value,
+   phone:$('wphone').value.trim(),
+   birth:$('wbirth').value,
+   consecration:$('wconsecration').value,
+   marital:$('wmarital').value,
+   email:$('wemail').value.trim(),
+   address:$('waddress').value.trim(),
+   instagram:$('winstagram').value.trim(),
+   notes:$('wnotes').value.trim(),
+   photo:$('wphotoData').value
+ };
+ let ix=data.workers.findIndex(x=>x.id===w.id);
+ if(ix>=0){
+   if(!w.photo)w.photo=data.workers[ix].photo||'';
+   data.workers[ix]=w;
+ }else data.workers.push(w);
+ save();$('workerDlg').close();render();toast(ix>=0?'Cadastro atualizado':'Obreiro cadastrado');
+}
+window.editW=wi=>{
+ let w=data.workers.find(x=>x.id===wi);if(!w)return;
+ $('workerForm').reset();
+ $('wid').value=w.id;
+ $('wname').value=w.name||'';
+ $('wrole').value=w.role||'Pastor';
+ fill($('wcong'));$('wcong').value=w.congregationId||'';
+ $('wphone').value=w.phone||'';
+ $('wbirth').value=w.birth||'';
+ $('wconsecration').value=w.consecration||'';
+ $('wmarital').value=w.marital||'';
+ $('wemail').value=w.email||'';
+ $('waddress').value=w.address||'';
+ $('winstagram').value=w.instagram||'';
+ $('wnotes').value=w.notes||'';
+ $('wphotoData').value=w.photo||'';
+ $('wphotoPreview').src=w.photo||defaultWorkerPhoto();
+ $('workerDlg').showModal();
+}
+window.delW=wi=>{
+ let w=data.workers.find(x=>x.id===wi);if(!w)return;
+ if(confirm('Deseja realmente excluir o cadastro de '+w.name+'?')){
+   data.workers=data.workers.filter(x=>x.id!==wi);save();render();toast('Obreiro excluído');
+ }
+}
 function renderU(){}$('newUser').onclick=()=>{$('userForm').reset();fill($('ucong'));$('userDlg').showModal()};$('userForm').onsubmit=e=>{e.preventDefault();data.users.push({id:id(),name:$('uname').value,login:$('ulogin').value,password:$('upass').value,profile:$('uprofile').value,congregationId:$('ucong').value});save();$('userDlg').close();render()}
 $('backup').onclick=()=>{let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='backup-adsb.json';a.click()};$('reset').onclick=()=>{if(confirm('Apagar dados?')){localStorage.removeItem(K);location.reload()}}
 </script>
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./service-worker.js')
-      .catch(function (error) {
-        console.log('Service Worker não registrado:', error);
-      });
-  });
+if('serviceWorker' in navigator){
+ window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.log));
 }
 </script>
-
 </body></html>
