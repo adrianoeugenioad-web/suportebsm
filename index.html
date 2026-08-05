@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ADSB - Gestão Ministerial v6.3</title>
+<title>ADSB - Gestão Ministerial v6.4</title>
 <style>
 :root{--n:#061a35;--n2:#0b2f5a;--g:#e6b64b;--bg:#eef3f8;--ok:#067647;--no:#b42318}
 *{box-sizing:border-box}body{margin:0;font-family:Arial;background:var(--bg);color:#172033}button,input,select,textarea{font:inherit}.hidden{display:none!important}
@@ -82,6 +82,10 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 .forgot-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:18px;color:#e6b64b;text-decoration:none;font-size:16px;font-weight:700;text-shadow:0 2px 5px #000}
 @media(max-width:430px){.loginbox{width:100%;background-size:cover;background-position:center top}.loginform{left:14.5%;right:14.5%;bottom:5.6%}.loginform input{height:58px;margin-bottom:15px;font-size:16px;padding-left:50px}.login-input-icon{left:16px;top:18px;font-size:20px}.login-eye{top:9px;right:10px}.loginform button[type="submit"]{height:61px;font-size:19px}.forgot-link{margin-top:14px;font-size:14px}}
 
+
+.readonly-note{background:#eaf2ff;color:#175cd3;border-left:4px solid #175cd3;padding:10px 12px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:700}
+.user-card{border-left:4px solid #7a2e9b}
+.permission-badge{display:inline-block;background:#eef2f6;color:#344054;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
@@ -119,7 +123,7 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
   <div id="agendaMonthTitle" class="agenda-month"></div>
   <button id="nextMonth" class="secondary">›</button>
 </div>
-<div id="calendar" class="calendar"></div>
+<div id="agendaReadonlyNote" class="readonly-note hidden">Todos podem visualizar a Agenda Regional. Somente o administrador pode cadastrar, editar ou excluir eventos regionais.</div><div id="calendar" class="calendar"></div>
 <div class="worker-tools">
   <input id="agendaSearch" class="search" style="margin:0" placeholder="Pesquisar evento...">
   <select id="agendaTypeFilter" class="search" style="margin:0">
@@ -153,7 +157,7 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 <div id="workerList" class="cards"></div>
 </section>
 <section id="users" class="page"><div class="head"><h2>Usuários</h2><button id="newUser" class="primary">+ Novo</button></div><div id="userList" class="cards"></div></section>
-<section id="more" class="page"><div class="panel"><button id="backup" class="secondary" style="width:100%">Baixar backup</button><button id="reset" class="danger" style="width:100%;margin-top:10px">Limpar dados</button></div></section>
+<section id="more" class="page"><div class="panel"><button id="openUsersPage" class="secondary" style="width:100%;margin-bottom:10px">👤 Gerenciar Usuários</button><button id="backup" class="secondary" style="width:100%">Baixar backup</button><button id="reset" class="danger" style="width:100%;margin-top:10px">Limpar dados</button></div></section>
 </main>
 <nav class="bottom"><button data-page="home" class="active">⌂<br>Início</button><button data-page="agenda">📅<br>Agenda</button><button data-page="fest">★<br>Festas</button><button id="approveNav" data-page="approve">✓<br>Aprovar</button><button data-page="workers">♟<br>Obreiros</button><button data-page="congs">⌂<br>Igrejas</button><button data-page="more">☰<br>Mais</button></nav>
 </div>
@@ -162,7 +166,7 @@ label{display:block;font-size:13px;font-weight:700;margin-top:10px}label input,l
 <dialog id="agendaDlg"><form id="agendaForm" class="form">
 <input type="hidden" id="aid">
 <div class="formhead"><h3>Evento da Agenda Regional</h3><button type="button" class="x" data-close="agendaDlg">×</button></div>
-<label>Nome do evento<input id="aname" required></label>
+<label>Nome do evento<input id="aname" required></label><label>Tipo de agenda<select id="ascope"><option value="regional">Agenda Regional</option><option value="local">Agenda da Congregação</option></select></label>
 <div class="grid2">
 <label>Tipo<select id="atype">
 <option>Culto Regional</option><option>Festividade</option><option>Congresso</option><option>Reunião de Pastores</option><option>Vigília</option><option>Escola Bíblica</option><option>Treinamento</option><option>Evento Infantil</option><option>Outros</option>
@@ -236,10 +240,10 @@ let data=JSON.parse(localStorage.getItem(K)||'null')||initial,current=null,guest
 const $=x=>document.getElementById(x),save=()=>localStorage.setItem(K,JSON.stringify(data)),id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function toast(t){$('toast').textContent=t;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2000)}
 function n(v){return Number(String(v||'0').replace(/\./g,'').replace(',','.'))||0}function money(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}function fmt(d){return d?d.split('-').reverse().join('/'):''}
-function allowedC(){return current.profile==='admin'?data.congregations:data.congregations.filter(c=>c.id===current.congregationId)}function allowedF(){return current.profile==='admin'?data.festivities:data.festivities.filter(f=>f.congregationId===current.congregationId)}
+function allowedC_old(){return []}function allowedF_old(){return []}
 function cname(i){return data.congregations.find(c=>c.id===i)?.name||'Sem congregação'}function st(s){return s==='approved'?'Aprovada':s==='rejected'?'Reprovada':'Aguardando'}function sc(s){return s==='approved'?'approved':s==='rejected'?'rejected':'pending'}
 function gt(g){return n(g.fee)+n(g.transport)+n(g.hotel)+n(g.food)}function ot(c){return n(c.decoration)+n(c.sound)+n(c.food)+n(c.ads)+n(c.gifts)+n(c.other)}function total(f){return f.guests.reduce((s,g)=>s+gt(g),0)+ot(f.costs)}function approvedTotal(f){return f.guests.filter(g=>g.status==='approved').reduce((s,g)=>s+gt(g),0)+ot(f.costs)}
-$('loginForm').onsubmit=e=>{e.preventDefault();let u=data.users.find(x=>x.login.toLowerCase()===$('lu').value.trim().toLowerCase()&&x.password===$('lp').value);if(!u)return toast('Usuário ou senha inválidos');current=u;$('login').classList.add('hidden');$('app').classList.remove('hidden');render()}
+$('loginForm').onsubmit=e=>{e.preventDefault();let u=data.users.find(x=>x.login.toLowerCase()===$('lu').value.trim().toLowerCase()&&x.password===$('lp').value);if(!u)return toast('Usuário ou senha inválidos');if(u.active===false)return toast('Usuário inativo');current=u;$('login').classList.add('hidden');$('app').classList.remove('hidden');render()}
 $('logout').onclick=()=>location.reload();document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).close());document.querySelectorAll('.bottom button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));$(b.dataset.page).classList.add('active');b.classList.add('active')})
 function fill(sel){sel.innerHTML='<option value="">Selecione...</option>'+allowedC().map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
 
@@ -280,7 +284,7 @@ function instagramLink(v){
  return v.startsWith('http')?v:'https://instagram.com/'+v.replace('@','');
 }
 function renderBirthWeek(){
- let ws=current.profile==='admin'?data.workers:data.workers.filter(w=>w.congregationId===current.congregationId);
+ let ws=allowedWorkersList();
  let arr=ws.map(w=>({w,info:nextBirthdayInfo(w.birth)})).filter(x=>x.info&&x.info.diff>=0&&x.info.diff<=6).sort((a,b)=>a.info.diff-b.info.diff);
  $('birthWeek').innerHTML=arr.length?arr.map(x=>{
    const label=x.info.diff===0?'Hoje':x.info.diff===1?'Amanhã':'Em '+x.info.diff+' dias';
@@ -294,9 +298,7 @@ function renderBirthWeek(){
 }
 
 let agendaViewDate=new Date();
-function allowedAgenda(){
- return current.profile==='admin'?data.agenda:data.agenda.filter(a=>!a.congregationId||a.congregationId===current.congregationId);
-}
+function allowedAgenda_old(){return []}
 function agendaTypeClass(type){
  const t=(type||'').toLowerCase();
  if(t.includes('festividade'))return 'festividade';
@@ -330,7 +332,7 @@ function mapsLink(address){
  return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(address||'Regional São Benedito');
 }
 function agendaCard(a){
- const canEdit=current.profile==='admin'||a.congregationId===current.congregationId;
+ const canEdit=canEditAgenda(a);
  const insta=instagramLink(a.instagram);
  return `<article class="card agenda-card">
    <div class="personhead">
@@ -340,7 +342,7 @@ function agendaCard(a){
      </div>
      <span class="agenda-status ${agendaStatusClass(a.status)}">${a.status||'Agendado'}</span>
    </div>
-   <div class="agenda-meta"><b>${a.type||'Evento'}</b> • ${cname(a.congregationId)}</div>
+   <div class="agenda-meta"><b>${a.type||'Evento'}</b> • ${(a.scope||'regional')==='regional'?'Agenda Regional':cname(a.congregationId)}</div>
    ${a.address?`<p>📍 ${a.address}</p>`:''}
    ${a.responsible?`<p><b>Responsável:</b> ${a.responsible}</p>`:''}
    ${a.pastor?`<p><b>Pastor responsável:</b> ${a.pastor}</p>`:''}
@@ -390,7 +392,7 @@ window.showAgendaDay=date=>{
 function clearAgendaForm(){
  $('agendaForm').reset();$('aid').value='';fill($('acong'));
  if(current.profile!=='admin')$('acong').value=current.congregationId;
- $('astart').value=new Date().toISOString().slice(0,10);
+ $('astart').value=new Date().toISOString().slice(0,10);$('ascope').value=isAdmin()?'regional':'local';$('ascope').disabled=!isAdmin();
  $('astatus').value='Agendado';
 }
 $('newAgenda').onclick=()=>{clearAgendaForm();$('agendaDlg').showModal()}
@@ -403,6 +405,7 @@ $('agendaForm').onsubmit=e=>{
  let a={
    id:$('aid').value||id(),
    name:$('aname').value.trim(),
+   scope:$('ascope').value,
    type:$('atype').value,
    congregationId:$('acong').value,
    start:$('astart').value,
@@ -417,13 +420,14 @@ $('agendaForm').onsubmit=e=>{
    instagram:$('ainstagram').value.trim(),
    notes:$('anotes').value.trim()
  };
+ if(!isAdmin()){a.scope='local';a.congregationId=currentCongregationId();}
  let ix=data.agenda.findIndex(x=>x.id===a.id);
  if(ix>=0)data.agenda[ix]=a;else data.agenda.push(a);
  save();$('agendaDlg').close();render();toast(ix>=0?'Evento atualizado':'Evento cadastrado');
 }
 window.editAgenda=ai=>{
- let a=data.agenda.find(x=>x.id===ai);if(!a)return;
- $('agendaForm').reset();$('aid').value=a.id;$('aname').value=a.name||'';$('atype').value=a.type||'Outros';
+ let a=data.agenda.find(x=>x.id===ai);if(!a||!canEditAgenda(a))return toast('Sem permissão para editar este evento');
+ $('agendaForm').reset();$('aid').value=a.id;$('aname').value=a.name||'';$('ascope').value=a.scope||'regional';$('ascope').disabled=!isAdmin();$('atype').value=a.type||'Outros';
  fill($('acong'));$('acong').value=a.congregationId||'';$('astart').value=a.start||'';$('aend').value=a.end||'';
  $('atime').value=a.time||'';$('astatus').value=a.status||'Agendado';$('aaddress').value=a.address||'';
  $('aresponsible').value=a.responsible||'';$('apastor').value=a.pastor||'';$('apreacher').value=a.preacher||'';
@@ -431,7 +435,7 @@ window.editAgenda=ai=>{
  $('agendaDlg').showModal();
 }
 window.deleteAgenda=ai=>{
- let a=data.agenda.find(x=>x.id===ai);if(!a)return;
+ let a=data.agenda.find(x=>x.id===ai);if(!a||!canEditAgenda(a))return toast('Sem permissão para excluir este evento');
  if(confirm('Deseja excluir o evento '+a.name+'?')){data.agenda=data.agenda.filter(x=>x.id!==ai);save();render();toast('Evento excluído')}
 }
 function renderNextAgenda(){
@@ -440,10 +444,37 @@ function renderNextAgenda(){
  $('nextAgenda').innerHTML=upcoming.length?upcoming.map(a=>`<div class="person"><h4>📅 ${fmt(a.start)} ${a.time||''} — ${a.name}</h4><p>${a.type} • ${cname(a.congregationId)}</p></div>`).join(''):'<div class="empty">Nenhum compromisso próximo.</div>';
 }
 
-function render(){$('welcome').textContent='Bem-vindo(a), '+current.name+'!';$('access').textContent=current.profile==='admin'?'Administrador geral — acesso total':'Acesso à sua congregação';$('sc').textContent=allowedC().length;$('sf').textContent=allowedF().length;$('sp').textContent=allowedF().filter(f=>f.status==='pending').length;$('sw').textContent=(current.profile==='admin'?data.workers:data.workers.filter(w=>w.congregationId===current.congregationId)).length;$('approveNav').style.display=current.profile==='admin'?'':'none';renderC();renderF();renderA();renderW();renderU();renderBirthWeek();renderAgenda();renderNextAgenda();let ups=allowedF().slice().sort((a,b)=>a.start.localeCompare(b.start)).slice(0,5);$('next').innerHTML=ups.length?ups.map(f=>`<div class="person"><b>${fmt(f.start)} a ${fmt(f.end)} — ${f.name}</b><p>${cname(f.congregationId)} • <span class="status ${sc(f.status)}">${st(f.status)}</span></p></div>`).join(''):'<div class="empty">Nenhuma festividade.</div>'}
+
+function isAdmin(){return current&&current.profile==='admin'}
+function currentCongregationId(){return current?.congregationId||''}
+function canEditOwnData(){return current&&current.profile!=='consulta'}
+function allowedC(){return isAdmin()?data.congregations:data.congregations.filter(c=>c.id===currentCongregationId())}
+function allowedF(){return isAdmin()?data.festivities:data.festivities.filter(f=>f.congregationId===currentCongregationId())}
+function allowedWorkersList(){return isAdmin()?data.workers:data.workers.filter(w=>w.congregationId===currentCongregationId())}
+function allowedAgenda(){
+ if(isAdmin())return data.agenda;
+ return data.agenda.filter(a=>(a.scope||'regional')==='regional'||a.congregationId===currentCongregationId());
+}
+function canEditAgenda(a){
+ if(isAdmin())return true;
+ return canEditOwnData()&&(a.scope||'regional')!=='regional'&&a.congregationId===currentCongregationId();
+}
+function secureUi(){
+ const admin=isAdmin(),readonly=current?.profile==='consulta';
+ if($('newCong'))$('newCong').style.display=admin?'':'none';
+ if($('newUser'))$('newUser').style.display=admin?'':'none';
+ if($('openUsersPage'))$('openUsersPage').style.display=admin?'':'none';
+ if($('approveNav'))$('approveNav').style.display=admin?'':'none';
+ if($('newWorker'))$('newWorker').style.display=readonly?'none':'';
+ if($('newFest'))$('newFest').style.display=readonly?'none':'';
+ if($('newAgenda'))$('newAgenda').style.display=readonly?'none':'';
+ if($('agendaReadonlyNote'))$('agendaReadonlyNote').classList.toggle('hidden',admin);
+}
+
+function render(){$('welcome').textContent='Bem-vindo(a), '+current.name+'!';$('access').textContent=current.profile==='admin'?'Administrador geral — acesso total':'Acesso à sua congregação';$('sc').textContent=allowedC().length;$('sf').textContent=allowedF().length;$('sp').textContent=allowedF().filter(f=>f.status==='pending').length;$('sw').textContent=(current.profile==='admin'?data.workers:data.workers.filter(w=>w.congregationId===current.congregationId)).length;$('approveNav').style.display=current.profile==='admin'?'':'none';secureUi();renderC();renderF();renderA();renderW();renderUsers();renderBirthWeek();renderAgenda();renderNextAgenda();let ups=allowedF().slice().sort((a,b)=>a.start.localeCompare(b.start)).slice(0,5);$('next').innerHTML=ups.length?ups.map(f=>`<div class="person"><b>${fmt(f.start)} a ${fmt(f.end)} — ${f.name}</b><p>${cname(f.congregationId)} • <span class="status ${sc(f.status)}">${st(f.status)}</span></p></div>`).join(''):'<div class="empty">Nenhuma festividade.</div>'}
 function renderC(){$('congList').innerHTML=allowedC().length?allowedC().map(c=>`<article class="card"><h3>${c.name}</h3><p>${c.address||'-'}</p><p>Pastor: ${c.pastor||'-'} | 2º Dirigente: ${c.second||'-'}</p><p>${c.phone1||''} ${c.instagram||''}</p>${current.profile==='admin'?`<div class="actions"><button class="mini" onclick="editC('${c.id}')">Editar</button><button class="danger" onclick="delC('${c.id}')">Excluir</button></div>`:''}</article>`).join(''):'<div class="empty">Nenhuma congregação.</div>'}
-$('newCong').onclick=()=>{$('congForm').reset();$('cid').value='';$('congDlg').showModal()};$('congForm').onsubmit=e=>{e.preventDefault();let c={id:$('cid').value||id(),name:$('cname').value,address:$('caddress').value,pastor:$('cpastor').value,second:$('csecond').value,phone1:$('cphone1').value,phone2:$('cphone2').value,instagram:$('cinstagram').value};let i=data.congregations.findIndex(x=>x.id===c.id);i>=0?data.congregations[i]=c:data.congregations.push(c);save();$('congDlg').close();render()}
-window.editC=i=>{let c=data.congregations.find(x=>x.id===i);$('cid').value=c.id;$('cname').value=c.name;$('caddress').value=c.address||'';$('cpastor').value=c.pastor||'';$('csecond').value=c.second||'';$('cphone1').value=c.phone1||'';$('cphone2').value=c.phone2||'';$('cinstagram').value=c.instagram||'';$('congDlg').showModal()};window.delC=i=>{if(confirm('Excluir congregação?')){data.congregations=data.congregations.filter(c=>c.id!==i);save();render()}}
+$('newCong').onclick=()=>{if(!isAdmin())return;$('congForm').reset();$('cid').value='';$('congDlg').showModal()};$('congForm').onsubmit=e=>{e.preventDefault();let c={id:$('cid').value||id(),name:$('cname').value,address:$('caddress').value,pastor:$('cpastor').value,second:$('csecond').value,phone1:$('cphone1').value,phone2:$('cphone2').value,instagram:$('cinstagram').value};let i=data.congregations.findIndex(x=>x.id===c.id);i>=0?data.congregations[i]=c:data.congregations.push(c);save();$('congDlg').close();render()}
+window.editC=i=>{if(!isAdmin())return;let c=data.congregations.find(x=>x.id===i);$('cid').value=c.id;$('cname').value=c.name;$('caddress').value=c.address||'';$('cpastor').value=c.pastor||'';$('csecond').value=c.second||'';$('cphone1').value=c.phone1||'';$('cphone2').value=c.phone2||'';$('cinstagram').value=c.instagram||'';$('congDlg').showModal()};window.delC=i=>{if(!isAdmin())return;if(confirm('Excluir congregação?')){data.congregations=data.congregations.filter(c=>c.id!==i);save();render()}}
 $('newFest').onclick=()=>{$('festForm').reset();$('fid').value='';guests=[];fill($('fcong'));if(current.profile!=='admin')$('fcong').value=current.congregationId;renderGD();$('festDlg').showModal()}
 $('addGuest').onclick=()=>{if(!$('gname').value)return toast('Informe o nome');guests.push({id:id(),type:$('gtype').value,name:$('gname').value,denomination:$('gden').value,church:$('gchurch').value,fee:n($('gfee').value),transport:n($('gtransport').value),hotel:n($('ghotel').value),food:n($('gfood').value),status:'pending',note:''});['gname','gden','gchurch','gfee','gtransport','ghotel','gfood'].forEach(x=>$(x).value='');renderGD()}
 function renderGD(){$('guestDraft').innerHTML=guests.length?guests.map((g,i)=>`<div class="person"><h4>${g.type}: ${g.name}</h4><p>${g.denomination||'-'} • ${money(gt(g))}</p><button type="button" class="danger" onclick="rg(${i})">Remover</button></div>`).join(''):'Nenhum convidado.'}window.rg=i=>{guests.splice(i,1);renderGD()}
@@ -456,10 +487,10 @@ function defaultWorkerPhoto(){
  return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="160" height="160" fill="#e8eef5"/><circle cx="80" cy="60" r="30" fill="#0b2f5a"/><path d="M30 150c5-38 25-55 50-55s45 17 50 55" fill="#0b2f5a"/><circle cx="80" cy="80" r="74" fill="none" stroke="#e6b64b" stroke-width="6"/></svg>`);
 }
 function workerCanEdit(w){
- return current.profile==='admin'||w.congregationId===current.congregationId;
+ return isAdmin()||(canEditOwnData()&&w.congregationId===currentCongregationId());
 }
 function renderW(){
- let ws=current.profile==='admin'?data.workers:data.workers.filter(w=>w.congregationId===current.congregationId);
+ let ws=allowedWorkersList();
  const q=($('workerSearch')?.value||'').trim().toLowerCase();
  const role=$('workerRoleFilter')?.value||'';
  ws=ws.filter(w=>(!q||(w.name||'').toLowerCase().includes(q))&&(!role||w.role===role));
@@ -558,7 +589,28 @@ window.delW=wi=>{
    data.workers=data.workers.filter(x=>x.id!==wi);save();render();toast('Obreiro excluído');
  }
 }
-function renderU(){}$('newUser').onclick=()=>{$('userForm').reset();fill($('ucong'));$('userDlg').showModal()};$('userForm').onsubmit=e=>{e.preventDefault();data.users.push({id:id(),name:$('uname').value,login:$('ulogin').value,password:$('upass').value,profile:$('uprofile').value,congregationId:$('ucong').value});save();$('userDlg').close();render()}
+$('newUser').onclick=()=>{$('userForm').reset();fill($('ucong'));$('userDlg').showModal()};$('userForm').onsubmit=e=>{e.preventDefault();data.users.push({id:id(),name:$('uname').value,login:$('ulogin').value,password:$('upass').value,profile:$('uprofile').value,congregationId:$('ucong').value});save();$('userDlg').close();render()}
+
+function renderUsers(){
+ if(!isAdmin()){if($('userList'))$('userList').innerHTML='<div class="empty">Acesso exclusivo do administrador.</div>';return}
+ $('userList').innerHTML=data.users.length?data.users.map(u=>{
+  const c=data.congregations.find(x=>x.id===u.congregationId);
+  return `<article class="card user-card"><h3>${u.name}</h3><p><b>Usuário:</b> ${u.login}</p><p><span class="permission-badge">${u.profile}</span> • ${c?c.name:'Acesso geral'}</p><p>Status: ${u.active===false?'Inativo':'Ativo'}</p><div class="actions"><button class="mini" onclick="editUser('${u.id}')">Editar</button>${u.login.toLowerCase()!=='ariel'?`<button class="danger" onclick="deleteUser('${u.id}')">Excluir</button>`:''}</div></article>`;
+ }).join(''):'<div class="empty">Nenhum usuário.</div>';
+}
+if($('openUsersPage'))$('openUsersPage').onclick=()=>{if(!isAdmin())return;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('users').classList.add('active')};
+$('newUser').onclick=()=>{if(!isAdmin())return;$('userForm').reset();$('uid').value='';fill($('ucong'));$('uactive').checked=true;$('userDlg').showModal()};
+$('userForm').onsubmit=e=>{
+ e.preventDefault();if(!isAdmin())return;
+ const login=$('ulogin').value.trim(),uid=$('uid').value;
+ if(data.users.some(u=>u.login.toLowerCase()===login.toLowerCase()&&u.id!==uid))return toast('Este usuário já existe');
+ const u={id:uid||id(),name:$('uname').value.trim(),login,password:$('upass').value,profile:$('uprofile').value,congregationId:$('ucong').value,active:$('uactive').checked};
+ let ix=data.users.findIndex(x=>x.id===u.id);if(ix>=0)data.users[ix]=u;else data.users.push(u);
+ save();$('userDlg').close();render();toast(ix>=0?'Usuário atualizado':'Usuário criado');
+};
+window.editUser=ui=>{if(!isAdmin())return;const u=data.users.find(x=>x.id===ui);if(!u)return;$('uid').value=u.id;$('uname').value=u.name||'';$('ulogin').value=u.login||'';$('upass').value=u.password||'';$('uprofile').value=u.profile||'congregacao';fill($('ucong'));$('ucong').value=u.congregationId||'';$('uactive').checked=u.active!==false;$('userDlg').showModal()};
+window.deleteUser=ui=>{if(!isAdmin())return;const u=data.users.find(x=>x.id===ui);if(!u||u.login.toLowerCase()==='ariel')return;if(confirm('Excluir o usuário '+u.login+'?')){data.users=data.users.filter(x=>x.id!==ui);save();render()}};
+
 $('backup').onclick=()=>{let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='backup-adsb.json';a.click()};$('reset').onclick=()=>{if(confirm('Apagar dados?')){localStorage.removeItem(K);location.reload()}}
 </script>
 <script>
