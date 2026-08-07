@@ -1,4 +1,20 @@
-# ADSB v7.1
-Escala fixa por toda 1ª, 2ª, 3ª, 4ª ou 5ª terça-feira do mês.
-Mantém cadastro de membros, dizimistas, obreiros, agenda, festividades, usuários e relatório geral.
-Login: Ariel / 2101
+# ADSB 8.0 Online Firebase
+
+Versão online do ADSB usando Firebase Authentication e Cloud Firestore.
+
+Principais recursos:
+- Login por congregação.
+- Administrador vê todas as congregações.
+- Cada congregação vê apenas seus dados.
+- Dados em tempo real.
+- Cadastro de congregações.
+- Obreiros.
+- Membros e dizimistas.
+- Festividades com aprovação.
+- Agenda Regional compartilhada.
+- Escala automática por terça-feira.
+- Gerenciamento de usuários.
+- Relatório geral / PDF / CSV.
+- PWA instalável.
+
+Leia `SETUP_FIREBASE.md` antes do primeiro acesso.

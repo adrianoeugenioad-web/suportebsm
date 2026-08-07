@@ -1,0 +1,108 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function profile() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return signedIn() && profile().role == 'admin' && profile().active == true;
+    }
+
+    function ownCongregation() {
+      return profile().congregationId;
+    }
+
+    function canEditOwn() {
+      return signedIn()
+        && profile().active == true
+        && (profile().role == 'admin'
+            || profile().role == 'congregacao'
+            || profile().role == 'secretario');
+    }
+
+    match /config/app {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && !exists(/databases/$(database)/documents/config/app)
+                    && request.resource.data.adminUid == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+
+      // Primeiro administrador: permitido somente antes da criação de config/app.
+      allow create: if signedIn() && (
+        isAdmin()
+        || (
+          request.auth.uid == uid
+          && !exists(/databases/$(database)/documents/config/app)
+          && request.resource.data.role == 'admin'
+        )
+      );
+
+      allow update, delete: if isAdmin();
+    }
+
+    match /congregacoes/{congId} {
+      allow read: if signedIn() && (
+        isAdmin() || congId == ownCongregation()
+      );
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /obreiros/{id} {
+      allow read: if signedIn() && (
+        isAdmin() || resource.data.congregationId == ownCongregation()
+      );
+      allow create: if canEditOwn() && (
+        isAdmin() || request.resource.data.congregationId == ownCongregation()
+      );
+      allow update, delete: if canEditOwn() && (
+        isAdmin() || resource.data.congregationId == ownCongregation()
+      );
+    }
+
+    match /membros/{id} {
+      allow read: if signedIn() && (
+        isAdmin() || resource.data.congregationId == ownCongregation()
+      );
+      allow create: if canEditOwn() && (
+        isAdmin() || request.resource.data.congregationId == ownCongregation()
+      );
+      allow update, delete: if canEditOwn() && (
+        isAdmin() || resource.data.congregationId == ownCongregation()
+      );
+    }
+
+    match /festividades/{id} {
+      allow read: if signedIn() && (
+        isAdmin() || resource.data.congregationId == ownCongregation()
+      );
+      allow create: if canEditOwn() && (
+        isAdmin() || request.resource.data.congregationId == ownCongregation()
+      );
+      allow update: if canEditOwn() && (
+        isAdmin()
+        || (
+          resource.data.congregationId == ownCongregation()
+          && request.resource.data.congregationId == ownCongregation()
+          && request.resource.data.status == 'pending'
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /agendaRegional/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}
