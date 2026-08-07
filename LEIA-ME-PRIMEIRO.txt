@@ -1,0 +1,29 @@
+# ADSB 9.0 - instalação no GitHub Pages
+
+Esta versão foi feita para evitar a tela sem formatação.
+O CSS, o JavaScript do ADSB e a imagem oficial do login estão incorporados dentro de `index.html`.
+
+## Envie para a raiz do repositório
+- index.html
+- manifest.json
+- service-worker.js
+- firestore.rules
+- pasta icons
+
+Não é necessário enviar pastas css, js ou img.
+
+## Muito importante
+Depois do upload:
+1. Faça Commit changes.
+2. Espere 1 a 3 minutos.
+3. Abra o site em uma guia anônima OU use Ctrl+F5.
+4. Se ainda aparecer a versão antiga, limpe os dados do site/service worker.
+
+## Firebase
+Firestore > Regras: publique o conteúdo de firestore.rules.
+
+Authentication:
+- crie primeiro o administrador;
+- senha deve ter pelo menos 6 caracteres.
+
+No primeiro login, clique em "Criar perfil Administrador".

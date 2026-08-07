@@ -1,7 +1,6 @@
 {
-  "name": "ADSB - Gestão Ministerial Online",
+  "name": "ADSB - Gestão Ministerial",
   "short_name": "ADSB",
-  "description": "Sistema online de gestão ministerial da Regional São Benedito",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
