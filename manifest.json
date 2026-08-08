@@ -1,6 +1,6 @@
 {
-  "name": "ADSB - Gestão Ministerial",
-  "short_name": "ADSB",
+  "name": "ADSB 10 - Gestão Ministerial Regional",
+  "short_name": "ADSB 10",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

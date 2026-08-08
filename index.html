@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#061a35">
-<title>ADSB 9.1 Online - Visitantes</title>
+<title>ADSB 10.0 - Gestão Ministerial Regional</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{--navy:#061a35;--navy2:#0b2f5a;--gold:#e6b64b;--bg:#eef3f8;--text:#172033;--muted:#667085;--ok:#067647;--bad:#b42318}
 *{box-sizing:border-box}
@@ -110,10 +112,65 @@ dialog::backdrop{background:#00152fbb}
 .visitor-stat small{color:#667085}.visitor-stat strong{display:block;font-size:25px;color:#061a35;margin-top:4px}
 .visitor-card{border-left:4px solid #7a5af8}.cult-card{border-left:4px solid #12b76a}
 @media(max-width:620px){.visitor-summary{grid-template-columns:1fr 1fr}}
+
+/* ADSB 10 */
+.admin-dashboard{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.chart-panel{background:#fff;border-radius:16px;padding:14px;box-shadow:0 4px 14px #00152f12;margin-bottom:12px}
+.chart-wrap{position:relative;min-height:300px}
+.chart-wrap canvas{max-height:340px}
+.admin-lock{background:#fff4cc;border:1px solid #f2c94c;color:#7a4d00;padding:12px;border-radius:12px;margin-bottom:12px}
+.photo-preview{width:86px;height:86px;border-radius:50%;object-fit:cover;border:3px solid var(--gold);background:#e8eef5;display:block;margin:4px auto}
+.photo-mini{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);background:#e8eef5;flex:0 0 auto}
+.person-with-photo{display:flex;align-items:center;gap:11px}
+.birth-banner{position:fixed;inset:0;z-index:10000;background:rgba(3,20,43,.93);display:flex;align-items:center;justify-content:center;padding:18px;overflow:hidden}
+.birth-card{position:relative;z-index:2;width:min(520px,96vw);background:#fff;border-radius:24px;padding:26px;text-align:center;box-shadow:0 20px 60px #0008;border:3px solid var(--gold)}
+.birth-card h2{color:var(--navy);margin:8px 0}
+.birth-card .big{font-size:44px}
+.confetti{position:absolute;top:-30px;width:12px;height:22px;border-radius:3px;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(115vh) rotate(720deg)}}
+.approval-box{background:#f8fafc;border:1px solid #dce4ed;border-radius:12px;padding:10px;margin:8px 0}
+.approval-line{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.rejection-note{background:#fee4e2;color:#912018;border-radius:9px;padding:8px;margin-top:7px}
+.pending-note{background:#fff2cc;color:#875b00;border-radius:9px;padding:8px;margin-top:7px}
+.import-help{font-size:12px;color:#667085;background:#f4f7fb;border-radius:10px;padding:10px}
+.report-cover{background:linear-gradient(135deg,#061a35,#0b2f5a);color:#fff;border-radius:18px;padding:22px;margin-bottom:14px;text-align:center}
+.report-cover h2{color:#e6b64b;margin:5px 0}
+.age-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0}
+.age-kpi{background:#fff;border-radius:12px;padding:10px;text-align:center;border-top:3px solid var(--gold)}
+.age-kpi strong{display:block;font-size:22px;color:var(--navy)}
+.mini-progress{height:9px;background:#e7edf4;border-radius:999px;overflow:hidden;margin-top:5px}
+.mini-progress>i{display:block;height:100%;background:var(--navy)}
+.table-scroll{overflow:auto}
+@media(max-width:850px){.admin-dashboard{grid-template-columns:1fr 1fr}.age-kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:620px){.admin-dashboard{grid-template-columns:1fr}.age-kpis{grid-template-columns:1fr 1fr}.bottom-nav{overflow-x:auto;grid-template-columns:repeat(9,minmax(58px,1fr))}}
+@media print{
+  .chart-panel{break-inside:avoid;box-shadow:none;border:1px solid #ddd}
+  .report-cover{background:#061a35!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
 </style>
 </head>
 <body>
 <div id="toast" class="toast"></div>
+
+<div id="birthdayOverlay" class="birth-banner hidden">
+  <div id="confettiLayer"></div>
+  <div class="birth-card">
+    <div class="big">🎉🎂🎉</div>
+    <img id="birthdayPhoto" class="photo-preview" alt="Aniversariante">
+    <h2>Hoje é um dia especial!</h2>
+    <h3 id="birthdayName"></h3>
+    <p id="birthdayInfo"></p>
+    <p>Celebramos sua vida e agradecemos a Deus por sua dedicação, compromisso e amor pela obra do Senhor.</p>
+    <p><b>“Ensina-nos a contar os nossos dias para que alcancemos coração sábio.”</b><br>📖 Salmos 90:12</p>
+    <div class="actions" style="justify-content:center">
+      <a id="birthdayWhats" class="approve" target="_blank" style="text-decoration:none">💬 Enviar homenagem no WhatsApp</a>
+      <button id="birthdayClose" class="secondary">Fechar</button>
+    </div>
+    <small>Com carinho, Pastor Regional Ariel Eugênio e Família.</small>
+  </div>
+</div>
+
 
 <section id="loginScreen">
   <div class="login-art">
@@ -155,7 +212,8 @@ dialog::backdrop{background:#00152fbb}
 
 <section id="obreiros" class="page"><div class="page-head"><div><h2>Obreiros</h2><p>Pastores, evangelistas, presbíteros e diáconos.</p></div><button id="newWorkerBtn" class="primary edit-own">+ Novo</button></div><div class="filters"><input id="workerSearch" placeholder="Pesquisar..."><select id="workerRole"><option value="">Todos os cargos</option><option>Pastor</option><option>Evangelista</option><option>Presbítero</option><option>Diácono</option><option>Cooperador</option></select></div><div id="workerList" class="cards"></div></section>
 
-<section id="membros" class="page"><div class="page-head"><div><h2>Membros</h2><p>Cadastro e controle de dizimistas.</p></div><button id="newMemberBtn" class="primary edit-own">+ Novo</button></div><div class="filters"><input id="memberSearch" placeholder="Pesquisar..."><select id="memberTither"><option value="">Todos</option><option value="sim">Dizimistas</option><option value="nao">Não dizimistas</option></select></div><div id="memberList" class="cards"></div></section>
+<section id="membros" class="page"><div class="page-head"><div><h2>Membros</h2><p>Cadastro, dizimistas e importação por planilha.</p></div>
+<div class="actions edit-own"><button id="downloadMemberTemplate" class="secondary">⬇ Modelo Excel</button><button id="importMembersBtn" class="secondary">⬆ Importar Excel</button><button id="exportMembersBtn" class="secondary">📊 Exportar</button><button id="newMemberBtn" class="primary">+ Novo</button></div></div><div class="filters"><input id="memberSearch" placeholder="Pesquisar..."><select id="memberTither"><option value="">Todos</option><option value="sim">Dizimistas</option><option value="nao">Não dizimistas</option></select></div><div id="memberList" class="cards"></div></section>
 
 
 <section id="visitantes" class="page">
@@ -174,14 +232,38 @@ dialog::backdrop{background:#00152fbb}
 
 <section id="usuarios" class="page"><div class="page-head"><div><h2>Gerenciar Usuários</h2><p>Somente administrador.</p></div><button id="newUserBtn" class="primary">+ Novo Usuário</button></div><div class="filters"><input id="userSearch" placeholder="Pesquisar usuário..."><select id="userCongFilter"><option value="">Todas as congregações</option></select></div><div id="userList" class="cards"></div></section>
 
-<section id="relatorios" class="page"><div class="page-head"><div><h2>Relatório Geral</h2><p>Consolidado dos dados.</p></div><div class="actions"><button id="printReport" class="primary">Imprimir / PDF</button><button id="csvReport" class="secondary">CSV / Excel</button></div></div><div id="reportSummary" class="stats"></div><div id="reportContent"></div></section>
 
-<section id="mais" class="page"><div class="panel"><h3>Mais opções</h3><button class="menu-link" data-page="visitantes">🙋 Visitantes</button><button class="menu-link" data-page="resultadosCulto">🙏 Resultados dos Cultos</button><button class="menu-link" data-page="escala">⛪ Escala Regional</button><button class="menu-link admin-only" data-page="usuarios">👤 Gerenciar Usuários</button><button class="menu-link" data-page="relatorios">📊 Relatório Geral</button></div></section>
+<section id="indicadores" class="page">
+  <div class="page-head">
+    <div><h2 id="indTitle">Indicadores</h2><p id="indSubtitle">Acompanhamento ministerial e estatístico.</p></div>
+    <button id="refreshCharts" class="secondary">Atualizar gráficos</button>
+  </div>
+  <div id="regionalAdminNotice" class="admin-lock hidden">🔒 O painel comparativo regional e os rankings são exclusivos do Administrador Regional.</div>
+  <div id="indCongFilterWrap" class="panel admin-only">
+    <label><b>Visualizar:</b>
+      <select id="indCongFilter"><option value="">Toda a Regional</option></select>
+    </label>
+  </div>
+  <div id="ageKpis" class="age-kpis"></div>
+  <div class="admin-dashboard">
+    <div class="chart-panel"><h3>👥 Faixa etária</h3><div class="chart-wrap"><canvas id="ageChart"></canvas></div></div>
+    <div class="chart-panel"><h3>💰 Dizimistas por faixa etária</h3><div class="chart-wrap"><canvas id="titherAgeChart"></canvas></div></div>
+    <div class="chart-panel"><h3>🙋 Visitantes por mês</h3><div class="chart-wrap"><canvas id="visitorTrendChart"></canvas></div></div>
+  </div>
+  <div id="adminOnlyCharts" class="admin-only">
+    <div class="chart-panel"><h3>⛪ Comparativo das congregações</h3><div class="chart-wrap"><canvas id="congChart"></canvas></div></div>
+    <div class="panel"><h3>🏆 Destaques da Regional</h3><div id="rankingCards" class="cards"></div></div>
+  </div>
+</section>
+
+<section id="relatorios" class="page"><div class="page-head"><div><h2 id="reportTitle">Relatório Geral</h2><p id="reportSubtitle">Consolidado dos dados.</p></div><div class="actions"><button id="printReport" class="primary">📄 Gerar PDF</button><button id="csvReport" class="secondary">📊 Excel/CSV</button></div></div><div id="reportCover"></div><div id="reportSummary" class="stats"></div><div id="reportContent"></div></section>
+
+<section id="mais" class="page"><div class="panel"><h3>Mais opções</h3><button class="menu-link" data-page="visitantes">🙋 Visitantes</button><button class="menu-link" data-page="resultadosCulto">🙏 Resultados dos Cultos</button><button class="menu-link" data-page="escala">⛪ Escala Regional</button><button class="menu-link admin-only" data-page="usuarios">👤 Gerenciar Usuários</button><button class="menu-link" data-page="indicadores">📈 Indicadores</button><button class="menu-link" data-page="relatorios">📊 Relatórios</button></div></section>
 </main>
 <nav class="bottom-nav">
 <button data-page="home" class="active">⌂<span>Início</span></button>
 <button data-page="obreiros">👔<span>Obreiros</span></button>
-<button data-page="membros">👥<span>Membros</span></button><button data-page="visitantes">🙋<span>Visitantes</span></button>
+<button data-page="membros">👥<span>Membros</span></button><button data-page="visitantes">🙋<span>Visitantes</span></button><button data-page="indicadores">📈<span>Gráficos</span></button>
 <button data-page="agenda">📅<span>Agenda</span></button>
 <button data-page="festividades">★<span>Festas</span></button>
 <button data-page="congregacoes">⛪<span>Igrejas</span></button>
@@ -191,9 +273,11 @@ dialog::backdrop{background:#00152fbb}
 
 <dialog id="congDlg"><form id="congForm" class="form"><input type="hidden" id="cid"><div class="form-head"><h3>Congregação</h3><button type="button" data-close="congDlg">×</button></div><label>Nome<input id="cname" required></label><div class="grid2"><label>Pastor<input id="cpastor"></label><label>2º dirigente<input id="csecond"></label></div><div class="grid2"><label>Telefone<input id="cphone"></label><label>Instagram<input id="cinstagram"></label></div><label>Endereço<input id="caddress"></label><h4>Escala fixa na sede</h4><div class="grid2"><label>Participa?<select id="cscaleActive"><option value="sim">Sim</option><option value="nao">Não</option></select></label><label>Terça-feira<select id="cscaleOccurrence"><option value="1">Toda 1ª terça-feira</option><option value="2">Toda 2ª terça-feira</option><option value="3">Toda 3ª terça-feira</option><option value="4">Toda 4ª terça-feira</option><option value="5">Toda 5ª terça-feira</option></select></label></div><div class="grid2"><label>Horário<input id="cscaleTime" type="time"></label><label>Responsável<input id="cscaleResponsible"></label></div><label>Observações<textarea id="cscaleNotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="congDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
 
-<dialog id="workerDlg"><form id="workerForm" class="form"><input type="hidden" id="wid"><div class="form-head"><h3>Obreiro</h3><button type="button" data-close="workerDlg">×</button></div><label>Nome<input id="wname" required></label><div class="grid2"><label>Cargo<select id="wrole"><option>Pastor</option><option>Evangelista</option><option>Presbítero</option><option>Diácono</option><option>Cooperador</option></select></label><label>Congregação<select id="wcong"></select></label></div><div class="grid2"><label>Telefone<input id="wphone"></label><label>Nascimento<input id="wbirth" type="date"></label></div><label>Consagração<input id="wconsecration" type="date"></label><label>Observações<textarea id="wnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="workerDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
+<dialog id="workerDlg"><form id="workerForm" class="form"><input type="hidden" id="wid"><input type="hidden" id="wphotoData"><div class="form-head"><h3>Obreiro</h3><button type="button" data-close="workerDlg">×</button></div>
+<img id="wphotoPreview" class="photo-preview" alt="Foto do obreiro"><label>Foto do obreiro<input id="wphoto" type="file" accept="image/*"><small>O ADSB reduz automaticamente a foto antes de salvar.</small></label>
+<label>Nome<input id="wname" required></label><div class="grid2"><label>Cargo<select id="wrole"><option>Pastor</option><option>Evangelista</option><option>Presbítero</option><option>Diácono</option><option>Cooperador</option></select></label><label>Congregação<select id="wcong"></select></label></div><div class="grid2"><label>Telefone<input id="wphone"></label><label>Nascimento<input id="wbirth" type="date"></label></div><label>Consagração<input id="wconsecration" type="date"></label><label>Observações<textarea id="wnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="workerDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
 
-<dialog id="memberDlg"><form id="memberForm" class="form"><input type="hidden" id="mid"><div class="form-head"><h3>Membro</h3><button type="button" data-close="memberDlg">×</button></div><label>Nome<input id="mname" required></label><div class="grid2"><label>Congregação<select id="mcong"></select></label><label>Dizimista?<select id="mtither"><option value="sim">Sim</option><option value="nao">Não</option></select></label></div><div class="grid2"><label>Telefone<input id="mphone"></label><label>Nascimento<input id="mbirth" type="date"></label></div><div class="grid2"><label>Batismo<input id="mbaptism" type="date"></label><label>Estado civil<select id="mmarital"><option value="">Selecione</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Viúvo(a)</option><option>Divorciado(a)</option></select></label></div><label>Endereço<input id="maddress"></label><label>Observações<textarea id="mnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="memberDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
+<dialog id="memberDlg"><form id="memberForm" class="form"><input type="hidden" id="mid"><div class="form-head"><h3>Membro</h3><button type="button" data-close="memberDlg">×</button></div><label>Nome<input id="mname" required></label><div class="grid2"><label>Congregação<select id="mcong"></select></label><label>Dizimista?<select id="mtither"><option value="sim">Sim</option><option value="nao">Não</option></select></label></div><div class="grid2"><label>Telefone<input id="mphone"></label><label>Nascimento<input id="mbirth" type="date"></label></div><div class="grid2"><label>Sexo<select id="msex"><option value="">Não informado</option><option value="M">Masculino</option><option value="F">Feminino</option></select></label><label>Situação<select id="mstatus"><option value="membro">Membro</option><option value="congregado">Congregado</option></select></label></div><div class="grid2"><label>Batismo<input id="mbaptism" type="date"></label><label>Estado civil<select id="mmarital"><option value="">Selecione</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Viúvo(a)</option><option>Divorciado(a)</option></select></label></div><label>Endereço<input id="maddress"></label><label>Observações<textarea id="mnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="memberDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
 
 <dialog id="festDlg"><form id="festForm" class="form"><input type="hidden" id="fid"><div class="form-head"><h3>Festividade</h3><button type="button" data-close="festDlg">×</button></div><label>Tema / Nome<input id="fname" required></label><label>Congregação<select id="fcong"></select></label><div class="grid2"><label>Início<input id="fstart" type="date" required></label><label>Fim<input id="fend" type="date" required></label></div><div class="grid2"><label>Pregadores<input id="fpreachers"></label><label>Valor pregadores<input id="fpreacherValue" type="number" step="0.01"></label></div><div class="grid2"><label>Cantores<input id="fsingers"></label><label>Valor cantores<input id="fsingerValue" type="number" step="0.01"></label></div><label>Outros gastos<input id="fexpenses" type="number" step="0.01"></label><label>Observações<textarea id="fnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="festDlg">Cancelar</button><button class="primary">Salvar / Aprovação</button></div></form></dialog>
 
@@ -214,6 +298,24 @@ dialog::backdrop{background:#00152fbb}
 <div class="grid2"><label>Aceitaram Jesus<input id="crdecisions" type="number" min="0" value="0"></label><label>Reconciliações<input id="crreconciliations" type="number" min="0" value="0"></label></div>
 <div class="grid2"><label>Batismos<input id="crbaptisms" type="number" min="0" value="0"></label><label>Crianças apresentadas<input id="crchildren" type="number" min="0" value="0"></label></div>
 <label>Observações<textarea id="crnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="cultResultDlg">Cancelar</button><button class="primary">Salvar Resultado</button></div></form></dialog>
+
+
+<dialog id="rejectDlg"><form id="rejectForm" class="form">
+<input type="hidden" id="rejectFestId"><input type="hidden" id="rejectTarget">
+<div class="form-head"><h3>Motivo da reprovação</h3><button type="button" data-close="rejectDlg">×</button></div>
+<label>Motivo<select id="rejectReason"><option value="Valor muito alto">Valor muito alto</option><option value="Data indisponível">Data indisponível</option><option value="Não aprovado pela Regional">Não aprovado pela Regional</option><option value="Outro">Outro</option></select></label>
+<label id="rejectOtherWrap" class="hidden">Descreva o motivo<textarea id="rejectOther" placeholder="Digite a orientação para a congregação..."></textarea></label>
+<div class="form-actions"><button type="button" class="secondary" data-close="rejectDlg">Cancelar</button><button class="reject">Confirmar reprovação</button></div>
+</form></dialog>
+
+<dialog id="importMembersDlg"><div class="form">
+<div class="form-head"><h3>Importar membros</h3><button type="button" data-close="importMembersDlg">×</button></div>
+<div class="import-help">Use o modelo do ADSB. O sistema confere os registros antes de gravar. Para usuário de congregação, todos os registros serão vinculados automaticamente à sua igreja.</div>
+<label class="admin-only">Congregação padrão<select id="importCong"></select></label>
+<label>Planilha Excel<input id="memberImportFile" type="file" accept=".xlsx,.xls,.csv"></label>
+<div id="importPreview"></div>
+<div class="form-actions"><button type="button" class="secondary" data-close="importMembersDlg">Cancelar</button><button id="confirmImportMembers" type="button" class="primary" disabled>Importar registros válidos</button></div>
+</div></dialog>
 
 <dialog id="userDlg"><form id="userForm" class="form"><input type="hidden" id="uid"><div class="form-head"><h3 id="userDlgTitle">Novo usuário</h3><button type="button" data-close="userDlg">×</button></div><label>Nome<input id="uname" required></label><div class="grid2"><label>Usuário<input id="ulogin" required></label><label>Perfil<select id="urole"><option value="congregacao">Pastor / Congregação</option><option value="secretario">Secretário</option><option value="consulta">Consulta</option><option value="admin">Administrador</option></select></label></div><label>Congregação<select id="ucong"></select></label><div class="grid2"><label>Senha<input id="upass" type="password" placeholder="Mínimo 6 caracteres"></label><label>Confirmar<input id="upass2" type="password"></label></div><label><input id="uactive" type="checkbox" checked style="width:auto"> Usuário ativo</label><small>O sistema converte internamente para usuario@adsbregional.app.</small><div class="form-actions"><button type="button" class="secondary" data-close="userDlg">Cancelar</button><button class="primary">Salvar usuário</button></div></form></dialog>
 
@@ -257,7 +359,7 @@ function ownCong(){return state.profile?.congregationId||""}
 function cname(id){return state.congregacoes.find(c=>c.id===id)?.name||"—"}
 function profileLabel(r){return ({admin:"Administrador",congregacao:"Pastor / Congregação",secretario:"Secretário",consulta:"Consulta"})[r]||r||"—"}
 function clearUnsubs(){state.unsubs.forEach(fn=>{try{fn()}catch{}});state.unsubs=[]}
-function openPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));$(id)?.classList.add("active");if(id==="relatorios")renderReports();if(id==="escala")renderScale();if(id==="usuarios")renderUsers()}
+function openPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===id));$(id)?.classList.add("active");if(id==="relatorios")renderReports();if(id==="indicadores")renderIndicators();if(id==="escala")renderScale();if(id==="usuarios")renderUsers()}
 function fillCongSelect(sel,blank=false){if(!sel)return;sel.innerHTML=(blank?'<option value="">Todas as congregações</option>':"")+state.congregacoes.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");if(!isAdmin()&&ownCong())sel.value=ownCong()}
 function closeDlg(id){$(id).close()}
 function openDlg(id){$(id).showModal()}
@@ -286,13 +388,24 @@ onAuthStateChanged(auth,async user=>{
 
 $("bootstrapBtn").onclick=async()=>{try{const name=$("bootstrapName").value.trim()||"Pr. Ariel Eugênio";const b=writeBatch(db);b.set(doc(db,"usuarios",state.authUser.uid),{name,email:state.authUser.email,login:simpleLogin(state.authUser.email),role:"admin",congregationId:"",active:true,createdAt:serverTimestamp()});b.set(doc(db,"config","app"),{adminUid:state.authUser.uid,createdAt:serverTimestamp(),version:"9.0"});await b.commit();toast("Administrador criado.");location.reload()}catch(e){console.error(e);toast("Confira as regras do Firestore.")}};
 
-function sub(name,target,filter=true){let q=collection(db,name);if(filter&&!isAdmin()&&ownCong())q=query(q,where("congregationId","==",ownCong()));const u=onSnapshot(q,s=>{state[target]=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},e=>{console.error(e);$("syncState").textContent="● erro"});state.unsubs.push(u)}
+function sub(name,target,filter=true){
+ if(name==="congregacoes"&&!isAdmin()&&ownCong()){
+   const u=onSnapshot(doc(db,"congregacoes",ownCong()),s=>{state[target]=s.exists()?[{id:s.id,...s.data()}]:[];renderAll()},e=>{console.error(e);$("syncState").textContent="● erro"});state.unsubs.push(u);return;
+ }
+ let q=collection(db,name);if(filter&&!isAdmin()&&ownCong())q=query(q,where("congregationId","==",ownCong()));
+ const u=onSnapshot(q,s=>{state[target]=s.docs.map(d=>({id:d.id,...d.data()}));$("syncState").textContent="● online";renderAll()},e=>{console.error(e);$("syncState").textContent="● erro"});
+ state.unsubs.push(u)
+}
 function startRealtime(){$("welcomeName").textContent=state.profile.name||state.profile.login;$("welcomeProfile").textContent=isAdmin()?"Administrador • Todas as congregações":`${profileLabel(state.profile.role)} • própria congregação`;document.querySelectorAll(".admin-only").forEach(x=>x.classList.toggle("hidden",!isAdmin()));document.querySelectorAll(".edit-own").forEach(x=>x.classList.toggle("hidden",!canEdit()));sub("congregacoes","congregacoes",true);sub("obreiros","obreiros",true);sub("membros","membros",true);sub("festividades","festividades",true);sub("visitantes","visitantes",true);sub("resultadosCulto","resultadosCulto",true);sub("agendaRegional","agenda",false);if(isAdmin())sub("usuarios","usuarios",false)}
-function renderAll(){fillCongSelect($("wcong"));fillCongSelect($("mcong"));fillCongSelect($("fcong"));fillCongSelect($("vcong"));fillCongSelect($("crcong"));fillCongSelect($("ucong"));fillCongSelect($("userCongFilter"),true);renderStats();renderCong();renderWorkers();renderMembers();renderVisitors();renderCultResults();renderFests();renderAgenda();renderBirthdays();renderScalesNext();renderScale();renderUsers()}
+function renderAll(){fillCongSelect($("wcong"));fillCongSelect($("mcong"));fillCongSelect($("fcong"));fillCongSelect($("vcong"));fillCongSelect($("crcong"));fillCongSelect($("ucong"));fillCongSelect($("importCong"));fillCongSelect($("indCongFilter"),true);fillCongSelect($("userCongFilter"),true);renderStats();renderCong();renderWorkers();renderMembers();renderVisitors();renderCultResults();renderFests();renderAgenda();renderBirthdays();renderScalesNext();renderScale();renderUsers();if(document.getElementById("indicadores")?.classList.contains("active"))renderIndicators();checkBirthdayAlert()}
 
 function renderStats(){const t=state.membros.filter(m=>m.tither==="sim").length,p=state.festividades.filter(f=>f.status==="pending").length;const v=[["Congregações",state.congregacoes.length],["Obreiros",state.obreiros.length],["Membros",state.membros.length],["Dizimistas",t],["Festividades",state.festividades.length],["Pendentes",p],["Agenda",state.agenda.length],["Visitantes no mês",visitorsThisMonth().length]];$("stats").innerHTML=v.map(x=>`<div class="stat"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join("")}
 function renderCong(){$("congList").innerHTML=state.congregacoes.length?state.congregacoes.map(c=>`<article class="card"><div class="person-head"><h3>⛪ ${c.name}</h3>${isAdmin()?`<button class="secondary" onclick="editCong('${c.id}')">Editar</button>`:""}</div><p><b>Pastor:</b> ${c.pastor||"—"} • <b>2º dirigente:</b> ${c.second||"—"}</p><p>📞 ${c.phone||"—"} • 📍 ${c.address||"—"}</p>${c.fixedScale?.active==="sim"?`<span class="badge pending">Toda ${c.fixedScale.occurrence}ª terça-feira • ${c.fixedScale.time||""}</span>`:""}</article>`).join(""):'<div class="card">Nenhuma congregação cadastrada.</div>'}
-function renderWorkers(){const q=$("workerSearch").value.toLowerCase(),r=$("workerRole").value;const l=state.obreiros.filter(w=>(!q||(w.name||"").toLowerCase().includes(q))&&(!r||w.role===r));$("workerList").innerHTML=l.length?l.map(w=>`<article class="card"><h3>${w.name}</h3><p>${w.role} • ${cname(w.congregationId)}</p><p>📞 ${w.phone||"—"} • 🎂 ${fmt(w.birth)||"—"}</p><div class="actions">${canEdit()?`<button class="secondary" onclick="editWorker('${w.id}')">Editar</button><button class="danger" onclick="deleteItem('obreiros','${w.id}','${w.name}')">Excluir</button>`:""}</div></article>`).join(""):'<div class="card">Nenhum obreiro.</div>'}
+function renderWorkers(){
+ const q=$("workerSearch").value.toLowerCase(),r=$("workerRole").value;
+ const l=state.obreiros.filter(w=>(!q||(w.name||"").toLowerCase().includes(q))&&(!r||w.role===r));
+ $("workerList").innerHTML=l.length?l.map(w=>`<article class="card"><div class="person-with-photo"><img class="photo-mini" src="${w.photoData||'icons/icon-192.png'}" alt=""><div><h3>${w.name}</h3><p>${w.role} • ${cname(w.congregationId)}</p><p>📞 ${w.phone||"—"} • 🎂 ${fmt(w.birth)||"—"}</p></div></div><div class="actions">${canEdit()?`<button class="secondary" onclick="editWorker('${w.id}')">Editar</button><button class="danger" onclick="deleteItem('obreiros','${w.id}','${w.name}')">Excluir</button>`:""}</div></article>`).join(""):'<div class="card">Nenhum obreiro.</div>';
+}
 $("workerSearch").oninput=renderWorkers;$("workerRole").onchange=renderWorkers;
 function renderMembers(){const q=$("memberSearch").value.toLowerCase(),t=$("memberTither").value;const l=state.membros.filter(m=>(!q||(m.name||"").toLowerCase().includes(q))&&(!t||m.tither===t));$("memberList").innerHTML=l.length?l.map(m=>`<article class="card"><div class="person-head"><h3>${m.name}</h3><span class="badge ${m.tither==="sim"?"ok":"bad"}">${m.tither==="sim"?"Dizimista":"Não dizimista"}</span></div><p>${cname(m.congregationId)} • 📞 ${m.phone||"—"} • 🎂 ${fmt(m.birth)||"—"}</p><div class="actions">${canEdit()?`<button class="secondary" onclick="editMember('${m.id}')">Editar</button><button class="danger" onclick="deleteItem('membros','${m.id}','${m.name}')">Excluir</button>`:""}</div></article>`).join(""):'<div class="card">Nenhum membro.</div>'}
 $("memberSearch").oninput=renderMembers;$("memberTither").onchange=renderMembers;
@@ -329,7 +442,25 @@ $("cultResultForm").onsubmit=async e=>{e.preventDefault();const id=$("crid").val
 window.editCultResult=id=>{const r=state.resultadosCulto.find(x=>x.id===id);if(!r)return;$("crid").value=id;$("crdate").value=r.date||todayISO();fillCongSelect($("crcong"));$("crcong").value=r.congregationId||"";$("crservice").value=r.service||"";$("crattendance").value=r.attendance||0;$("crvisitors").value=r.visitors||0;$("crdecisions").value=r.decisions||0;$("crreconciliations").value=r.reconciliations||0;$("crbaptisms").value=r.baptisms||0;$("crchildren").value=r.children||0;$("crnotes").value=r.notes||"";openDlg("cultResultDlg")};
 
 function totalFest(f){return Number(f.preacherValue||0)+Number(f.singerValue||0)+Number(f.expenses||0)}
-function renderFests(){$("festList").innerHTML=state.festividades.length?state.festividades.map(f=>`<article class="card"><div class="person-head"><h3>★ ${f.name}</h3><span class="badge ${f.status==="approved"?"ok":f.status==="rejected"?"bad":"pending"}">${f.status==="approved"?"Aprovada":f.status==="rejected"?"Reprovada":"Pendente"}</span></div><p>${cname(f.congregationId)} • ${fmt(f.start)} a ${fmt(f.end)}</p><p>Pregadores: ${f.preachers||"—"} (${money(f.preacherValue)})</p><p>Cantores: ${f.singers||"—"} (${money(f.singerValue)})</p><p><b>Total: ${money(totalFest(f))}</b></p><div class="actions">${canEdit()?`<button class="secondary" onclick="editFest('${f.id}')">Editar</button>`:""}${isAdmin()?`<button class="approve" onclick="setFestStatus('${f.id}','approved')">Aprovar</button><button class="reject" onclick="setFestStatus('${f.id}','rejected')">Reprovar</button>`:""}</div></article>`).join(""):'<div class="card">Nenhuma festividade.</div>'}
+
+function decisionBadge(d){const s=d?.status||"pending";return `<span class="badge ${s==="approved"?"ok":s==="rejected"?"bad":"pending"}">${s==="approved"?"Aprovado":s==="rejected"?"Reprovado":"Pendente"}</span>`}
+function decisionNote(d){if(!d)return "";if(d.status==="rejected")return `<div class="rejection-note"><b>Motivo:</b> ${d.reason||"Não informado"}${d.note?`<br>${d.note}`:""}</div>`;if(d.status==="pending")return `<div class="pending-note">Aguardando análise do Administrador Regional.</div>`;return ""}
+function renderFests(){
+ $("festList").innerHTML=state.festividades.length?state.festividades.map(f=>{
+   const pd=f.preacherDecision||{status:f.status==="approved"?"approved":f.status==="rejected"?"rejected":"pending"};
+   const sd=f.singerDecision||{status:f.status==="approved"?"approved":f.status==="rejected"?"rejected":"pending"};
+   return `<article class="card"><div class="person-head"><h3>★ ${f.name}</h3><span class="badge pending">${fmt(f.start)} a ${fmt(f.end)}</span></div><p>${cname(f.congregationId)}</p>
+   <div class="approval-box"><div class="approval-line"><b>🎙️ Pregador: ${f.preachers||"—"} • ${money(f.preacherValue)}</b>${decisionBadge(pd)}</div>${decisionNote(pd)}
+   <div class="actions">${isAdmin()?`<button class="approve" onclick="approveGuest('${f.id}','preacher')">Aprovar pregador</button><button class="reject" onclick="openReject('${f.id}','preacher')">Reprovar pregador</button>`:""}</div></div>
+   <div class="approval-box"><div class="approval-line"><b>🎵 Cantor: ${f.singers||"—"} • ${money(f.singerValue)}</b>${decisionBadge(sd)}</div>${decisionNote(sd)}
+   <div class="actions">${isAdmin()?`<button class="approve" onclick="approveGuest('${f.id}','singer')">Aprovar cantor</button><button class="reject" onclick="openReject('${f.id}','singer')">Reprovar cantor</button>`:""}</div></div>
+   <p><b>Total previsto: ${money(totalFest(f))}</b></p><div class="actions">${canEdit()?`<button class="secondary" onclick="editFest('${f.id}')">Editar / Ajustar valor</button>`:""}</div></article>`;
+ }).join(""):'<div class="card">Nenhuma festividade.</div>';
+}
+window.approveGuest=async(id,target)=>{const field=target==="preacher"?"preacherDecision":"singerDecision";await updateDoc(doc(db,"festividades",id),{[field]:{status:"approved",reason:"",note:"",updatedAt:new Date().toISOString()},updatedAt:serverTimestamp()});toast(target==="preacher"?"Pregador aprovado.":"Cantor aprovado.")};
+window.openReject=(id,target)=>{$("rejectFestId").value=id;$("rejectTarget").value=target;$("rejectReason").value="Valor muito alto";$("rejectOther").value="";$("rejectOtherWrap").classList.add("hidden");openDlg("rejectDlg")};
+$("rejectReason").onchange=()=>{$("rejectOtherWrap").classList.toggle("hidden",$("rejectReason").value!=="Outro")};
+$("rejectForm").onsubmit=async e=>{e.preventDefault();const id=$("rejectFestId").value,target=$("rejectTarget").value,reason=$("rejectReason").value,note=reason==="Outro"?$("rejectOther").value.trim():"";if(reason==="Outro"&&!note)return toast("Digite o motivo.");const field=target==="preacher"?"preacherDecision":"singerDecision";await updateDoc(doc(db,"festividades",id),{[field]:{status:"rejected",reason,note,updatedAt:new Date().toISOString()},updatedAt:serverTimestamp()});closeDlg("rejectDlg");toast("Reprovação registrada.")};
 function renderAgenda(){const l=[...state.agenda].sort((a,b)=>(a.date||"").localeCompare(b.date||""));$("agendaList").innerHTML=l.length?l.map(a=>`<article class="card"><div class="person-head"><h3>📅 ${a.name}</h3>${isAdmin()?`<button class="secondary" onclick="editAgenda('${a.id}')">Editar</button>`:""}</div><p>${fmt(a.date)} ${a.time||""}</p><p>📍 ${a.location||"—"}</p></article>`).join(""):'<div class="card">Nenhum evento.</div>';const today=new Date().toISOString().slice(0,10);$("nextAgenda").innerHTML=l.filter(a=>a.date>=today).slice(0,4).map(a=>`<div class="card"><b>${fmt(a.date)} ${a.time||""}</b> — ${a.name}</div>`).join("")||"Nenhum evento próximo."}
 function birthdayInfo(date){if(!date)return null;const [y,m,d]=date.split("-").map(Number),now=new Date();let n=new Date(now.getFullYear(),m-1,d),start=new Date(now.getFullYear(),now.getMonth(),now.getDate());if(n<start)n=new Date(now.getFullYear()+1,m-1,d);return{date:n,diff:Math.round((n-start)/86400000)}}
 function renderBirthdays(){const p=[...state.obreiros,...state.membros].map(x=>({x,b:birthdayInfo(x.birth)})).filter(o=>o.b&&o.b.diff<=7).sort((a,b)=>a.b.diff-b.b.diff);$("birthdays").innerHTML=p.length?p.map(o=>`<div class="card">🎉 <b>${o.x.name}</b> — ${o.b.diff===0?"Hoje":o.b.diff===1?"Amanhã":"em "+o.b.diff+" dias"}</div>`).join(""):"Nenhum aniversariante nos próximos 7 dias."}
@@ -340,7 +471,7 @@ $("prevMonth").onclick=()=>{state.scaleDate=new Date(state.scaleDate.getFullYear
 function renderUsers(){if(!isAdmin()||!$("userList"))return;const q=$("userSearch").value.toLowerCase(),c=$("userCongFilter").value,l=state.usuarios.filter(u=>(!q||(u.name||"").toLowerCase().includes(q)||(u.login||"").toLowerCase().includes(q))&&(!c||u.congregationId===c));$("userList").innerHTML=l.length?l.map(u=>`<article class="card"><div class="person-head"><h3>${u.name}</h3><span class="badge ${u.active===false?"bad":"ok"}">${u.active===false?"Inativo":"Ativo"}</span></div><p>Usuário: <b>${u.login}</b> • ${profileLabel(u.role)}</p><div class="actions"><button class="secondary" onclick="editUser('${u.id}')">Editar perfil</button>${u.id!==state.authUser.uid?`<button class="${u.active===false?"approve":"reject"}" onclick="toggleUser('${u.id}',${u.active===false})">${u.active===false?"Ativar":"Inativar"}</button>`:""}</div></article>`).join(""):'<div class="card">Nenhum usuário.</div>'}
 $("userSearch").oninput=renderUsers;$("userCongFilter").onchange=renderUsers;
 function reportTable(t,h,r){return `<div class="panel"><h3>${t}</h3><div style="overflow:auto"><table class="report-table"><thead><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr></thead><tbody>${r.map(row=>`<tr>${row.map(v=>`<td>${v??""}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`}
-function renderReports(){const t=state.membros.filter(m=>m.tither==="sim").length;$("reportSummary").innerHTML=[["Congregações",state.congregacoes.length],["Obreiros",state.obreiros.length],["Membros",state.membros.length],["Dizimistas",t],["Visitantes no mês",visitorsThisMonth().length],["Resultados de culto",state.resultadosCulto.length]].map(x=>`<div class="stat"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join("");$("reportContent").innerHTML=reportTable("Congregações",["Nome","Pastor","Telefone"],state.congregacoes.map(c=>[c.name,c.pastor,c.phone]))+reportTable("Obreiros",["Nome","Cargo","Congregação"],state.obreiros.map(w=>[w.name,w.role,cname(w.congregationId)]))+reportTable("Membros",["Nome","Congregação","Dizimista"],state.membros.map(m=>[m.name,cname(m.congregationId),m.tither==="sim"?"Sim":"Não"]))+reportTable("Visitantes",["Data","Nome","Congregação","Culto","1ª visita","Situação"],state.visitantes.map(v=>[fmt(v.date),v.name,cname(v.congregationId),v.service,v.firstVisit==="sim"?"Sim":"Não",visitorStatusLabel(v.status)]))+reportTable("Resultados dos Cultos",["Data","Congregação","Culto","Público","Visitantes","Decisões"],state.resultadosCulto.map(r=>[fmt(r.date),cname(r.congregationId),r.service,r.attendance||0,r.visitors||0,r.decisions||0]))}
+function renderReportsLegacy(){const t=state.membros.filter(m=>m.tither==="sim").length;$("reportSummary").innerHTML=[["Congregações",state.congregacoes.length],["Obreiros",state.obreiros.length],["Membros",state.membros.length],["Dizimistas",t],["Visitantes no mês",visitorsThisMonth().length],["Resultados de culto",state.resultadosCulto.length]].map(x=>`<div class="stat"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join("");$("reportContent").innerHTML=reportTable("Congregações",["Nome","Pastor","Telefone"],state.congregacoes.map(c=>[c.name,c.pastor,c.phone]))+reportTable("Obreiros",["Nome","Cargo","Congregação"],state.obreiros.map(w=>[w.name,w.role,cname(w.congregationId)]))+reportTable("Membros",["Nome","Congregação","Dizimista"],state.membros.map(m=>[m.name,cname(m.congregationId),m.tither==="sim"?"Sim":"Não"]))+reportTable("Visitantes",["Data","Nome","Congregação","Culto","1ª visita","Situação"],state.visitantes.map(v=>[fmt(v.date),v.name,cname(v.congregationId),v.service,v.firstVisit==="sim"?"Sim":"Não",visitorStatusLabel(v.status)]))+reportTable("Resultados dos Cultos",["Data","Congregação","Culto","Público","Visitantes","Decisões"],state.resultadosCulto.map(r=>[fmt(r.date),cname(r.congregationId),r.service,r.attendance||0,r.visitors||0,r.decisions||0]))}
 $("printReport").onclick=()=>{renderReports();window.print()};
 $("csvReport").onclick=()=>{const rows=[["TIPO","NOME","CONGREGAÇÃO","INFO"]];state.obreiros.forEach(x=>rows.push(["OBREIRO",x.name,cname(x.congregationId),x.role]));state.membros.forEach(x=>rows.push(["MEMBRO",x.name,cname(x.congregationId),x.tither==="sim"?"DIZIMISTA":"NÃO DIZIMISTA"]));const csv="﻿"+rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(";")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="ADSB-relatorio.csv";a.click()};
 
@@ -348,16 +479,16 @@ $("newCongBtn").onclick=()=>{$("congForm").reset();$("cid").value="";openDlg("co
 $("congForm").onsubmit=async e=>{e.preventDefault();const id=$("cid").value,data={name:$("cname").value.trim(),pastor:$("cpastor").value.trim(),second:$("csecond").value.trim(),phone:$("cphone").value.trim(),instagram:$("cinstagram").value.trim(),address:$("caddress").value.trim(),fixedScale:{active:$("cscaleActive").value,occurrence:Number($("cscaleOccurrence").value),time:$("cscaleTime").value,responsible:$("cscaleResponsible").value.trim(),notes:$("cscaleNotes").value.trim()},updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"congregacoes",id),data):await addDoc(collection(db,"congregacoes"),data);closeDlg("congDlg");toast("Congregação salva.")}catch(e){console.error(e);toast("Sem permissão.")}};
 window.editCong=id=>{const c=state.congregacoes.find(x=>x.id===id);if(!c)return;$("cid").value=id;$("cname").value=c.name||"";$("cpastor").value=c.pastor||"";$("csecond").value=c.second||"";$("cphone").value=c.phone||"";$("cinstagram").value=c.instagram||"";$("caddress").value=c.address||"";$("cscaleActive").value=c.fixedScale?.active||"sim";$("cscaleOccurrence").value=c.fixedScale?.occurrence||1;$("cscaleTime").value=c.fixedScale?.time||"";$("cscaleResponsible").value=c.fixedScale?.responsible||"";$("cscaleNotes").value=c.fixedScale?.notes||"";openDlg("congDlg")};
 
-$("newWorkerBtn").onclick=()=>{$("workerForm").reset();$("wid").value="";fillCongSelect($("wcong"));openDlg("workerDlg")};
-$("workerForm").onsubmit=async e=>{e.preventDefault();const id=$("wid").value,data={name:$("wname").value.trim(),role:$("wrole").value,congregationId:isAdmin()?$("wcong").value:ownCong(),phone:$("wphone").value.trim(),birth:$("wbirth").value,consecration:$("wconsecration").value,notes:$("wnotes").value.trim(),updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"obreiros",id),data):await addDoc(collection(db,"obreiros"),data);closeDlg("workerDlg");toast("Obreiro salvo.")}catch{toast("Sem permissão.")}};
-window.editWorker=id=>{const w=state.obreiros.find(x=>x.id===id);if(!w)return;$("wid").value=id;$("wname").value=w.name||"";$("wrole").value=w.role||"Pastor";fillCongSelect($("wcong"));$("wcong").value=w.congregationId;$("wphone").value=w.phone||"";$("wbirth").value=w.birth||"";$("wconsecration").value=w.consecration||"";$("wnotes").value=w.notes||"";openDlg("workerDlg")};
+$("newWorkerBtn").onclick=()=>{$("workerForm").reset();$("wid").value="";$("wphotoData").value="";$("wphotoPreview").src="icons/icon-192.png";fillCongSelect($("wcong"));openDlg("workerDlg")};
+$("workerForm").onsubmit=async e=>{e.preventDefault();const id=$("wid").value,data={name:$("wname").value.trim(),role:$("wrole").value,congregationId:isAdmin()?$("wcong").value:ownCong(),phone:$("wphone").value.trim(),birth:$("wbirth").value,consecration:$("wconsecration").value,photoData:$("wphotoData").value||"",notes:$("wnotes").value.trim(),updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"obreiros",id),data):await addDoc(collection(db,"obreiros"),data);closeDlg("workerDlg");toast("Obreiro salvo.")}catch(e){console.error(e);toast("Não foi possível salvar o obreiro.")}};
+window.editWorker=id=>{const w=state.obreiros.find(x=>x.id===id);if(!w)return;$("wid").value=id;$("wname").value=w.name||"";$("wrole").value=w.role||"Pastor";fillCongSelect($("wcong"));$("wcong").value=w.congregationId;$("wphone").value=w.phone||"";$("wbirth").value=w.birth||"";$("wconsecration").value=w.consecration||"";$("wphotoData").value=w.photoData||"";$("wphotoPreview").src=w.photoData||"icons/icon-192.png";$("wnotes").value=w.notes||"";openDlg("workerDlg")};
 
 $("newMemberBtn").onclick=()=>{$("memberForm").reset();$("mid").value="";fillCongSelect($("mcong"));openDlg("memberDlg")};
-$("memberForm").onsubmit=async e=>{e.preventDefault();const id=$("mid").value,data={name:$("mname").value.trim(),congregationId:isAdmin()?$("mcong").value:ownCong(),tither:$("mtither").value,phone:$("mphone").value.trim(),birth:$("mbirth").value,baptism:$("mbaptism").value,marital:$("mmarital").value,address:$("maddress").value.trim(),notes:$("mnotes").value.trim(),updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"membros",id),data):await addDoc(collection(db,"membros"),data);closeDlg("memberDlg");toast("Membro salvo.")}catch{toast("Sem permissão.")}};
-window.editMember=id=>{const m=state.membros.find(x=>x.id===id);if(!m)return;$("mid").value=id;$("mname").value=m.name||"";fillCongSelect($("mcong"));$("mcong").value=m.congregationId;$("mtither").value=m.tither||"nao";$("mphone").value=m.phone||"";$("mbirth").value=m.birth||"";$("mbaptism").value=m.baptism||"";$("mmarital").value=m.marital||"";$("maddress").value=m.address||"";$("mnotes").value=m.notes||"";openDlg("memberDlg")};
+$("memberForm").onsubmit=async e=>{e.preventDefault();const id=$("mid").value,data={name:$("mname").value.trim(),congregationId:isAdmin()?$("mcong").value:ownCong(),tither:$("mtither").value,phone:$("mphone").value.trim(),birth:$("mbirth").value,sex:$("msex").value,status:$("mstatus").value,baptism:$("mbaptism").value,marital:$("mmarital").value,address:$("maddress").value.trim(),notes:$("mnotes").value.trim(),updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"membros",id),data):await addDoc(collection(db,"membros"),data);closeDlg("memberDlg");toast("Membro salvo.")}catch(e){console.error(e);toast("Sem permissão.")}};
+window.editMember=id=>{const m=state.membros.find(x=>x.id===id);if(!m)return;$("mid").value=id;$("mname").value=m.name||"";fillCongSelect($("mcong"));$("mcong").value=m.congregationId;$("mtither").value=m.tither||"nao";$("mphone").value=m.phone||"";$("mbirth").value=m.birth||"";$("msex").value=m.sex||"";$("mstatus").value=m.status||"membro";$("mbaptism").value=m.baptism||"";$("mmarital").value=m.marital||"";$("maddress").value=m.address||"";$("mnotes").value=m.notes||"";openDlg("memberDlg")};
 
 $("newFestBtn").onclick=()=>{$("festForm").reset();$("fid").value="";fillCongSelect($("fcong"));openDlg("festDlg")};
-$("festForm").onsubmit=async e=>{e.preventDefault();const id=$("fid").value,data={name:$("fname").value.trim(),congregationId:isAdmin()?$("fcong").value:ownCong(),start:$("fstart").value,end:$("fend").value,preachers:$("fpreachers").value.trim(),preacherValue:Number($("fpreacherValue").value||0),singers:$("fsingers").value.trim(),singerValue:Number($("fsingerValue").value||0),expenses:Number($("fexpenses").value||0),notes:$("fnotes").value.trim(),status:"pending",updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"festividades",id),data):await addDoc(collection(db,"festividades"),data);closeDlg("festDlg");toast("Enviada para aprovação.")}catch{toast("Sem permissão.")}};
+$("festForm").onsubmit=async e=>{e.preventDefault();const id=$("fid").value,existing=state.festividades.find(x=>x.id===id),data={name:$("fname").value.trim(),congregationId:isAdmin()?$("fcong").value:ownCong(),start:$("fstart").value,end:$("fend").value,preachers:$("fpreachers").value.trim(),preacherValue:Number($("fpreacherValue").value||0),singers:$("fsingers").value.trim(),singerValue:Number($("fsingerValue").value||0),expenses:Number($("fexpenses").value||0),notes:$("fnotes").value.trim(),status:"pending",updatedAt:serverTimestamp()};if(!isAdmin()){const oldPV=Number(existing?.preacherValue||0),oldSV=Number(existing?.singerValue||0);data.preacherDecision=(existing&&oldPV===data.preacherValue)?(existing.preacherDecision||{status:"pending"}):{status:"pending",reason:"",note:"",resubmittedAt:new Date().toISOString()};data.singerDecision=(existing&&oldSV===data.singerValue)?(existing.singerDecision||{status:"pending"}):{status:"pending",reason:"",note:"",resubmittedAt:new Date().toISOString()}}else{data.preacherDecision=existing?.preacherDecision||{status:"pending"};data.singerDecision=existing?.singerDecision||{status:"pending"}}try{id?await updateDoc(doc(db,"festividades",id),data):await addDoc(collection(db,"festividades"),{...data,preacherDecision:{status:"pending"},singerDecision:{status:"pending"}});closeDlg("festDlg");toast("Festividade salva.")}catch(e){console.error(e);toast("Sem permissão.")}};
 window.editFest=id=>{const f=state.festividades.find(x=>x.id===id);if(!f)return;$("fid").value=id;$("fname").value=f.name||"";fillCongSelect($("fcong"));$("fcong").value=f.congregationId;$("fstart").value=f.start||"";$("fend").value=f.end||"";$("fpreachers").value=f.preachers||"";$("fpreacherValue").value=f.preacherValue||0;$("fsingers").value=f.singers||"";$("fsingerValue").value=f.singerValue||0;$("fexpenses").value=f.expenses||0;$("fnotes").value=f.notes||"";openDlg("festDlg")};
 window.setFestStatus=async(id,status)=>{await updateDoc(doc(db,"festividades",id),{status,approvedAt:serverTimestamp()});toast(status==="approved"?"Aprovada.":"Reprovada.")};
 
@@ -372,6 +503,185 @@ $("urole").onchange=()=>{$("ucong").disabled=$("urole").value==="admin";if($("ur
 $("userForm").onsubmit=async e=>{e.preventDefault();const editId=$("uid").value,role=$("urole").value,pass=$("upass").value,pass2=$("upass2").value;if(pass!==pass2)return toast("Senhas diferentes.");if(!editId&&pass.length<6)return toast("Senha mínima: 6 caracteres.");const profile={name:$("uname").value.trim(),login:$("ulogin").value.trim().toLowerCase(),role,congregationId:role==="admin"?"":$("ucong").value,active:$("uactive").checked,updatedAt:serverTimestamp()};try{if(editId){await updateDoc(doc(db,"usuarios",editId),profile);toast("Perfil atualizado.")}else{const secondary=initializeApp(firebaseConfig,"creator-"+Date.now()),sa=getAuth(secondary),cred=await createUserWithEmailAndPassword(sa,emailFromLogin(profile.login),pass);await setDoc(doc(db,"usuarios",cred.user.uid),{...profile,email:cred.user.email,createdAt:serverTimestamp()});await signOut(sa);await deleteApp(secondary);toast("Usuário criado.")}closeDlg("userDlg")}catch(e){console.error(e);toast("Não foi possível salvar usuário.")}};
 window.editUser=id=>{const u=state.usuarios.find(x=>x.id===id);if(!u)return;$("uid").value=id;$("userDlgTitle").textContent="Editar perfil";$("uname").value=u.name||"";$("ulogin").value=u.login||"";$("ulogin").disabled=true;$("urole").value=u.role;fillCongSelect($("ucong"));$("ucong").value=u.congregationId||"";$("uactive").checked=u.active!==false;$("upass").value="";$("upass2").value="";openDlg("userDlg")};
 window.toggleUser=async(id,active)=>{await updateDoc(doc(db,"usuarios",id),{active,updatedAt:serverTimestamp()});toast(active?"Ativado.":"Inativado.")};
+
+
+// ============= ADSB 10 =============
+function calcAge(birth){
+  if(!birth)return null;
+  const d=new Date(birth+"T12:00:00"),n=new Date();
+  let a=n.getFullYear()-d.getFullYear();
+  const m=n.getMonth()-d.getMonth();
+  if(m<0||(m===0&&n.getDate()<d.getDate()))a--;
+  return a;
+}
+function ageBand(age){
+  if(age===null||age<0)return "Não informado";
+  if(age<=11)return "0–11 Crianças";
+  if(age<=16)return "12–16 Adolescentes";
+  if(age<=30)return "17–30 Jovens";
+  if(age<=45)return "31–45 Adultos";
+  if(age<=60)return "46–60 Adultos maduros";
+  return "61+ Melhor idade";
+}
+const AGE_BANDS=["0–11 Crianças","12–16 Adolescentes","17–30 Jovens","31–45 Adultos","46–60 Adultos maduros","61+ Melhor idade"];
+
+function resizeImage(file,max=320,quality=.72){
+ return new Promise((resolve,reject)=>{
+   const img=new Image(),url=URL.createObjectURL(file);
+   img.onload=()=>{const ratio=Math.min(1,max/Math.max(img.width,img.height)),w=Math.round(img.width*ratio),h=Math.round(img.height*ratio),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);URL.revokeObjectURL(url);resolve(c.toDataURL("image/jpeg",quality))};
+   img.onerror=reject;img.src=url;
+ });
+}
+$("wphoto").addEventListener("change",async e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>8*1024*1024)return toast("Escolha uma foto de até 8 MB.");try{const d=await resizeImage(f);$("wphotoData").value=d;$("wphotoPreview").src=d;toast("Foto preparada.")}catch{toast("Não foi possível ler a foto.")}});
+
+function birthdayMessage(w){
+ return `🎉🎂 *Feliz Aniversário, ${w.name}!* 🎂🎉
+
+Hoje agradecemos a Deus por mais um ano de sua vida e por todo o seu compromisso com a obra do Senhor.
+
+Receba nossa gratidão por sua dedicação, disposição em servir, amor pelas pessoas e contribuição para o Reino de Deus. Que o Senhor renove suas forças, abençoe sua família e continue usando poderosamente seu ministério.
+
+📖 *“Ensina-nos a contar os nossos dias para que alcancemos coração sábio.”*
+_Salmos 90:12_
+
+Desejamos saúde, paz, sabedoria, alegria e muitas vitórias nesta nova etapa.
+
+🙏 Que a graça e a presença do Senhor acompanhem cada dia de sua caminhada.
+
+*Com carinho,*
+*Pastor Regional Ariel Eugênio e Família*`;
+}
+function checkBirthdayAlert(){
+ const now=new Date(),mm=String(now.getMonth()+1).padStart(2,"0"),dd=String(now.getDate()).padStart(2,"0");
+ const todays=state.obreiros.filter(w=>w.birth&&w.birth.slice(5)===`${mm}-${dd}`);
+ if(!todays.length)return;
+ const w=todays[0],key=`adsb-bday-${now.toISOString().slice(0,10)}-${w.id}`;
+ if(sessionStorage.getItem(key))return;
+ sessionStorage.setItem(key,"1");
+ $("birthdayName").textContent=w.name;
+ $("birthdayInfo").textContent=`${w.role||"Obreiro"} • ${cname(w.congregationId)}`;
+ $("birthdayPhoto").src=w.photoData||"icons/icon-192.png";
+ const number=String(w.phone||"").replace(/\D/g,"");
+ $("birthdayWhats").href=number?`https://wa.me/55${number}?text=${encodeURIComponent(birthdayMessage(w))}`:`https://wa.me/?text=${encodeURIComponent(birthdayMessage(w))}`;
+ const layer=$("confettiLayer");layer.innerHTML="";
+ for(let i=0;i<55;i++){const c=document.createElement("i");c.className="confetti";c.style.left=Math.random()*100+"%";c.style.animationDuration=(2.5+Math.random()*4)+"s";c.style.animationDelay=(-Math.random()*5)+"s";c.style.background=["#e6b64b","#2e90fa","#12b76a","#f04438","#7a5af8"][i%5];layer.appendChild(c)}
+ $("birthdayOverlay").classList.remove("hidden");
+}
+$("birthdayClose").onclick=()=>$("birthdayOverlay").classList.add("hidden");
+
+// ----- Excel membros -----
+let pendingImportRows=[];
+function normalizeDateExcel(v){
+ if(!v)return "";
+ if(v instanceof Date)return v.toISOString().slice(0,10);
+ if(typeof v==="number"&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,"0")}-${String(d.d).padStart(2,"0")}`}
+ const s=String(v).trim();
+ const br=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(br)return `${br[3]}-${br[2].padStart(2,"0")}-${br[1].padStart(2,"0")}`;
+ return /^\d{4}-\d{2}-\d{2}$/.test(s)?s:"";
+}
+function memberRowsForExport(){
+ return state.membros.map(m=>({"Nome":m.name||"","Data_Nascimento":m.birth||"","Telefone":m.phone||"","Sexo":m.sex==="M"?"Masculino":m.sex==="F"?"Feminino":"","Situacao":m.status||"membro","Estado_Civil":m.marital||"","Endereco":m.address||"","Data_Batismo":m.baptism||"","Dizimista":m.tither==="sim"?"SIM":"NAO","Congregacao":cname(m.congregationId),"Observacoes":m.notes||""}));
+}
+function downloadWorkbook(rows,name){
+ if(!window.XLSX)return toast("Biblioteca Excel não carregou. Verifique a internet.");
+ const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(rows);
+ ws["!cols"]=[{wch:30},{wch:16},{wch:18},{wch:12},{wch:14},{wch:18},{wch:34},{wch:16},{wch:12},{wch:26},{wch:40}];
+ XLSX.utils.book_append_sheet(wb,ws,"Membros");XLSX.writeFile(wb,name);
+}
+$("downloadMemberTemplate").onclick=()=>downloadWorkbook([{"Nome":"","Data_Nascimento":"dd/mm/aaaa","Telefone":"","Sexo":"Masculino/Feminino","Situacao":"membro/congregado","Estado_Civil":"","Endereco":"","Data_Batismo":"dd/mm/aaaa","Dizimista":"SIM/NAO","Congregacao":"","Observacoes":""}],"Modelo_Membros_ADSB.xlsx");
+$("exportMembersBtn").onclick=()=>downloadWorkbook(memberRowsForExport(),`Membros_ADSB_${todayISO()}.xlsx`);
+$("importMembersBtn").onclick=()=>{pendingImportRows=[];$("memberImportFile").value="";$("importPreview").innerHTML="";$("confirmImportMembers").disabled=true;fillCongSelect($("importCong"));openDlg("importMembersDlg")};
+$("memberImportFile").addEventListener("change",async e=>{
+ const f=e.target.files?.[0];if(!f||!window.XLSX)return;
+ try{
+   const buf=await f.arrayBuffer(),wb=XLSX.read(buf,{type:"array",cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+   pendingImportRows=rows.map((r,i)=>{
+     const name=String(r.Nome||r.NOME||"").trim(),birth=normalizeDateExcel(r.Data_Nascimento||r.Nascimento),baptism=normalizeDateExcel(r.Data_Batismo||r.Batismo);
+     const sex=String(r.Sexo||"").toLowerCase().startsWith("m")?"M":String(r.Sexo||"").toLowerCase().startsWith("f")?"F":"";
+     const t=String(r.Dizimista||"").toUpperCase().replace("Ã","A");
+     let congregationId=ownCong();
+     if(isAdmin()){
+       const n=String(r.Congregacao||"").trim().toLowerCase();
+       congregationId=state.congregacoes.find(c=>(c.name||"").trim().toLowerCase()===n)?.id||$("importCong").value||"";
+     }
+     return {row:i+2,valid:!!name&&!!congregationId,data:{name,birth,phone:String(r.Telefone||"").trim(),sex,status:String(r.Situacao||"membro").toLowerCase().includes("congreg")?"congregado":"membro",marital:String(r.Estado_Civil||"").trim(),address:String(r.Endereco||"").trim(),baptism,tither:t.startsWith("S")?"sim":"nao",congregationId,notes:String(r.Observacoes||"").trim()}};
+   });
+   const ok=pendingImportRows.filter(x=>x.valid).length,bad=pendingImportRows.length-ok;
+   $("importPreview").innerHTML=`<div class="panel"><b>${pendingImportRows.length} linhas encontradas</b><p>✅ ${ok} válidas &nbsp; ⚠️ ${bad} com erro (nome ou congregação).</p></div>`;
+   $("confirmImportMembers").disabled=!ok;
+ }catch(err){console.error(err);toast("Não foi possível ler a planilha.")}
+});
+$("confirmImportMembers").onclick=async()=>{
+ const rows=pendingImportRows.filter(x=>x.valid);if(!rows.length)return;
+ $("confirmImportMembers").disabled=true;$("confirmImportMembers").textContent="Importando...";
+ try{
+   for(let i=0;i<rows.length;i+=400){
+     const batch=writeBatch(db);
+     rows.slice(i,i+400).forEach(x=>{const ref=doc(collection(db,"membros"));batch.set(ref,{...x.data,createdAt:serverTimestamp(),updatedAt:serverTimestamp()})});
+     await batch.commit();
+   }
+   toast(`${rows.length} membros importados.`);closeDlg("importMembersDlg");
+ }catch(err){console.error(err);toast("Erro ao importar. Confira as permissões.");}
+ finally{$("confirmImportMembers").disabled=false;$("confirmImportMembers").textContent="Importar registros válidos"}
+};
+
+// ----- Indicadores / gráficos -----
+const charts={};
+function destroyChart(k){if(charts[k]){charts[k].destroy();delete charts[k]}}
+function filteredMembersForIndicators(){
+ const selected=isAdmin()?($("indCongFilter")?.value||""):ownCong();
+ return selected?state.membros.filter(m=>m.congregationId===selected):state.membros;
+}
+function filteredVisitorsForIndicators(){
+ const selected=isAdmin()?($("indCongFilter")?.value||""):ownCong();
+ return selected?state.visitantes.filter(v=>v.congregationId===selected):state.visitantes;
+}
+function renderIndicators(){
+ if(!window.Chart)return;
+ const members=filteredMembersForIndicators(),visitors=filteredVisitorsForIndicators();
+ $("regionalAdminNotice").classList.toggle("hidden",isAdmin());
+ $("indTitle").textContent=isAdmin()?"Painel Executivo Regional":"Indicadores da Congregação";
+ $("indSubtitle").textContent=isAdmin()?"Visão geral e comparativa da Regional.":"Somente os dados da sua congregação.";
+ const counts=Object.fromEntries(AGE_BANDS.map(x=>[x,0])),tithers=Object.fromEntries(AGE_BANDS.map(x=>[x,0]));
+ members.forEach(m=>{const b=ageBand(calcAge(m.birth));if(b in counts){counts[b]++;if(m.tither==="sim")tithers[b]++}});
+ $("ageKpis").innerHTML=AGE_BANDS.map(b=>`<div class="age-kpi"><small>${b}</small><strong>${counts[b]}</strong><span>${tithers[b]} dizimistas</span><div class="mini-progress"><i style="width:${counts[b]?Math.round(tithers[b]*100/counts[b]):0}%"></i></div></div>`).join("");
+ destroyChart("age");charts.age=new Chart($("ageChart"),{type:"bar",data:{labels:AGE_BANDS,datasets:[{label:"Membros",data:AGE_BANDS.map(b=>counts[b])}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+ destroyChart("titherAge");charts.titherAge=new Chart($("titherAgeChart"),{type:"bar",data:{labels:AGE_BANDS,datasets:[{label:"Dizimistas",data:AGE_BANDS.map(b=>tithers[b])},{label:"Não dizimistas",data:AGE_BANDS.map(b=>Math.max(0,counts[b]-tithers[b]))}]},options:{responsive:true,maintainAspectRatio:false}});
+ const months=[];for(let i=5;i>=0;i--){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-i);months.push({key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`,label:d.toLocaleDateString("pt-BR",{month:"short",year:"2-digit"})})}
+ destroyChart("visitorTrend");charts.visitorTrend=new Chart($("visitorTrendChart"),{type:"line",data:{labels:months.map(x=>x.label),datasets:[{label:"Visitantes",data:months.map(x=>visitors.filter(v=>(v.date||"").startsWith(x.key)).length),tension:.3}]},options:{responsive:true,maintainAspectRatio:false}});
+ if(isAdmin()){
+   const congs=state.congregacoes.map(c=>({c,members:state.membros.filter(m=>m.congregationId===c.id).length,visitors:state.visitantes.filter(v=>v.congregationId===c.id&&(v.date||"").startsWith(monthPrefix())).length,tithers:state.membros.filter(m=>m.congregationId===c.id&&m.tither==="sim").length}));
+   destroyChart("cong");charts.cong=new Chart($("congChart"),{type:"bar",data:{labels:congs.map(x=>x.c.name),datasets:[{label:"Membros",data:congs.map(x=>x.members)},{label:"Visitantes no mês",data:congs.map(x=>x.visitors)}]},options:{responsive:true,maintainAspectRatio:false}});
+   const mostMembers=[...congs].sort((a,b)=>b.members-a.members)[0],mostVisitors=[...congs].sort((a,b)=>b.visitors-a.visitors)[0],bestTither=[...congs].sort((a,b)=>(b.members?b.tithers/b.members:0)-(a.members?a.tithers/a.members:0))[0];
+   $("rankingCards").innerHTML=[["🥇 Mais membros",mostMembers?.c.name||"—",mostMembers?.members||0],["🙋 Mais visitantes no mês",mostVisitors?.c.name||"—",mostVisitors?.visitors||0],["💰 Maior proporção de dizimistas",bestTither?.c.name||"—",bestTither?.members?Math.round(bestTither.tithers*100/bestTither.members)+"%":"0%"]].map(x=>`<div class="card"><b>${x[0]}</b><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join("");
+ }
+}
+$("refreshCharts").onclick=renderIndicators;
+$("indCongFilter").onchange=renderIndicators;
+
+// ----- Relatório profissional -----
+function renderReports(){
+ const local=!isAdmin(),t=state.membros.filter(m=>m.tither==="sim").length;
+ $("reportTitle").textContent=local?"Relatório da Congregação":"Relatório Executivo Regional";
+ $("reportSubtitle").textContent=local?"Somente os dados vinculados à sua congregação.":"Relatório geral exclusivo do Administrador Regional.";
+ $("reportCover").innerHTML=`<div class="report-cover"><small>ASSEMBLEIA DE DEUS</small><h2>REGIONAL SÃO BENEDITO</h2><h3>${local?"RELATÓRIO DA CONGREGAÇÃO":"RELATÓRIO EXECUTIVO REGIONAL"}</h3><p>${new Date().toLocaleDateString("pt-BR",{month:"long",year:"numeric"})}</p><small>Pastor Regional Ariel Eugênio</small></div>`;
+ $("reportSummary").innerHTML=[["Congregações",state.congregacoes.length],["Obreiros",state.obreiros.length],["Membros",state.membros.length],["Dizimistas",t],["Visitantes no mês",visitorsThisMonth().length],["Resultados de culto",state.resultadosCulto.length]].map(x=>`<div class="stat"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join("");
+ const ageRows=AGE_BANDS.map(b=>{const all=state.membros.filter(m=>ageBand(calcAge(m.birth))===b),dz=all.filter(m=>m.tither==="sim");return [b,all.length,dz.length,all.length-dz.length,all.length?Math.round(dz.length*100/all.length)+"%":"0%"]});
+ let content=reportTable("Perfil por faixa etária",["Faixa","Membros","Dizimistas","Não dizimistas","% Dizimistas"],ageRows);
+ if(isAdmin())content+=reportTable("Congregações",["Nome","Pastor","Telefone"],state.congregacoes.map(c=>[c.name,c.pastor,c.phone]));
+ content+=reportTable("Obreiros",["Nome","Cargo","Congregação"],state.obreiros.map(w=>[w.name,w.role,cname(w.congregationId)]));
+ content+=reportTable("Membros",["Nome","Congregação","Idade","Faixa","Dizimista"],state.membros.map(m=>[m.name,cname(m.congregationId),calcAge(m.birth)??"",ageBand(calcAge(m.birth)),m.tither==="sim"?"Sim":"Não"]));
+ content+=reportTable("Visitantes",["Data","Nome","Congregação","Culto","Situação"],state.visitantes.map(v=>[fmt(v.date),v.name,cname(v.congregationId),v.service,visitorStatusLabel(v.status)]));
+ content+=reportTable("Resultados dos Cultos",["Data","Congregação","Culto","Público","Visitantes","Decisões"],state.resultadosCulto.map(r=>[fmt(r.date),cname(r.congregationId),r.service,r.attendance||0,r.visitors||0,r.decisions||0]));
+ $("reportContent").innerHTML=content;
+}
+$("printReport").onclick=()=>{renderReports();setTimeout(()=>window.print(),120)};
+
+// Corrige rótulo de relatório no menu conforme perfil
+function updateAccessLabels(){
+ document.querySelectorAll('[data-page="usuarios"]').forEach(x=>x.classList.toggle("hidden",!isAdmin()));
+ if(!isAdmin())document.querySelectorAll(".admin-only").forEach(x=>x.classList.add("hidden"));
+}
 
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
 </script>

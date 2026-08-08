@@ -1,19 +1,76 @@
 rules_version = '2';
 service cloud.firestore {
- match /databases/{database}/documents {
-  function signedIn(){ return request.auth != null; }
-  function profile(){ return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data; }
-  function isAdmin(){ return signedIn() && profile().role == 'admin' && profile().active == true; }
-  function ownCong(){ return profile().congregationId; }
-  function canEditOwn(){ return signedIn() && profile().active == true && (profile().role == 'admin' || profile().role == 'congregacao' || profile().role == 'secretario'); }
-  match /config/app { allow read: if signedIn(); allow create: if signedIn() && !exists(/databases/$(database)/documents/config/app) && request.resource.data.adminUid == request.auth.uid; allow update, delete: if isAdmin(); }
-  match /usuarios/{uid} { allow read: if signedIn() && (request.auth.uid == uid || isAdmin()); allow create: if signedIn() && (isAdmin() || (request.auth.uid == uid && !exists(/databases/$(database)/documents/config/app) && request.resource.data.role == 'admin')); allow update, delete: if isAdmin(); }
-  match /congregacoes/{id} { allow read: if signedIn() && (isAdmin() || id == ownCong()); allow create, update, delete: if isAdmin(); }
-  match /obreiros/{id} { allow read: if signedIn() && (isAdmin() || resource.data.congregationId == ownCong()); allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong()); allow update, delete: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong()); }
-  match /membros/{id} { allow read: if signedIn() && (isAdmin() || resource.data.congregationId == ownCong()); allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong()); allow update, delete: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong()); }
-  match /visitantes/{id} { allow read: if signedIn() && (isAdmin() || resource.data.congregationId == ownCong()); allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong()); allow update, delete: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong()); }
-  match /resultadosCulto/{id} { allow read: if signedIn() && (isAdmin() || resource.data.congregationId == ownCong()); allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong()); allow update, delete: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong()); }
-  match /festividades/{id} { allow read: if signedIn() && (isAdmin() || resource.data.congregationId == ownCong()); allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong()); allow update: if canEditOwn() && (isAdmin() || (resource.data.congregationId == ownCong() && request.resource.data.congregationId == ownCong() && request.resource.data.status == 'pending')); allow delete: if isAdmin(); }
-  match /agendaRegional/{id} { allow read: if signedIn(); allow create, update, delete: if isAdmin(); }
- }
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function profileExists() { return signedIn() && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)); }
+    function profile() { return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data; }
+    function active() { return profileExists() && profile().active == true; }
+    function isAdmin() { return active() && profile().role == 'admin'; }
+    function ownCong() { return profile().congregationId; }
+    function canEditOwn() { return active() && (profile().role == 'admin' || profile().role == 'congregacao' || profile().role == 'secretario'); }
+
+    match /config/app {
+      allow read: if signedIn();
+      allow create: if signedIn()
+                    && !exists(/databases/$(database)/documents/config/app)
+                    && request.resource.data.adminUid == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && (
+        isAdmin() ||
+        (request.auth.uid == uid
+         && !exists(/databases/$(database)/documents/config/app)
+         && request.resource.data.role == 'admin')
+      );
+      allow update, delete: if isAdmin();
+    }
+
+    match /congregacoes/{id} {
+      allow read: if active() && (isAdmin() || id == ownCong());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /obreiros/{id} {
+      allow read: if active() && (isAdmin() || resource.data.congregationId == ownCong());
+      allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong());
+      allow update, delete: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong());
+    }
+
+    match /membros/{id} {
+      allow read: if active() && (isAdmin() || resource.data.congregationId == ownCong());
+      allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong());
+      allow update, delete: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong());
+    }
+
+    match /visitantes/{id} {
+      allow read: if active() && (isAdmin() || resource.data.congregationId == ownCong());
+      allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong());
+      allow update, delete: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong());
+    }
+
+    match /resultadosCulto/{id} {
+      allow read: if active() && (isAdmin() || resource.data.congregationId == ownCong());
+      allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong());
+      allow update, delete: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong());
+    }
+
+    match /festividades/{id} {
+      allow read: if active() && (isAdmin() || resource.data.congregationId == ownCong());
+      allow create: if canEditOwn() && (isAdmin() || request.resource.data.congregationId == ownCong());
+      allow update: if canEditOwn() && (isAdmin() || resource.data.congregationId == ownCong());
+      allow delete: if isAdmin() || (canEditOwn() && resource.data.congregationId == ownCong());
+    }
+
+    match /agendaRegional/{id} {
+      allow read: if active();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
 }

@@ -1,20 +1,38 @@
-ADSB 9.1 - Visitantes + Resultados dos Cultos
+ADSB 10.0 - Gestão Ministerial Regional
 
-ATUALIZAÇÃO FIREBASE:
-1. Firestore > Regras
-2. Copie TODO o conteúdo de firestore.rules
-3. Cole e clique em Publicar
+PASSO 1 - FIREBASE
+Firebase > Firestore Database > Regras
+Apague as regras antigas, copie TODO o conteúdo de firestore.rules e clique em Publicar.
 
-ATUALIZAÇÃO GITHUB:
-Substitua index.html, manifest.json, service-worker.js, firestore.rules e a pasta icons.
-Faça Commit changes.
-Abra em aba anônima ou Ctrl+F5.
+PASSO 2 - GITHUB PAGES
+Envie/substitua na raiz:
+- index.html
+- manifest.json
+- service-worker.js
+- firestore.rules
+- Modelo_Membros_ADSB.xlsx
+- pasta icons
 
-NOVO:
-- Visitantes hoje / mês / ano
-- Primeira visita / retorno
-- Acompanhamento pastoral
-- Transformar visitante em membro
-- Resultado dos cultos
-- Público, visitantes, decisões, reconciliações, batismos e crianças apresentadas
-- Relatório geral atualizado
+Faça Commit changes. Aguarde alguns minutos e abra em guia anônima ou use Ctrl+F5.
+
+PRINCIPAIS NOVIDADES
+- Foto dos obreiros, reduzida automaticamente antes de salvar.
+- Animação de aniversário com confetes.
+- Homenagem de aniversário pronta para WhatsApp, com Salmos 90:12 e assinatura do Pastor Regional Ariel Eugênio e Família.
+- Aprovação separada de pregador e cantor.
+- Reprovação com motivo: Valor muito alto, Data indisponível, Não aprovado pela Regional ou Outro.
+- Congregação pode ajustar valor e reenviar para análise.
+- Modelo Excel de membros.
+- Importação em massa de membros.
+- Exportação dos membros para Excel.
+- Faixas etárias automáticas: 0-11, 12-16, 17-30, 31-45, 46-60 e 61+.
+- Gráfico de membros por faixa etária.
+- Gráfico de dizimistas x não dizimistas por faixa etária.
+- Gráfico de visitantes por mês.
+- Comparativo e ranking das congregações exclusivos do Administrador.
+- Relatório Executivo Regional exclusivo do Administrador.
+- Usuário de congregação vê somente seus próprios dados, gráficos e relatório.
+- Agenda Regional continua compartilhada.
+
+WHATSAPP
+O ADSB abre o WhatsApp com a mensagem pronta; o envio final é confirmado pelo usuário no WhatsApp.
