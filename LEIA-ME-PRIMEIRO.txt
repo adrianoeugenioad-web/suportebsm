@@ -36,3 +36,12 @@ PRINCIPAIS NOVIDADES
 
 WHATSAPP
 O ADSB abre o WhatsApp com a mensagem pronta; o envio final é confirmado pelo usuário no WhatsApp.
+
+
+ADSB 10.1 - Nº CADASTRO DO MEMBRO
+- Nº Cadastro obrigatório no cadastro manual.
+- Pesquisa por Nº Cadastro ou nome.
+- Importação e exportação Excel com Numero_Cadastro.
+- Relatórios exibem Nº Cadastro.
+- Impede Nº Cadastro duplicado dentro da mesma congregação.
+- Importação sinaliza duplicidade na planilha e no ADSB.

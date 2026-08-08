@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#061a35">
-<title>ADSB 10.0 - Gestão Ministerial Regional</title>
+<title>ADSB 10.1 - Gestão Ministerial Regional</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -277,7 +277,8 @@ dialog::backdrop{background:#00152fbb}
 <img id="wphotoPreview" class="photo-preview" alt="Foto do obreiro"><label>Foto do obreiro<input id="wphoto" type="file" accept="image/*"><small>O ADSB reduz automaticamente a foto antes de salvar.</small></label>
 <label>Nome<input id="wname" required></label><div class="grid2"><label>Cargo<select id="wrole"><option>Pastor</option><option>Evangelista</option><option>Presbítero</option><option>Diácono</option><option>Cooperador</option></select></label><label>Congregação<select id="wcong"></select></label></div><div class="grid2"><label>Telefone<input id="wphone"></label><label>Nascimento<input id="wbirth" type="date"></label></div><label>Consagração<input id="wconsecration" type="date"></label><label>Observações<textarea id="wnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="workerDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
 
-<dialog id="memberDlg"><form id="memberForm" class="form"><input type="hidden" id="mid"><div class="form-head"><h3>Membro</h3><button type="button" data-close="memberDlg">×</button></div><label>Nome<input id="mname" required></label><div class="grid2"><label>Congregação<select id="mcong"></select></label><label>Dizimista?<select id="mtither"><option value="sim">Sim</option><option value="nao">Não</option></select></label></div><div class="grid2"><label>Telefone<input id="mphone"></label><label>Nascimento<input id="mbirth" type="date"></label></div><div class="grid2"><label>Sexo<select id="msex"><option value="">Não informado</option><option value="M">Masculino</option><option value="F">Feminino</option></select></label><label>Situação<select id="mstatus"><option value="membro">Membro</option><option value="congregado">Congregado</option></select></label></div><div class="grid2"><label>Batismo<input id="mbaptism" type="date"></label><label>Estado civil<select id="mmarital"><option value="">Selecione</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Viúvo(a)</option><option>Divorciado(a)</option></select></label></div><label>Endereço<input id="maddress"></label><label>Observações<textarea id="mnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="memberDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
+<dialog id="memberDlg"><form id="memberForm" class="form"><input type="hidden" id="mid"><div class="form-head"><h3>Membro</h3><button type="button" data-close="memberDlg">×</button></div>
+<div class="grid2"><label>Nº de Cadastro<input id="mnumber" autocomplete="off" placeholder="Ex.: 1001" required></label><label>Nome<input id="mname" required></label></div><div class="grid2"><label>Congregação<select id="mcong"></select></label><label>Dizimista?<select id="mtither"><option value="sim">Sim</option><option value="nao">Não</option></select></label></div><div class="grid2"><label>Telefone<input id="mphone"></label><label>Nascimento<input id="mbirth" type="date"></label></div><div class="grid2"><label>Sexo<select id="msex"><option value="">Não informado</option><option value="M">Masculino</option><option value="F">Feminino</option></select></label><label>Situação<select id="mstatus"><option value="membro">Membro</option><option value="congregado">Congregado</option></select></label></div><div class="grid2"><label>Batismo<input id="mbaptism" type="date"></label><label>Estado civil<select id="mmarital"><option value="">Selecione</option><option>Solteiro(a)</option><option>Casado(a)</option><option>Viúvo(a)</option><option>Divorciado(a)</option></select></label></div><label>Endereço<input id="maddress"></label><label>Observações<textarea id="mnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="memberDlg">Cancelar</button><button class="primary">Salvar</button></div></form></dialog>
 
 <dialog id="festDlg"><form id="festForm" class="form"><input type="hidden" id="fid"><div class="form-head"><h3>Festividade</h3><button type="button" data-close="festDlg">×</button></div><label>Tema / Nome<input id="fname" required></label><label>Congregação<select id="fcong"></select></label><div class="grid2"><label>Início<input id="fstart" type="date" required></label><label>Fim<input id="fend" type="date" required></label></div><div class="grid2"><label>Pregadores<input id="fpreachers"></label><label>Valor pregadores<input id="fpreacherValue" type="number" step="0.01"></label></div><div class="grid2"><label>Cantores<input id="fsingers"></label><label>Valor cantores<input id="fsingerValue" type="number" step="0.01"></label></div><label>Outros gastos<input id="fexpenses" type="number" step="0.01"></label><label>Observações<textarea id="fnotes"></textarea></label><div class="form-actions"><button type="button" class="secondary" data-close="festDlg">Cancelar</button><button class="primary">Salvar / Aprovação</button></div></form></dialog>
 
@@ -407,7 +408,19 @@ function renderWorkers(){
  $("workerList").innerHTML=l.length?l.map(w=>`<article class="card"><div class="person-with-photo"><img class="photo-mini" src="${w.photoData||'icons/icon-192.png'}" alt=""><div><h3>${w.name}</h3><p>${w.role} • ${cname(w.congregationId)}</p><p>📞 ${w.phone||"—"} • 🎂 ${fmt(w.birth)||"—"}</p></div></div><div class="actions">${canEdit()?`<button class="secondary" onclick="editWorker('${w.id}')">Editar</button><button class="danger" onclick="deleteItem('obreiros','${w.id}','${w.name}')">Excluir</button>`:""}</div></article>`).join(""):'<div class="card">Nenhum obreiro.</div>';
 }
 $("workerSearch").oninput=renderWorkers;$("workerRole").onchange=renderWorkers;
-function renderMembers(){const q=$("memberSearch").value.toLowerCase(),t=$("memberTither").value;const l=state.membros.filter(m=>(!q||(m.name||"").toLowerCase().includes(q))&&(!t||m.tither===t));$("memberList").innerHTML=l.length?l.map(m=>`<article class="card"><div class="person-head"><h3>${m.name}</h3><span class="badge ${m.tither==="sim"?"ok":"bad"}">${m.tither==="sim"?"Dizimista":"Não dizimista"}</span></div><p>${cname(m.congregationId)} • 📞 ${m.phone||"—"} • 🎂 ${fmt(m.birth)||"—"}</p><div class="actions">${canEdit()?`<button class="secondary" onclick="editMember('${m.id}')">Editar</button><button class="danger" onclick="deleteItem('membros','${m.id}','${m.name}')">Excluir</button>`:""}</div></article>`).join(""):'<div class="card">Nenhum membro.</div>'}
+function renderMembers(){
+ const q=$("memberSearch").value.toLowerCase(),f=$("memberTither").value;
+ const l=state.membros.filter(m=>{
+   const text=`${m.memberNumber||""} ${m.name||""}`.toLowerCase();
+   return (!q||text.includes(q))&&(!f||m.tither===f);
+ });
+ $("memberList").innerHTML=l.length?l.map(m=>`<article class="card">
+   <div class="person-head"><h3>${m.name}</h3><span class="badge ${m.tither==="sim"?"ok":"pending"}">${m.tither==="sim"?"Dizimista":"Não dizimista"}</span></div>
+   <p><b>Nº Cadastro:</b> ${m.memberNumber||"—"} • ${cname(m.congregationId)}</p>
+   <p>📞 ${m.phone||"—"} • 🎂 ${fmt(m.birth)||"—"} • ${m.status==="congregado"?"Congregado":"Membro"}</p>
+   <div class="actions">${canEdit()?`<button class="secondary" onclick="editMember('${m.id}')">Editar</button><button class="danger" onclick="deleteItem('membros','${m.id}','${m.name}')">Excluir</button>`:""}</div>
+ </article>`).join(""):'<div class="card">Nenhum membro.</div>';
+}
 $("memberSearch").oninput=renderMembers;$("memberTither").onchange=renderMembers;
 
 function todayISO(){return new Date().toISOString().slice(0,10)}
@@ -430,7 +443,7 @@ $("visitorSearch").oninput=renderVisitors;$("visitorMonthFilter").onchange=rende
 $("newVisitorBtn").onclick=()=>{if(!canEdit())return;$("visitorForm").reset();$("vid").value="";$("vdate").value=todayISO();fillCongSelect($("vcong"));openDlg("visitorDlg")};
 $("visitorForm").onsubmit=async e=>{e.preventDefault();const id=$("vid").value,data={name:$("vname").value.trim(),date:$("vdate").value,congregationId:isAdmin()?$("vcong").value:ownCong(),service:$("vservice").value,phone:$("vphone").value.trim(),city:$("vcity").value.trim(),invitedBy:$("vinvitedBy").value.trim(),firstVisit:$("vfirst").value,wantsVisit:$("vwantsVisit").value,status:$("vstatus").value,notes:$("vnotes").value.trim(),updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"visitantes",id),data):await addDoc(collection(db,"visitantes"),data);closeDlg("visitorDlg");toast("Visitante salvo.")}catch(e){console.error(e);toast("Sem permissão.")}};
 window.editVisitor=id=>{const v=state.visitantes.find(x=>x.id===id);if(!v)return;$("vid").value=id;$("vname").value=v.name||"";$("vdate").value=v.date||todayISO();fillCongSelect($("vcong"));$("vcong").value=v.congregationId||"";$("vservice").value=v.service||"Outro";$("vphone").value=v.phone||"";$("vcity").value=v.city||"";$("vinvitedBy").value=v.invitedBy||"";$("vfirst").value=v.firstVisit||"sim";$("vwantsVisit").value=v.wantsVisit||"nao";$("vstatus").value=v.status||"aguardando";$("vnotes").value=v.notes||"";openDlg("visitorDlg")};
-window.visitorToMember=async id=>{const v=state.visitantes.find(x=>x.id===id);if(!v||!confirm(`Transformar ${v.name} em membro?`))return;try{await addDoc(collection(db,"membros"),{name:v.name,congregationId:v.congregationId,tither:"nao",phone:v.phone||"",birth:"",baptism:"",marital:"",address:v.city||"",notes:`Convertido de visitante. Primeira visita: ${fmt(v.date)}.`,createdAt:serverTimestamp()});await updateDoc(doc(db,"visitantes",id),{status:"membro",updatedAt:serverTimestamp()});toast("Visitante transformado em membro.")}catch(e){console.error(e);toast("Não foi possível transformar.")}};
+window.visitorToMember=async id=>{const v=state.visitantes.find(x=>x.id===id);if(!v||!confirm(`Transformar ${v.name} em membro?`))return;try{await addDoc(collection(db,"membros"),{memberNumber:"",name:v.name,congregationId:v.congregationId,tither:"nao",phone:v.phone||"",birth:"",baptism:"",marital:"",address:v.city||"",notes:`Convertido de visitante. Primeira visita: ${fmt(v.date)}.`,createdAt:serverTimestamp()});await updateDoc(doc(db,"visitantes",id),{status:"membro",updatedAt:serverTimestamp()});toast("Visitante transformado em membro.")}catch(e){console.error(e);toast("Não foi possível transformar.")}};
 
 function renderCultResults(){
  if(!$("cultResultList"))return;
@@ -483,9 +496,28 @@ $("newWorkerBtn").onclick=()=>{$("workerForm").reset();$("wid").value="";$("wpho
 $("workerForm").onsubmit=async e=>{e.preventDefault();const id=$("wid").value,data={name:$("wname").value.trim(),role:$("wrole").value,congregationId:isAdmin()?$("wcong").value:ownCong(),phone:$("wphone").value.trim(),birth:$("wbirth").value,consecration:$("wconsecration").value,photoData:$("wphotoData").value||"",notes:$("wnotes").value.trim(),updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"obreiros",id),data):await addDoc(collection(db,"obreiros"),data);closeDlg("workerDlg");toast("Obreiro salvo.")}catch(e){console.error(e);toast("Não foi possível salvar o obreiro.")}};
 window.editWorker=id=>{const w=state.obreiros.find(x=>x.id===id);if(!w)return;$("wid").value=id;$("wname").value=w.name||"";$("wrole").value=w.role||"Pastor";fillCongSelect($("wcong"));$("wcong").value=w.congregationId;$("wphone").value=w.phone||"";$("wbirth").value=w.birth||"";$("wconsecration").value=w.consecration||"";$("wphotoData").value=w.photoData||"";$("wphotoPreview").src=w.photoData||"icons/icon-192.png";$("wnotes").value=w.notes||"";openDlg("workerDlg")};
 
-$("newMemberBtn").onclick=()=>{$("memberForm").reset();$("mid").value="";fillCongSelect($("mcong"));openDlg("memberDlg")};
-$("memberForm").onsubmit=async e=>{e.preventDefault();const id=$("mid").value,data={name:$("mname").value.trim(),congregationId:isAdmin()?$("mcong").value:ownCong(),tither:$("mtither").value,phone:$("mphone").value.trim(),birth:$("mbirth").value,sex:$("msex").value,status:$("mstatus").value,baptism:$("mbaptism").value,marital:$("mmarital").value,address:$("maddress").value.trim(),notes:$("mnotes").value.trim(),updatedAt:serverTimestamp()};try{id?await updateDoc(doc(db,"membros",id),data):await addDoc(collection(db,"membros"),data);closeDlg("memberDlg");toast("Membro salvo.")}catch(e){console.error(e);toast("Sem permissão.")}};
-window.editMember=id=>{const m=state.membros.find(x=>x.id===id);if(!m)return;$("mid").value=id;$("mname").value=m.name||"";fillCongSelect($("mcong"));$("mcong").value=m.congregationId;$("mtither").value=m.tither||"nao";$("mphone").value=m.phone||"";$("mbirth").value=m.birth||"";$("msex").value=m.sex||"";$("mstatus").value=m.status||"membro";$("mbaptism").value=m.baptism||"";$("mmarital").value=m.marital||"";$("maddress").value=m.address||"";$("mnotes").value=m.notes||"";openDlg("memberDlg")};
+$("newMemberBtn").onclick=()=>{$("memberForm").reset();$("mid").value="";$("mnumber").value="";fillCongSelect($("mcong"));openDlg("memberDlg")};
+$("memberForm").onsubmit=async e=>{
+ e.preventDefault();
+ const id=$("mid").value;
+ const congregationId=isAdmin()?$("mcong").value:ownCong();
+ const memberNumber=normalizeMemberNumber($("mnumber").value);
+ if(!memberNumber)return toast("Informe o número de cadastro do membro.");
+ if(!congregationId)return toast("Selecione a congregação.");
+ if(memberNumberExists(memberNumber,congregationId,id))return toast("Já existe um membro com este Nº de Cadastro nesta congregação.");
+ const data={memberNumber,name:$("mname").value.trim(),congregationId,tither:$("mtither").value,phone:$("mphone").value.trim(),birth:$("mbirth").value,sex:$("msex").value,status:$("mstatus").value,baptism:$("mbaptism").value,marital:$("mmarital").value,address:$("maddress").value.trim(),notes:$("mnotes").value.trim(),updatedAt:serverTimestamp()};
+ try{id?await updateDoc(doc(db,"membros",id),data):await addDoc(collection(db,"membros"),{...data,createdAt:serverTimestamp()});closeDlg("memberDlg");toast("Membro salvo.")}
+ catch(err){console.error(err);toast("Não foi possível salvar o membro.")}
+};
+window.editMember=id=>{
+ const m=state.membros.find(x=>x.id===id);if(!m)return;
+ $("mid").value=id;$("mnumber").value=m.memberNumber||"";$("mname").value=m.name||"";
+ fillCongSelect($("mcong"));$("mcong").value=m.congregationId;
+ $("mtither").value=m.tither||"nao";$("mphone").value=m.phone||"";$("mbirth").value=m.birth||"";
+ $("msex").value=m.sex||"";$("mstatus").value=m.status||"membro";$("mbaptism").value=m.baptism||"";
+ $("mmarital").value=m.marital||"";$("maddress").value=m.address||"";$("mnotes").value=m.notes||"";
+ openDlg("memberDlg")
+};
 
 $("newFestBtn").onclick=()=>{$("festForm").reset();$("fid").value="";fillCongSelect($("fcong"));openDlg("festDlg")};
 $("festForm").onsubmit=async e=>{e.preventDefault();const id=$("fid").value,existing=state.festividades.find(x=>x.id===id),data={name:$("fname").value.trim(),congregationId:isAdmin()?$("fcong").value:ownCong(),start:$("fstart").value,end:$("fend").value,preachers:$("fpreachers").value.trim(),preacherValue:Number($("fpreacherValue").value||0),singers:$("fsingers").value.trim(),singerValue:Number($("fsingerValue").value||0),expenses:Number($("fexpenses").value||0),notes:$("fnotes").value.trim(),status:"pending",updatedAt:serverTimestamp()};if(!isAdmin()){const oldPV=Number(existing?.preacherValue||0),oldSV=Number(existing?.singerValue||0);data.preacherDecision=(existing&&oldPV===data.preacherValue)?(existing.preacherDecision||{status:"pending"}):{status:"pending",reason:"",note:"",resubmittedAt:new Date().toISOString()};data.singerDecision=(existing&&oldSV===data.singerValue)?(existing.singerDecision||{status:"pending"}):{status:"pending",reason:"",note:"",resubmittedAt:new Date().toISOString()}}else{data.preacherDecision=existing?.preacherDecision||{status:"pending"};data.singerDecision=existing?.singerDecision||{status:"pending"}}try{id?await updateDoc(doc(db,"festividades",id),data):await addDoc(collection(db,"festividades"),{...data,preacherDecision:{status:"pending"},singerDecision:{status:"pending"}});closeDlg("festDlg");toast("Festividade salva.")}catch(e){console.error(e);toast("Sem permissão.")}};
@@ -569,6 +601,13 @@ function checkBirthdayAlert(){
 }
 $("birthdayClose").onclick=()=>$("birthdayOverlay").classList.add("hidden");
 
+function normalizeMemberNumber(v){return String(v??"").trim()}
+function memberNumberExists(number,congregationId,ignoreId=""){
+ const n=normalizeMemberNumber(number).toLowerCase();
+ if(!n)return false;
+ return state.membros.some(m=>m.id!==ignoreId&&m.congregationId===congregationId&&normalizeMemberNumber(m.memberNumber).toLowerCase()===n);
+}
+
 // ----- Excel membros -----
 let pendingImportRows=[];
 function normalizeDateExcel(v){
@@ -580,22 +619,24 @@ function normalizeDateExcel(v){
  return /^\d{4}-\d{2}-\d{2}$/.test(s)?s:"";
 }
 function memberRowsForExport(){
- return state.membros.map(m=>({"Nome":m.name||"","Data_Nascimento":m.birth||"","Telefone":m.phone||"","Sexo":m.sex==="M"?"Masculino":m.sex==="F"?"Feminino":"","Situacao":m.status||"membro","Estado_Civil":m.marital||"","Endereco":m.address||"","Data_Batismo":m.baptism||"","Dizimista":m.tither==="sim"?"SIM":"NAO","Congregacao":cname(m.congregationId),"Observacoes":m.notes||""}));
+ return state.membros.map(m=>({"Numero_Cadastro":m.memberNumber||"","Nome":m.name||"","Data_Nascimento":m.birth||"","Telefone":m.phone||"","Sexo":m.sex==="M"?"Masculino":m.sex==="F"?"Feminino":"","Situacao":m.status||"membro","Estado_Civil":m.marital||"","Endereco":m.address||"","Data_Batismo":m.baptism||"","Dizimista":m.tither==="sim"?"SIM":"NAO","Congregacao":cname(m.congregationId),"Observacoes":m.notes||""}));
 }
 function downloadWorkbook(rows,name){
  if(!window.XLSX)return toast("Biblioteca Excel não carregou. Verifique a internet.");
  const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(rows);
- ws["!cols"]=[{wch:30},{wch:16},{wch:18},{wch:12},{wch:14},{wch:18},{wch:34},{wch:16},{wch:12},{wch:26},{wch:40}];
+ ws["!cols"]=[{wch:16},{wch:30},{wch:16},{wch:18},{wch:12},{wch:14},{wch:18},{wch:34},{wch:16},{wch:12},{wch:26},{wch:40}];
  XLSX.utils.book_append_sheet(wb,ws,"Membros");XLSX.writeFile(wb,name);
 }
-$("downloadMemberTemplate").onclick=()=>downloadWorkbook([{"Nome":"","Data_Nascimento":"dd/mm/aaaa","Telefone":"","Sexo":"Masculino/Feminino","Situacao":"membro/congregado","Estado_Civil":"","Endereco":"","Data_Batismo":"dd/mm/aaaa","Dizimista":"SIM/NAO","Congregacao":"","Observacoes":""}],"Modelo_Membros_ADSB.xlsx");
+$("downloadMemberTemplate").onclick=()=>downloadWorkbook([{"Numero_Cadastro":"1001","Nome":"João da Silva","Data_Nascimento":"15/05/1990","Telefone":"31999999999","Sexo":"Masculino","Situacao":"membro","Estado_Civil":"Casado(a)","Endereco":"Rua Exemplo, 100","Data_Batismo":"10/03/2005","Dizimista":"SIM","Congregacao":"Nome da Congregação","Observacoes":"APAGUE ESTA LINHA DE EXEMPLO ANTES DE IMPORTAR"}],"Modelo_Membros_ADSB.xlsx");
 $("exportMembersBtn").onclick=()=>downloadWorkbook(memberRowsForExport(),`Membros_ADSB_${todayISO()}.xlsx`);
 $("importMembersBtn").onclick=()=>{pendingImportRows=[];$("memberImportFile").value="";$("importPreview").innerHTML="";$("confirmImportMembers").disabled=true;fillCongSelect($("importCong"));openDlg("importMembersDlg")};
 $("memberImportFile").addEventListener("change",async e=>{
  const f=e.target.files?.[0];if(!f||!window.XLSX)return;
  try{
    const buf=await f.arrayBuffer(),wb=XLSX.read(buf,{type:"array",cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+   const seen=new Set();
    pendingImportRows=rows.map((r,i)=>{
+     const memberNumber=normalizeMemberNumber(r.Numero_Cadastro||r.NumeroCadastro||r.N_Cadastro||r.Cadastro||"");
      const name=String(r.Nome||r.NOME||"").trim(),birth=normalizeDateExcel(r.Data_Nascimento||r.Nascimento),baptism=normalizeDateExcel(r.Data_Batismo||r.Batismo);
      const sex=String(r.Sexo||"").toLowerCase().startsWith("m")?"M":String(r.Sexo||"").toLowerCase().startsWith("f")?"F":"";
      const t=String(r.Dizimista||"").toUpperCase().replace("Ã","A");
@@ -604,10 +645,16 @@ $("memberImportFile").addEventListener("change",async e=>{
        const n=String(r.Congregacao||"").trim().toLowerCase();
        congregationId=state.congregacoes.find(c=>(c.name||"").trim().toLowerCase()===n)?.id||$("importCong").value||"";
      }
-     return {row:i+2,valid:!!name&&!!congregationId,data:{name,birth,phone:String(r.Telefone||"").trim(),sex,status:String(r.Situacao||"membro").toLowerCase().includes("congreg")?"congregado":"membro",marital:String(r.Estado_Civil||"").trim(),address:String(r.Endereco||"").trim(),baptism,tither:t.startsWith("S")?"sim":"nao",congregationId,notes:String(r.Observacoes||"").trim()}};
+     const key=`${congregationId}|${memberNumber.toLowerCase()}`;
+     const duplicateFile=!!memberNumber&&seen.has(key);if(memberNumber)seen.add(key);
+     const duplicateDatabase=!!memberNumber&&!!congregationId&&memberNumberExists(memberNumber,congregationId);
+     const errors=[];
+     if(!memberNumber)errors.push("Nº Cadastro");if(!name)errors.push("Nome");if(!congregationId)errors.push("Congregação");
+     if(duplicateFile)errors.push("Cadastro duplicado na planilha");if(duplicateDatabase)errors.push("Cadastro já existente no ADSB");
+     return {row:i+2,valid:errors.length===0,errors,data:{memberNumber,name,birth,phone:String(r.Telefone||"").trim(),sex,status:String(r.Situacao||"membro").toLowerCase().includes("congreg")?"congregado":"membro",marital:String(r.Estado_Civil||"").trim(),address:String(r.Endereco||"").trim(),baptism,tither:t.startsWith("S")?"sim":"nao",congregationId,notes:String(r.Observacoes||"").trim()}};
    });
-   const ok=pendingImportRows.filter(x=>x.valid).length,bad=pendingImportRows.length-ok;
-   $("importPreview").innerHTML=`<div class="panel"><b>${pendingImportRows.length} linhas encontradas</b><p>✅ ${ok} válidas &nbsp; ⚠️ ${bad} com erro (nome ou congregação).</p></div>`;
+   const ok=pendingImportRows.filter(x=>x.valid).length,bad=pendingImportRows.length-ok,invalid=pendingImportRows.filter(x=>!x.valid).slice(0,10);
+   $("importPreview").innerHTML=`<div class="panel"><b>${pendingImportRows.length} linhas encontradas</b><p>✅ ${ok} válidas &nbsp; ⚠️ ${bad} com erro.</p>${invalid.length?`<div class="import-help"><b>Linhas que precisam de correção:</b><br>${invalid.map(x=>`Linha ${x.row}: ${x.errors.join(", ")}`).join("<br>")}</div>`:""}</div>`;
    $("confirmImportMembers").disabled=!ok;
  }catch(err){console.error(err);toast("Não foi possível ler a planilha.")}
 });
@@ -670,7 +717,7 @@ function renderReports(){
  let content=reportTable("Perfil por faixa etária",["Faixa","Membros","Dizimistas","Não dizimistas","% Dizimistas"],ageRows);
  if(isAdmin())content+=reportTable("Congregações",["Nome","Pastor","Telefone"],state.congregacoes.map(c=>[c.name,c.pastor,c.phone]));
  content+=reportTable("Obreiros",["Nome","Cargo","Congregação"],state.obreiros.map(w=>[w.name,w.role,cname(w.congregationId)]));
- content+=reportTable("Membros",["Nome","Congregação","Idade","Faixa","Dizimista"],state.membros.map(m=>[m.name,cname(m.congregationId),calcAge(m.birth)??"",ageBand(calcAge(m.birth)),m.tither==="sim"?"Sim":"Não"]));
+ content+=reportTable("Membros",["Nº Cadastro","Nome","Congregação","Idade","Faixa","Dizimista"],state.membros.map(m=>[m.memberNumber||"",m.name,cname(m.congregationId),calcAge(m.birth)??"",ageBand(calcAge(m.birth)),m.tither==="sim"?"Sim":"Não"]));
  content+=reportTable("Visitantes",["Data","Nome","Congregação","Culto","Situação"],state.visitantes.map(v=>[fmt(v.date),v.name,cname(v.congregationId),v.service,visitorStatusLabel(v.status)]));
  content+=reportTable("Resultados dos Cultos",["Data","Congregação","Culto","Público","Visitantes","Decisões"],state.resultadosCulto.map(r=>[fmt(r.date),cname(r.congregationId),r.service,r.attendance||0,r.visitors||0,r.decisions||0]));
  $("reportContent").innerHTML=content;
